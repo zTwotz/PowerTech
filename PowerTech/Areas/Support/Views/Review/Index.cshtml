@@ -1,0 +1,103 @@
+@model IEnumerable<PowerTech.Models.Entities.Review>
+@{
+    Layout = "_SupportLayout";
+    ViewData["Title"] = "Duyệt đánh giá của khách hàng";
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 text-start">
+        <h4 class="fw-bold mb-1 text-dark">Duyệt đánh giá</h4>
+        <p class="text-muted small">Phê duyệt hoặc ẩn các bình luận từ khách hàng trên website</p>
+    </div>
+    <div class="col-md-6 text-md-end pt-2">
+        <div class="btn-group rounded-pill overflow-hidden border shadow-sm">
+            <a asp-action="Index" asp-route-approved="" class="btn btn-sm btn-@(ViewBag.Approved == null ? "info text-white" : "outline-info border-0") px-3">Tất cả</a>
+            <a asp-action="Index" asp-route-approved="false" class="btn btn-sm btn-@(ViewBag.Approved == false ? "info text-white" : "outline-info border-0") px-3">Chưa duyệt</a>
+            <a asp-action="Index" asp-route-approved="true" class="btn btn-sm btn-@(ViewBag.Approved == true ? "info text-white" : "outline-info border-0") px-3">Đã duyệt</a>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Sản phẩm</th>
+                        <th>Khách hàng</th>
+                        <th>Nội dung đánh giá</th>
+                        <th class="text-center">Rating</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="pe-4 text-end">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var review in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <span class="small fw-medium text-dark text-truncate d-block" style="max-width: 200px;" title="@review.Product?.Name">
+                                    @review.Product?.Name
+                                </span>
+                                <small class="text-muted small">SKU: @review.Product?.SKU</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold small">@review.User?.FullName</div>
+                                <div class="text-muted x-small">@review.User?.Email</div>
+                            </td>
+                            <td style="max-width: 300px;">
+                                <div class="p-3 bg-light rounded-3 small">
+                                    @review.Comment
+                                    <div class="x-small text-muted mt-1 text-end">Ngày: @review.CreatedAt.ToString("dd/MM/yyyy")</div>
+                                </div>
+                            </td>
+                            <td class="text-center text-warning">
+                                <div class="fw-bold">@review.Rating</div>
+                                <div class="x-small">
+                                    @for(int i=0; i<5; i++) {
+                                        <i class="bi bi-star@(i < review.Rating ? "-fill" : "")"></i>
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-@(review.IsApproved ? "success" : "warning text-dark") px-3">
+                                    @(review.IsApproved ? "Đã duyệt" : "Chờ duyệt")
+                                </span>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    @if (!review.IsApproved)
+                                    {
+                                        <form asp-action="Approve" method="post">
+                                            <input type="hidden" name="id" value="@review.Id" />
+                                            <button type="submit" class="btn btn-sm btn-info text-white rounded-pill px-3 fw-bold">
+                                                Duyệt
+                                            </button>
+                                        </form>
+                                    }
+                                    <form asp-action="Delete" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa đánh giá này?')">
+                                        <input type="hidden" name="id" value="@review.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">
+                                            Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">Không tìm thấy đánh giá nào</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .x-small { font-size: 11px; }
+</style>

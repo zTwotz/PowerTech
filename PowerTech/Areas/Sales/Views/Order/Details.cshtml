@@ -1,0 +1,189 @@
+@model PowerTech.Models.Entities.Order
+@{
+    Layout = "_SalesLayout";
+    ViewData["Title"] = "Chi tiết đơn hàng - " + Model.OrderCode;
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <!-- Order Header -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <h4 class="fw-bold mb-1 text-primary">Đơn hàng #@Model.OrderCode</h4>
+                        <p class="text-muted small">Ngày tạo: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                    </div>
+                    <span class="badge rounded-pill bg-@(Model.OrderStatus switch {
+                        "Pending" => "warning text-dark",
+                        "Processing" => "primary",
+                        "Shipped" => "info",
+                        "Delivered" => "success",
+                        _ => "danger"
+                    }) px-3 py-2 fs-6">@Model.OrderStatus</span>
+                </div>
+
+                <!-- Progress Stepper -->
+                <div class="order-stepper position-relative mb-5 py-4 d-flex justify-content-between">
+                    <div class="step text-center position-relative flex-fill @(Model.OrderStatus != "Cancelled" ? "active" : "")">
+                        <div class="step-icon mx-auto rounded-circle bg-primary text-white mb-2" style="width: 40px; height: 40px; line-height: 40px;">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                        <div class="small fw-bold">Đặt hàng</div>
+                    </div>
+                    <div class="step text-center position-relative flex-fill @(new[] {"Processing", "Shipped", "Delivered"}.Contains(Model.OrderStatus) ? "active" : "")">
+                        <div class="step-icon mx-auto rounded-circle @(new[] {"Processing", "Shipped", "Delivered"}.Contains(Model.OrderStatus) ? "bg-primary text-white" : "bg-light text-muted") mb-2" style="width: 40px; height: 40px; line-height: 40px;">
+                            <i class="bi bi-gear"></i>
+                        </div>
+                        <div class="small fw-bold">Đang xử lý</div>
+                    </div>
+                    <div class="step text-center position-relative flex-fill @(new[] {"Shipped", "Delivered"}.Contains(Model.OrderStatus) ? "active" : "")">
+                        <div class="step-icon mx-auto rounded-circle @(new[] {"Shipped", "Delivered"}.Contains(Model.OrderStatus) ? "bg-primary text-white" : "bg-light text-muted") mb-2" style="width: 40px; height: 40px; line-height: 40px;">
+                            <i class="bi bi-truck"></i>
+                        </div>
+                        <div class="small fw-bold">Đang giao</div>
+                    </div>
+                    <div class="step text-center position-relative flex-fill @(Model.OrderStatus == "Delivered" ? "active" : "")">
+                        <div class="step-icon mx-auto rounded-circle @(Model.OrderStatus == "Delivered" ? "bg-primary text-white" : "bg-light text-muted") mb-2" style="width: 40px; height: 40px; line-height: 40px;">
+                            <i class="bi bi-check2-circle"></i>
+                        </div>
+                        <div class="small fw-bold">Đã nhận hàng</div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-3">Sản phẩm</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-end pe-3">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td class="ps-3 py-3">
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(item.ProductImageSnapshot))
+                                            {
+                                                <img src="@item.ProductImageSnapshot" class="rounded-3 me-3" style="width: 50px; height: 50px; object-fit: cover;" />
+                                            }
+                                            <div>
+                                                <div class="fw-bold text-dark small mb-0">@item.ProductNameSnapshot</div>
+                                                <small class="text-muted">SKU: @item.ProductSkuSnapshot</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">x @item.Quantity</td>
+                                    <td class="text-end">@item.UnitPrice.ToString("N0")₫</td>
+                                    <td class="text-end pe-3 fw-bold">@item.LineTotal.ToString("N0")₫</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="border-top-0">
+                            <tr>
+                                <td colspan="3" class="text-end border-0 pt-4">Tạm tính:</td>
+                                <td class="text-end border-0 pt-4 pe-3">@Model.Subtotal.ToString("N0")₫</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end border-0">Phí vận chuyển:</td>
+                                <td class="text-end border-0 pe-3 text-success">Miễn phí</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end border-0 pt-3"><h5 class="fw-bold text-dark mb-0">Tổng thanh toán:</h5></td>
+                                <td class="text-end border-0 pt-3 pe-3"><h5 class="fw-bold text-primary mb-0">@Model.TotalAmount.ToString("N0")₫</h5></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Actions Card -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+            <div class="card-header bg-primary text-white p-4">
+                <h5 class="mb-0 fw-bold">Quy trình xử lý</h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="UpdateStatus" method="post">
+                    <input type="hidden" name="orderId" value="@Model.Id" />
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-3">Cập nhật trạng thái</label>
+                        <select name="status" class="form-select form-select-lg rounded-3 mb-3" @(Model.OrderStatus == "Delivered" || Model.OrderStatus == "Cancelled" ? "disabled" : "")>
+                            <option value="Pending" selected=@(Model.OrderStatus == "Pending")>Chờ xử lý</option>
+                            <option value="Processing" selected=@(Model.OrderStatus == "Processing")>Đang xử lý</option>
+                            <option value="Shipped" selected=@(Model.OrderStatus == "Shipped")>Đang giao hàng</option>
+                            <option value="Delivered" selected=@(Model.OrderStatus == "Delivered")>Hoàn tất đơn hàng</option>
+                            <option value="Cancelled" selected=@(Model.OrderStatus == "Cancelled")>Hủy đơn hàng</option>
+                        </select>
+                        
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-2">Ghi chú nội bộ</label>
+                        <textarea name="internalNote" class="form-control rounded-3 mb-3" rows="3" placeholder="Nhập ghi chú chỉ nhân viên thấy...">@Model.InternalNote</textarea>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 @(Model.OrderStatus == "Delivered" || Model.OrderStatus == "Cancelled" ? "disabled" : "")">
+                            Cập nhật đơn hàng
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Customer & Shipping Info -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-4 text-primary text-uppercase small">Thông tin nhận hàng</h6>
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-light rounded-circle p-2 me-3">
+                        <i class="bi bi-person text-muted"></i>
+                    </div>
+                    <div>
+                        <div class="small fw-bold text-dark">@Model.ReceiverName</div>
+                        <div class="small text-muted">@Model.User?.Email</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-light rounded-circle p-2 me-3">
+                        <i class="bi bi-telephone text-muted"></i>
+                    </div>
+                    <div class="small fw-bold text-dark">@Model.PhoneNumber</div>
+                </div>
+                
+                <h6 class="fw-bold mb-3 text-uppercase small text-muted">Địa chỉ giao hàng</h6>
+                <div class="p-3 bg-light rounded-3 small">
+                    @Model.ShippingAddress
+                </div>
+            </div>
+        </div>
+
+        <!-- Note Card -->
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3 text-uppercase small text-muted">Ghi chú khách hàng</h6>
+                <div class="p-3 bg-warning bg-opacity-10 border-start border-warning border-4 rounded-3 small fst-italic">
+                    @(string.IsNullOrEmpty(Model.Note) ? "Không có ghi chú" : Model.Note)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .order-stepper .step.active .step-icon { border: 2px solid var(--bs-primary); }
+    .order-stepper::before {
+        content: '';
+        position: absolute;
+        top: 44px;
+        left: 5%;
+        right: 5%;
+        height: 2px;
+        background: #eee;
+        z-index: 0;
+    }
+    .order-stepper .step { z-index: 1; }
+    .order-stepper .step.active ~ .step::before { background: #eee; }
+</style>

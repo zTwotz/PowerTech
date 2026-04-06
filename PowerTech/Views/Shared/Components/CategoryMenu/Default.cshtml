@@ -1,0 +1,22 @@
+@model IEnumerable<PowerTech.Models.Entities.Category>
+
+<ul class="nav-list">
+    <li>
+        <a class="nav-link" asp-area="Store" asp-controller="Product" asp-action="Index">
+            <i class="fa-solid fa-bars me-2"></i> Tất cả sản phẩm
+        </a>
+    </li>
+    @foreach (var cat in Model)
+    {
+        <li>
+            <a class="nav-link" asp-area="Store" asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.Id">
+                @cat.Name
+            </a>
+        </li>
+    }
+    <li>
+        <a class="nav-link" asp-area="Store" asp-controller="Product" asp-action="Index" asp-route-minPrice="1" style="color: var(--primary);">
+            <i class="fa-solid fa-bolt me-1"></i> Khuyến mãi Hot
+        </a>
+    </li>
+</ul>

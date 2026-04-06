@@ -1,0 +1,131 @@
+@model PowerTech.Models.Entities.SupportTicket
+@{
+    Layout = "_SupportLayout";
+    ViewData["Title"] = "Chi tiết Ticket Hỗ trợ";
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Nội dung yêu cầu từ @Model.User?.FullName</h5>
+                <span class="badge @(Model.Priority == "High" ? "bg-danger" : "bg-info text-white") rounded-pill px-4 shadow-sm border">@Model.Priority Priority</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-3">@Model.Title</h3>
+                    <div class="p-3 bg-light rounded-4 text-dark shadow-sm border border-opacity-25" style="white-space: pre-wrap;">@Model.Content</div>
+                </div>
+
+                <div class="row g-4 pt-3 border-top">
+                    @if (Model.OrderId.HasValue)
+                    {
+                        <div class="col-md-6 border-end">
+                            <h6 class="fw-bold small text-muted text-uppercase mb-3">Đơn hàng liên quan</h6>
+                            <div class="p-3 bg-white border rounded-3 d-flex align-items-center mb-3">
+                                <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-3 me-3">
+                                    <i class="bi bi-box-fill fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">@Model.Order?.OrderCode</h6>
+                                    <small class="text-muted">Tổng cộng: @Model.Order?.TotalAmount.ToString("N0")₫</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="col-md-6">
+                        <h6 class="fw-bold small text-muted text-uppercase mb-3">Thời gian liên hệ</h6>
+                        <ul class="list-unstyled small mb-0">
+                            <li class="mb-2"><i class="bi bi-clock me-2"></i> Gửi yêu cầu: <span class="fw-bold">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span></li>
+                            @if (Model.UpdatedAt.HasValue)
+                            {
+                                <li class="mb-2"><i class="bi bi-pencil-square me-2"></i> Cập nhập mới nhất: <span class="fw-bold">@Model.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")</span></li>
+                            }
+                            @if (Model.ClosedAt.HasValue)
+                            {
+                                <li class="mb-0 text-success fw-bold"><i class="bi bi-check-circle-fill me-2"></i> Đóng Ticket lúc: @Model.ClosedAt.Value.ToString("dd/MM/yyyy HH:mm")</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action area -->
+        <div class="card border-0 shadow-sm rounded-4 bg-white border-top border-info border-4">
+            <div class="card-body p-4 text-center">
+                <h5 class="fw-bold mb-4">Cập nhật tiến trình giải quyết</h5>
+                <div class="d-flex justify-content-center gap-3">
+                    @if (Model.Status == "Open")
+                    {
+                        <form asp-action="AssignToMe" method="post">
+                            <input type="hidden" name="ticketId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-info text-white btn-lg px-5 rounded-pill shadow-sm fw-bold">
+                                <i class="bi bi-person-check me-1"></i> Tự nhận xử lý
+                            </button>
+                        </form>
+                    }
+                    else if (Model.Status != "Closed")
+                    {
+                        <form asp-action="UpdateStatus" method="post">
+                            <input type="hidden" name="ticketId" value="@Model.Id" />
+                            <input type="hidden" name="status" value="Closed" />
+                            <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm fw-bold">
+                                <i class="bi bi-check-circle me-1"></i> Đánh dấu Hoàn tất (Close)
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-success fw-bold p-3 border rounded-3 bg-success bg-opacity-10 d-block w-100">
+                            Ticket này đã hoàn thành xử lý.
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Customer Info Card -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+            <div class="card-header bg-info text-white text-center p-4">
+                <img src="https://ui-avatars.com/api/?name=@Model.User?.FullName&background=fff&color=0dcaf0&bold=true" class="rounded-circle shadow mb-3 border border-3 border-white" style="width: 80px;" />
+                <h5 class="fw-bold mb-1 text-white">@Model.User?.FullName</h5>
+                <small class="text-white-50 small">Thành viên từ @Model.User?.CreatedAt.ToString("yyyy")</small>
+            </div>
+            <div class="card-body p-4 bg-white">
+                <div class="mb-3">
+                    <label class="x-small fw-bold text-muted text-uppercase d-block mb-1">Email liên hệ</label>
+                    <div class="text-dark small fw-medium">@Model.User?.Email</div>
+                </div>
+                <div class="mb-3">
+                    <label class="x-small fw-bold text-muted text-uppercase d-block mb-1">Số điện thoại</label>
+                    <div class="text-dark small fw-medium">@Model.User?.PhoneNumber</div>
+                </div>
+                <hr />
+                <div class="text-center">
+                    <a asp-area="Admin" asp-controller="User" asp-action="Details" asp-route-id="@Model.UserId" class="btn btn-link btn-sm text-info fw-bold p-0">Xem hồ sơ User</a>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.AssignedTo != null)
+        {
+            <div class="card border-0 shadow-sm rounded-4 bg-dark text-white p-4 text-center">
+                <h6 class="text-white-50 x-small text-uppercase mb-3">Người đang xử lý</h6>
+                <div class="d-flex align-items-center justify-content-center">
+                    <img src="https://ui-avatars.com/api/?name=@Model.AssignedTo.FullName&background=0dcaf0&color=fff&bold=true" class="rounded-circle me-3" style="width: 40px;" />
+                    <div class="text-start">
+                        <div class="fw-bold text-white small">@Model.AssignedTo.FullName</div>
+                        <div class="x-small text-white-50">Nhân viên Support</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .x-small { font-size: 11px; }
+</style>

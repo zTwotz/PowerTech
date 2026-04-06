@@ -1,0 +1,105 @@
+@model IEnumerable<PowerTech.Models.Entities.UserAddress>
+@{
+    ViewData["Title"] = "Thanh toán - Địa chỉ";
+    var cart = (PowerTech.Models.Entities.Cart)ViewBag.Cart;
+    var totalAmount = cart.CartItems.Sum(ci => ci.Quantity * ci.UnitPrice);
+}
+
+<div class="container my-5">
+    <!-- Steps Indicator -->
+    <div class="checkout-steps mb-5 d-flex justify-content-center">
+        <div class="step active"><span class="step-num">1</span> <span class="step-text">Địa chỉ</span></div>
+        <div class="step-divider"></div>
+        <div class="step"><span class="step-num">2</span> <span class="step-text">Thanh toán</span></div>
+        <div class="step-divider"></div>
+        <div class="step"><span class="step-num">3</span> <span class="step-text">Hoàn tất</span></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h2 class="h5 fw-bold mb-4">Chọn địa chỉ nhận hàng</h2>
+                
+                @if (!Model.Any())
+                {
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-4">Bạn chưa có địa chỉ giao hàng nào.</p>
+                        <a asp-action="AddAddress" class="btn btn-outline-primary rounded-pill px-4">
+                            <i class="fa-solid fa-plus me-2"></i> THÊM ĐỊA CHỈ MỚI
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <form asp-action="UpdateAddress" method="post">
+                        <div class="address-list">
+                            @foreach (var addr in Model)
+                            {
+                                <div class="address-item mb-3 p-3 border rounded-3 @(addr.IsDefault ? "active-payment bg-light-danger" : "border-soft")">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="addressId" id="addr-@addr.Id" value="@addr.Id" @(addr.IsDefault ? "checked" : "")>
+                                        <label class="form-check-label w-100 cursor-pointer" for="addr-@addr.Id">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="fw-bold">@addr.ReceiverName</span>
+                                                <span class="text-muted">@addr.PhoneNumber</span>
+                                            </div>
+                                            <div class="small text-muted mt-2">
+                                                @addr.StreetAddress, @addr.Ward, @addr.District, @addr.Province
+                                            </div>
+                                            @if (addr.IsDefault)
+                                            {
+                                                <span class="badge bg-primary mt-2">Mặc định</span>
+                                            }
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a asp-area="Customer" asp-controller="Profile" asp-action="Addresses" class="text-primary text-decoration-none small">
+                                <i class="fa-solid fa-gear me-1"></i> Quản lý địa chỉ
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 py-3 rounded-3 fw-bold">TIẾP TỤC ĐẾN THANH TOÁN</button>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px;">
+                <h3 class="h5 fw-bold mb-4 border-bottom pb-3">Tóm tắt đơn hàng</h3>
+                <div class="checkout-items mb-3">
+                    @foreach (var item in cart.CartItems)
+                    {
+                        <div class="d-flex gap-3 mb-3 pb-3 border-bottom border-soft">
+                            <div class="rounded border p-1" style="width: 50px; height: 50px;">
+                                <img src="@item.Product.ThumbnailUrl" class="w-100 h-100 object-fit-contain">
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="small fw-bold text-truncate" style="max-width: 150px;">@item.Product.Name</div>
+                                <div class="small text-muted">SL: @item.Quantity</div>
+                            </div>
+                            <div class="small fw-bold">@((item.Quantity * item.UnitPrice).ToString("N0"))₫</div>
+                        </div>
+                    }
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Tạm tính:</span>
+                    <span class="fw-bold">@totalAmount.ToString("N0")₫</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 border-bottom pb-3">
+                    <span class="text-muted">Phí vận chuyển:</span>
+                    <span class="text-success small fw-bold">Miễn phí</span>
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    <span class="fw-bold">TỔNG CỘNG:</span>
+                    <span class="fw-bold fs-4 text-primary">@totalAmount.ToString("N0")₫</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,157 @@
+@{
+    Layout = "_WarehouseLayout";
+    ViewData["Title"] = "Warehouse Dashboard";
+}
+
+<div class="row g-4 mb-4">
+    <!-- Inventory Overview Cards -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-primary border-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="flex-shrink-0 bg-primary bg-opacity-10 rounded-3 p-2 me-3">
+                        <i class="bi bi-box-seam text-primary fs-4"></i>
+                    </div>
+                    <h6 class="text-muted small fw-bold mb-0">TỔNG SẢN PHẨM</h6>
+                </div>
+                <h3 class="mb-0 fw-bold">@ViewBag.Stats.TotalProducts</h3>
+                <small class="text-muted">Đang quản lý trong kho</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-warning border-4 text-warning">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="flex-shrink-0 bg-warning bg-opacity-10 rounded-3 p-2 me-3">
+                        <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
+                    </div>
+                    <h6 class="text-muted small fw-bold mb-0">SẮP HẾT HÀNG</h6>
+                </div>
+                <h3 class="mb-0 fw-bold text-dark">@ViewBag.Stats.LowStockProducts</h3>
+                <small class="text-muted fw-normal">Dưới @ViewBag.LowStockThreshold sản phẩm</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-danger border-4 text-danger">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="flex-shrink-0 bg-danger bg-opacity-10 rounded-3 p-2 me-3">
+                        <i class="bi bi-x-octagon-fill text-danger fs-4"></i>
+                    </div>
+                    <h6 class="text-muted small fw-bold mb-0">HẾT HÀNG</h6>
+                </div>
+                <h3 class="mb-0 fw-bold text-dark">@ViewBag.Stats.OutOfStockProducts</h3>
+                <small class="text-muted fw-normal">Yêu cầu nhập ngay</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-success border-4 text-success">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="flex-shrink-0 bg-success bg-opacity-10 rounded-3 p-2 me-3">
+                        <i class="bi bi-currency-dollar text-success fs-4"></i>
+                    </div>
+                    <h6 class="text-muted small fw-bold mb-0">GIÁ TRỊ KHO</h6>
+                </div>
+                <h4 class="mb-0 fw-bold text-dark">@ViewBag.Stats.TotalStockValue.ToString("N0")₫</h4>
+                <small class="text-muted fw-normal">Dựa trên giá bán lẻ</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Hoạt động kho mới nhất</h5>
+                <a asp-controller="Inventory" asp-action="Index" class="btn btn-dark btn-sm rounded-pill px-4">Xem tồn kho</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Sản phẩm</th>
+                                <th>Mã SKU</th>
+                                <th>Tồn kho</th>
+                                <th class="pe-4 text-end">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var prod in ViewBag.Stats.RecentProducts)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(prod.ThumbnailUrl))
+                                            {
+                                                <img src="@prod.ThumbnailUrl" class="rounded-3 me-2" style="width: 40px; height: 40px; object-fit: cover;" />
+                                            }
+                                            <span class="small fw-medium text-dark text-truncate" style="max-width: 250px;">@prod.Name</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-muted small">@prod.SKU</td>
+                                    <td>
+                                        <span class="badge @(prod.StockQuantity <= ViewBag.LowStockThreshold ? "bg-warning text-dark" : "bg-dark text-white") rounded-pill">
+                                            @prod.StockQuantity
+                                        </span>
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        <span class="badge rounded-pill bg-@(prod.StockQuantity == 0 ? "danger" : (prod.StockQuantity <= ViewBag.LowStockThreshold ? "warning text-dark" : "success")) px-3">
+                                            @(prod.StockQuantity == 0 ? "Hết hàng" : (prod.StockQuantity <= ViewBag.LowStockThreshold ? "Sắp hết" : "Dồi dào"))
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!((IEnumerable<dynamic>)ViewBag.Stats.RecentProducts).Any())
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">Chưa có sản phẩm nào</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 bg-dark text-white">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4">Lối tắt nghiệp vụ</h5>
+                <div class="d-grid gap-3">
+                    <a asp-controller="Inventory" asp-action="Index" class="btn btn-outline-light text-start py-3 rounded-3">
+                        <i class="bi bi-search me-2"></i> Kiểm tra tồn kho nhanh
+                    </a>
+                    <a asp-action="LowStock" asp-controller="Inventory" class="btn btn-warning py-3 rounded-3 fw-bold text-dark">
+                        <i class="bi bi-cart-plus me-2"></i> Lập danh sách nhập hàng
+                    </a>
+                    <a asp-controller="StockEntry" asp-action="Index" class="btn btn-primary py-3 rounded-3 fw-bold">
+                        <i class="bi bi-box-arrow-in-down me-2"></i> Phiếu nhập kho (Stock In)
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Helpful Tips -->
+        <div class="card border-0 shadow-sm rounded-4 bg-primary bg-opacity-10 border-0">
+            <div class="card-body p-4">
+                <h6 class="fw-bold text-primary mb-3">📦 Lưu ý vận hành</h6>
+                <ul class="small text-muted ps-3 mb-0">
+                    <li class="mb-2">Kiểm kê định kỳ vào cuối mỗi tháng.</li>
+                    <li class="mb-2">Sản phẩm <b>Hết hàng</b> sẽ tự động ẩn khỏi Store nếu cấu hình cho phép.</li>
+                    <li>Luôn cập nhật SKU chính xác khi nhập kho.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

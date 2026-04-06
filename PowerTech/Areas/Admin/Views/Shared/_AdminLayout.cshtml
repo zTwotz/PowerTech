@@ -1,0 +1,155 @@
+@using PowerTech.Models.Entities
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - @ViewData["Title"] - PowerTech</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="admin-body">
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="admin-sidebar-logo">
+            <a asp-area="Store" asp-controller="Home" asp-action="Index">
+                <img src="/images/logo.png" alt="PowerTech Logo" onerror="this.src='https://placehold.co/150x40?text=PowerTech'"/>
+            </a>
+        </div>
+        
+        <nav class="admin-sidebar-menu">
+            <ul>
+                <li class="menu-header">Hệ thống</li>
+                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                    </a>
+                </li>
+                
+                <li class="menu-header">Cửa hàng</li>
+                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="Product" asp-action="Index">
+                        <i class="fa-solid fa-box"></i> Sản phẩm
+                    </a>
+                </li>
+                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Category" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="Category" asp-action="Index">
+                        <i class="fa-solid fa-tags"></i> Danh mục
+                    </a>
+                </li>
+                
+                <li class="menu-header">Hệ thống</li>
+                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Order" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="Order" asp-action="Index">
+                        <i class="fa-solid fa-cart-shopping"></i> Đơn hàng
+                    </a>
+                </li>
+                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="User" asp-action="Index">
+                        <i class="fa-solid fa-users"></i> Người dùng
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#">
+                        <i class="fa-solid fa-ticket"></i> Voucher
+                    </a>
+                </li>
+                
+                <li class="menu-header">Nghiệp vụ</li>
+                <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Sales" ? "active" : "")">
+                    <a asp-area="Sales" asp-controller="Home" asp-action="Index">
+                        <i class="fa-solid fa-headset"></i> Bộ phận Sales
+                    </a>
+                </li>
+                <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Warehouse" ? "active" : "")">
+                    <a asp-area="Warehouse" asp-controller="Home" asp-action="Index">
+                        <i class="fa-solid fa-warehouse"></i> Bộ phận Kho
+                    </a>
+                </li>
+                <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Support" ? "active" : "")">
+                    <a asp-area="Support" asp-controller="Home" asp-action="Index">
+                        <i class="fa-solid fa-headset"></i> Bộ phận Support
+                    </a>
+                </li>
+                
+                <li class="menu-header">Người dùng</li>
+                <li class="menu-item">
+                    <a href="#">
+                        <i class="fa-solid fa-users"></i> Khách hàng
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-area="Admin" asp-controller="User" asp-action="Index">
+                        <i class="fa-solid fa-user-shield"></i> Nhân viên
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="admin-sidebar-footer p-3 border-top border-secondary">
+             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "Store" })">
+                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i> Đăng xuất
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <div class="admin-wrapper">
+        <header class="admin-header">
+            <button class="btn btn-link d-lg-none" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars fs-4"></i>
+            </button>
+            
+            <div class="header-search d-none d-md-block">
+                <input type="text" placeholder="Tìm kiếm đơn hàng, khách hàng..."/>
+            </div>
+            
+            <div class="header-right">
+                <a href="#" class="btn btn-link link-secondary position-relative">
+                    <i class="fa-regular fa-bell fs-5"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 8px;">
+                        3
+                    </span>
+                </a>
+                
+                <div class="admin-profile-btn">
+                    <img src="https://ui-avatars.com/api/?name=@(user?.FullName ?? "Admin")&background=D7262E&color=fff" />
+                    <div class="d-none d-md-block">
+                        <div class="fw-bold fs-7">@(user?.FullName ?? "Administrator")</div>
+                        <div class="text-muted small" style="font-size: 11px;">Quản trị viên</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="admin-content">
+            @RenderBody()
+        </main>
+        
+        <footer class="p-4 border-top bg-white mt-auto small text-muted text-center">
+            &copy; 2026 PowerTech Retail-Tech System. Bản quyền thuộc về Google Deepmind Team.
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

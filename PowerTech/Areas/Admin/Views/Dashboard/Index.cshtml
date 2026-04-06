@@ -1,0 +1,128 @@
+@model IEnumerable<PowerTech.Models.Entities.Order>
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="admin-page-title">
+    Dashboard Tổng Quan
+    <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-white border"><i class="fa-solid fa-calendar me-2"></i> Hôm nay</button>
+        <button class="btn btn-sm btn-primary"><i class="fa-solid fa-download me-2"></i> Xuất báo cáo</button>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Tổng đơn hàng</div>
+                <div class="stat-value">@ViewBag.TotalOrders</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-success">
+                <i class="fa-solid fa-money-bill-trend-up"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Tổng doanh thu</div>
+                <div class="stat-value">@ViewBag.TotalRevenue.ToString("N0")₫</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-info">
+                <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Tổng sản phẩm</div>
+                <div class="stat-value">@ViewBag.TotalProducts</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon bg-warning">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Đơn hàng chờ xử lý</div>
+                <div class="stat-value">@ViewBag.PendingOrders</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Orders Table -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h3 class="h6 fw-bold mb-0">Đơn hàng mới nhất</h3>
+                <a href="#" class="btn btn-sm btn-link text-primary text-decoration-none small">Xem tất cả</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light small text-muted text-uppercase">
+                            <tr>
+                                <th class="ps-4">Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Thành tiền</th>
+                                <th>Trạng thái</th>
+                                <th class="text-end pe-4">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold">@order.OrderCode</td>
+                                    <td>
+                                        <div class="small fw-medium">@order.ReceiverName</div>
+                                        <div class="text-muted" style="font-size: 11px;">@order.PhoneNumber</div>
+                                    </td>
+                                    <td class="fw-bold">@order.TotalAmount.ToString("N0")₫</td>
+                                    <td>
+                                        <span class="badge @(order.OrderStatus == "Pending" ? "bg-warning" : "bg-success") rounded-pill p-1 px-3">
+                                            @order.OrderStatus
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-outline-info rounded-circle"><i class="fa-solid fa-eye"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions / Support -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h3 class="h6 fw-bold mb-4">Lối tắt nhanh</h3>
+            <div class="d-grid gap-2">
+                <button class="btn btn-outline-primary text-start p-3 rounded-3"><i class="fa-solid fa-plus me-2"></i> Thêm sản phẩm mới</button>
+                <button class="btn btn-outline-secondary text-start p-3 rounded-3 text-dark"><i class="fa-solid fa-file-invoice me-2"></i> Tạo hóa đơn tay</button>
+                <button class="btn btn-outline-info text-start p-3 rounded-3 text-dark"><i class="fa-solid fa-user-plus me-2"></i> Thêm nhân viên</button>
+            </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-primary text-white">
+            <h3 class="h6 fw-bold mb-3">Thông tin hệ thống</h3>
+            <p class="small opacity-75">Tình trạng máy chủ: <span class="badge bg-success">Hoạt động tốt</span></p>
+            <p class="small opacity-75">Phiên bản: <span class="badge bg-light text-dark">v1.2.0-MVP</span></p>
+            <hr class="opacity-25" />
+            <button class="btn btn-sm btn-light w-100 fw-bold">KIỂM TRA CẬP NHẬT</button>
+        </div>
+    </div>
+</div>

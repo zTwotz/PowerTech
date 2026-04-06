@@ -1,0 +1,170 @@
+PowerTech
+├── .agent
+│   ├── .DS_Store
+│   ├── skills
+│   │   ├── .DS_Store
+│   │   ├── agent-execution-rules
+│   │   │   └── SKILL.md
+│   │   ├── aspnet-mvc-architecture
+│   │   │   └── SKILL.md
+│   │   ├── component-library
+│   │   │   └── SKILL.md
+│   │   ├── database-domain-rules
+│   │   │   └── SKILL.md
+│   │   ├── ecommerce-business-rules
+│   │   │   └── SKILL.md
+│   │   ├── frontend-design
+│   │   │   └── SKILL.md
+│   │   ├── implementation-workflow
+│   │   │   ├── assets
+│   │   │   │   └── feature-task-template.md
+│   │   │   └── SKILL.md
+│   │   ├── navigation-screen-priority
+│   │   │   ├── assets
+│   │   │   │   └── mvp-screen-order.md
+│   │   │   └── SKILL.md
+│   │   ├── project-context
+│   │   │   ├── references
+│   │   │   │   └── system-summary.md
+│   │   │   └── SKILL.md
+│   │   ├── README.md
+│   │   ├── testing-qa-review
+│   │   │   └── SKILL.md
+│   │   └── ui-style-system
+│   │       ├── assets
+│   │       │   └── ui-tokens.css
+│   │       └── SKILL.md
+│   └── ui_style_guide_for_ai_agent.md
+├── .DS_Store
+├── cay.txt
+├── Database.sql
+├── Documents
+│   ├── bao_cao_mo_ta_chi_tiet_cap_nhat.docx
+│   ├── bao_cao_mo_ta_chi_tiet_cap_nhat.pdf
+│   ├── bao_cao_phan_tich_thiet_ke_du_lieu_cap_nhat.docx
+│   ├── bao_cao_phan_tich_thiet_ke_du_lieu_cap_nhat.pdf
+│   ├── bao_cao_uml_use_case_user_role_dong_bo.docx
+│   ├── bao_cao_uml_use_case_user_role_dong_bo.pdf
+│   ├── Chức năng màn hình.pdf
+│   ├── MÔ TẢ CHI TIẾT.pdf
+│   ├── Phân Tích Chức Năng & Giao Diện.pdf
+│   └── PHÂN TÍCH THIẾT KẾ DỮ LIỆU.pdf
+├── PowerTech
+│   ├── app.db
+│   ├── appsettings.Development.json
+│   ├── appsettings.json
+│   ├── Areas
+│   │   ├── Admin
+│   │   │   ├── Controllers
+│   │   │   │   └── DashboardController.cs
+│   │   │   └── Views
+│   │   │       ├── _ViewImports.cshtml
+│   │   │       ├── _ViewStart.cshtml
+│   │   │       ├── Dashboard
+│   │   │       │   └── Index.cshtml
+│   │   │       └── Shared
+│   │   ├── Customer
+│   │   │   ├── Controllers
+│   │   │   │   └── HomeController.cs
+│   │   │   └── Views
+│   │   │       ├── _ViewImports.cshtml
+│   │   │       ├── _ViewStart.cshtml
+│   │   │       └── Home
+│   │   │           └── Index.cshtml
+│   │   ├── Identity
+│   │   │   └── Pages
+│   │   │       └── _ViewStart.cshtml
+│   │   ├── Sales
+│   │   │   ├── Controllers
+│   │   │   │   └── HomeController.cs
+│   │   │   └── Views
+│   │   │       ├── _ViewImports.cshtml
+│   │   │       ├── _ViewStart.cshtml
+│   │   │       └── Home
+│   │   │           └── Index.cshtml
+│   │   ├── Store
+│   │   │   ├── Controllers
+│   │   │   │   └── HomeController.cs
+│   │   │   └── Views
+│   │   │       ├── _ViewImports.cshtml
+│   │   │       ├── _ViewStart.cshtml
+│   │   │       └── Home
+│   │   │           └── Index.cshtml
+│   │   ├── Support
+│   │   │   ├── Controllers
+│   │   │   │   └── HomeController.cs
+│   │   │   └── Views
+│   │   │       ├── _ViewImports.cshtml
+│   │   │       ├── _ViewStart.cshtml
+│   │   │       └── Home
+│   │   │           └── Index.cshtml
+│   │   └── Warehouse
+│   │       ├── Controllers
+│   │       │   └── HomeController.cs
+│   │       └── Views
+│   │           ├── _ViewImports.cshtml
+│   │           ├── _ViewStart.cshtml
+│   │           └── Home
+│   │               └── Index.cshtml
+│   ├── caythumuc.txt
+│   ├── Constants
+│   │   └── UserRoles.cs
+│   ├── Controllers
+│   │   └── HomeController.cs
+│   ├── Data
+│   │   ├── ApplicationDbContext.cs
+│   │   ├── Migrations
+│   │   │   ├── 20260405122421_InitialCreate.cs
+│   │   │   ├── 20260405122421_InitialCreate.Designer.cs
+│   │   │   ├── 20260405122827_DbInit.cs
+│   │   │   ├── 20260405122827_DbInit.Designer.cs
+│   │   │   └── ApplicationDbContextModelSnapshot.cs
+│   │   └── Seeders
+│   │       └── DbSeeder.cs
+│   ├── Helpers
+│   ├── Models
+│   │   ├── Entities
+│   │   │   └── ApplicationUser.cs
+│   │   ├── ErrorViewModel.cs
+│   │   └── ViewModels
+│   ├── PowerTech.csproj
+│   ├── PowerTech.csproj.user
+│   ├── Program.cs
+│   ├── Properties
+│   │   ├── launchSettings.json
+│   │   ├── serviceDependencies.json
+│   │   ├── serviceDependencies.local.json
+│   │   └── serviceDependencies.local.json.user
+│   ├── read.md
+│   ├── Services
+│   ├── structure.txt
+│   ├── Views
+│   │   ├── _ViewImports.cshtml
+│   │   ├── _ViewStart.cshtml
+│   │   ├── Home
+│   │   │   ├── Index.cshtml
+│   │   │   └── Privacy.cshtml
+│   │   └── Shared
+│   │       ├── _Layout.cshtml
+│   │       ├── _Layout.cshtml.css
+│   │       ├── _LoginPartial.cshtml
+│   │       ├── _ValidationScriptsPartial.cshtml
+│   │       └── Error.cshtml
+│   └── wwwroot
+│       ├── css
+│       │   └── site.css
+│       ├── favicon.ico
+│       ├── js
+│       │   └── site.js
+│       └── lib
+│           ├── bootstrap
+│           │   └── LICENSE
+│           ├── jquery
+│           │   └── LICENSE.txt
+│           ├── jquery-validation
+│           │   └── LICENSE.md
+│           └── jquery-validation-unobtrusive
+│               └── LICENSE.txt
+└── PowerTech.slnx
+
+70 directories, 98 files

@@ -1,0 +1,114 @@
+@{
+    ViewData["Title"] = "Thanh toán - Phương thức";
+    var cart = (PowerTech.Models.Entities.Cart)ViewBag.Cart;
+    var address = (PowerTech.Models.Entities.UserAddress)ViewBag.Address;
+    var totalAmount = cart.CartItems.Sum(ci => ci.Quantity * ci.UnitPrice);
+}
+
+<div class="container my-5">
+    <!-- Steps Indicator -->
+    <div class="checkout-steps mb-5 d-flex justify-content-center">
+        <div class="step completed"><span class="step-num">1</span> <span class="step-text text-success"><i class="fa-solid fa-check"></i> Địa chỉ</span></div>
+        <div class="step-divider active"></div>
+        <div class="step active"><span class="step-num">2</span> <span class="step-text">Thanh toán</span></div>
+        <div class="step-divider"></div>
+        <div class="step"><span class="step-num">3</span> <span class="step-text">Hoàn tất</span></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h2 class="h5 fw-bold mb-4">Chọn phương thức thanh toán</h2>
+                
+                <form asp-action="PlaceOrder" method="post">
+                    <div class="payment-methods mb-4">
+                        <div class="payment-item mb-3 p-3 border rounded-3 border-soft active-payment" onclick="selectPayment('COD')">
+                            <div class="form-check d-flex align-items-center">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="pay-cod" value="COD" checked>
+                                <label class="form-check-label w-100 ms-3 d-flex align-items-center" for="pay-cod">
+                                    <div style="font-size: 24px; width: 40px;" class="text-primary"><i class="fa-solid fa-truck-fast"></i></div>
+                                    <div>
+                                        <div class="fw-bold">Thanh toán khi nhận hàng (COD)</div>
+                                        <div class="small text-muted">Nhận hàng rồi mới thanh toán tiền mặt.</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="payment-item mb-3 p-3 border rounded-3 border-soft" onclick="selectPayment('Bank')">
+                            <div class="form-check d-flex align-items-center">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="pay-bank" value="Bank Transfer">
+                                <label class="form-check-label w-100 ms-3 d-flex align-items-center" for="pay-bank">
+                                    <div style="font-size: 24px; width: 40px;" class="text-primary"><i class="fa-solid fa-building-columns"></i></div>
+                                    <div>
+                                        <div class="fw-bold">Chuyển khoản ngân hàng</div>
+                                        <div class="small text-muted">Thông tin chuyển khoản sẽ hiện sau khi đặt hàng.</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="note" class="form-label fw-bold">Ghi chú cho đơn hàng</label>
+                        <textarea class="form-control rounded-3" id="note" name="note" rows="3" placeholder="Ví dụ: Giao vào giờ hành chính, gọi điện trước khi giao..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-5">
+                        <a asp-action="Index" class="text-muted text-decoration-none">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Quay lại địa chỉ
+                        </a>
+                        <button type="submit" class="btn btn-primary px-5 py-3 rounded-pill fw-bold btn-order">
+                            ĐẶT HÀNG NGAY <i class="fa-solid fa-cart-arrow-down ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Order Summary & Shipping Detail -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h3 class="h5 fw-bold mb-4 border-bottom pb-3">Giao tới</h3>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="fw-bold">@address.ReceiverName</span>
+                    <span class="text-muted">@address.PhoneNumber</span>
+                </div>
+                <div class="small text-muted">
+                    @address.StreetAddress, @address.Ward, @address.District, @address.Province
+                </div>
+                <a asp-action="Index" class="text-primary small text-decoration-none d-block mt-3">Thay đổi</a>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px;">
+                <h3 class="h5 fw-bold mb-4 border-bottom pb-3">Tổng tiền</h3>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Tổng giá trị:</span>
+                    <span class="fw-bold">@totalAmount.ToString("N0")₫</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 border-bottom pb-3">
+                    <span class="text-muted">Phí ship:</span>
+                    <span class="text-success small fw-bold">Miễn phí</span>
+                </div>
+                <div class="d-flex justify-content-between mt-3 text-primary">
+                    <span class="fw-bold fs-5">TỔNG CỘNG:</span>
+                    <span class="fw-bold fs-4">@totalAmount.ToString("N0")₫</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    function selectPayment(type) {
+        document.querySelectorAll('.payment-item').forEach(el => el.classList.remove('active-payment'));
+        if (type === 'COD') {
+            document.getElementById('pay-cod').checked = true;
+            document.getElementById('pay-cod').closest('.payment-item').classList.add('active-payment');
+        } else {
+            document.getElementById('pay-bank').checked = true;
+            document.getElementById('pay-bank').closest('.payment-item').classList.add('active-payment');
+        }
+    }
+</script>

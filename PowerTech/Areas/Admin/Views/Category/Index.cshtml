@@ -1,0 +1,108 @@
+@model IEnumerable<PowerTech.Models.Entities.Category>
+@{
+    ViewData["Title"] = "Quản lý danh mục";
+}
+
+<div class="admin-page-title">
+    <div>
+        <h1 class="h3 fw-800 mb-0">Quản lý danh mục</h1>
+        <p class="text-muted small mb-0">Phân loại sản phẩm trên toàn hệ thống</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i> Thêm danh mục</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light small text-muted text-uppercase">
+                    <tr>
+                        <th class="ps-4">Thứ tự</th>
+                        <th>Tên danh mục</th>
+                        <th>Slug</th>
+                        <th>Danh mục cha</th>
+                        <th>Số sản phẩm</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.OrderBy(x => x.ParentCategoryId).ThenBy(x => x.DisplayOrder))
+                    {
+                        <tr>
+                            <td class="ps-4">@c.DisplayOrder</td>
+                            <td>
+                                <div class="fw-bold text-dark @(c.ParentCategoryId.HasValue ? "ps-3 border-start" : "")">
+                                    @if(c.ParentCategoryId.HasValue) { <i class="fa-solid fa-turn-up fa-rotate-90 me-1 text-muted small"></i> }
+                                    @c.Name
+                                </div>
+                            </td>
+                            <td><code class="small">@c.Slug</code></td>
+                            <td>
+                                @if (c.ParentCategory != null)
+                                {
+                                    <span class="badge bg-light text-dark border">@c.ParentCategory.Name</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Cấp 1</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-soft-info text-info rounded-pill px-3">@c.Products.Count sản phẩm</span>
+                            </td>
+                            <td>
+                                @if (c.IsActive)
+                                {
+                                    <span class="text-success small"><i class="fa-solid fa-circle-check me-1"></i> Kích hoạt</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small"><i class="fa-solid fa-circle-minus me-1"></i> Đã ẩn</span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group">
+                                    <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(@c.Id, '@c.Name')"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function deleteCategory(id, name) {
+            Swal.fire({
+                title: 'Xác nhận xóa?',
+                text: `Xóa danh mục "${name}"? Bạn không thể xóa nếu có sản phẩm hoặc danh mục con.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#D7262E',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Xóa ngay',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Admin/Category/Delete', { id: id }, function(res) {
+                        if (res.success) {
+                            Swal.fire('Đã xóa!', 'Danh mục đã được loại bỏ.', 'success').then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire('Lỗi!', res.message, 'error');
+                        }
+                    });
+                }
+            })
+        }
+    </script>
+}

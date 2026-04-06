@@ -1,0 +1,73 @@
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="p-4 bg-light border-bottom text-center">
+                        <div class="avatar-circle mb-3 mx-auto" style="width: 80px; height: 80px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #adb5bd;">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <h6 class="mb-1 fw-bold">@User.Identity?.Name</h6>
+                        <span class="badge bg-secondary">Khách hàng thân thiết</span>
+                    </div>
+                    <div class="list-group list-group-flush customer-nav">
+                        <a asp-area="Customer" asp-controller="Profile" asp-action="Index" 
+                           class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString() == "Profile" ? "active" : "")">
+                            <i class="fa-solid fa-id-card me-3 opacity-75"></i> Thông tin hồ sơ
+                        </a>
+                        <a asp-area="Customer" asp-controller="Address" asp-action="Index" 
+                           class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString() == "Address" ? "active" : "")">
+                            <i class="fa-solid fa-location-dot me-3 opacity-75"></i> Sổ địa chỉ
+                        </a>
+                        <a asp-area="Customer" asp-controller="Order" asp-action="Index" 
+                           class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString() == "Order" ? "active" : "")">
+                            <i class="fa-solid fa-box-open me-3 opacity-75"></i> Lịch sử đơn hàng
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center">
+                            <i class="fa-solid fa-bell me-3 opacity-75"></i> Thông báo
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center">
+                            <i class="fa-solid fa-key me-3 opacity-75"></i> Đổi mật khẩu
+                        </a>
+                        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "Store" })" method="post" id="logoutForm">
+                            <button type="submit" class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center text-danger border-top">
+                                <i class="fa-solid fa-right-from-bracket me-3 opacity-75"></i> Đăng xuất
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .customer-nav .list-group-item.active {
+        background: #f8f9fa;
+        color: var(--primary);
+        font-weight: 600;
+        border-left: 4px solid var(--primary) !important;
+    }
+    .customer-nav .list-group-item:hover {
+        background: #f8f9fa;
+        color: var(--primary);
+    }
+</style>
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}

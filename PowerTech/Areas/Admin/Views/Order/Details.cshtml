@@ -1,0 +1,207 @@
+@model PowerTech.Models.Entities.Order
+@{
+    ViewData["Title"] = $"Chi tiết đơn hàng: #{Model.OrderCode}";
+}
+
+<div class="admin-page-title">
+    <div>
+        <h1 class="h3 fw-800 mb-0">Đơn hàng #@Model.OrderCode</h1>
+        <p class="text-muted small mb-0">Thông tin chi tiết và cập nhật trạng thái đơn hàng</p>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-2"></i> Quay lại</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Main Info Column -->
+    <div class="col-lg-8">
+        <!-- Order Items Card -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">Danh sách sản phẩm</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="bg-light small text-muted text-uppercase">
+                            <tr>
+                                <th class="ps-4">Sản phẩm</th>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th class="text-end pe-4">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center gap-3 py-2">
+                                            <img src="@(string.IsNullOrEmpty(item.Product?.ThumbnailUrl) ? "https://placehold.co/50x50?text=No+Image" : item.Product.ThumbnailUrl)" 
+                                                 class="rounded border" style="width: 50px; height: 50px; object-fit: contain;"/>
+                                            <div>
+                                                <div class="fw-bold text-dark">@item.Product?.Name</div>
+                                                <div class="text-muted small">SKU: @item.Product?.SKU</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>@item.UnitPrice.ToString("N0")₫</td>
+                                    <td>@item.Quantity</td>
+                                    <td class="text-end pe-4 fw-bold">@((item.UnitPrice * item.Quantity).ToString("N0"))₫</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="bg-light">
+                            <tr>
+                                <td colspan="3" class="text-end py-3 ps-4 fw-bold text-muted small text-uppercase">Tạm tính</td>
+                                <td class="text-end pe-4 fw-bold">@Model.Subtotal.ToString("N0")₫</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end py-2 ps-4 fw-bold text-muted small text-uppercase">Phí giao hàng</td>
+                                <td class="text-end pe-4 fw-bold text-primary">+@Model.ShippingFee.ToString("N0")₫</td>
+                            </tr>
+                             @if(Model.DiscountAmount > 0) {
+                                <tr>
+                                    <td colspan="3" class="text-end py-2 ps-4 fw-bold text-muted small text-uppercase">Giảm giá voucher</td>
+                                    <td class="text-end pe-4 fw-bold text-danger">-@Model.DiscountAmount.ToString("N0")₫</td>
+                                </tr>
+                            }
+                            <tr>
+                                <td colspan="3" class="text-end py-3 ps-4 fw-bold text-dark text-uppercase h5 mb-0">Tổng thanh toán</td>
+                                <td class="text-end pe-4 fw-bold text-primary h5 mb-0">@Model.TotalAmount.ToString("N0")₫</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer & Shipping Info -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold mb-0"><i class="fa-solid fa-user me-2 text-primary"></i>Khách hàng</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <div class="text-muted small text-uppercase fw-bold mb-1">Tài khoản đặt hàng</div>
+                            <div class="fw-bold fs-5">@Model.User?.FullName</div>
+                            <div class="text-muted small">@Model.User?.Email</div>
+                        </div>
+                        <div class="mb-0">
+                            <div class="text-muted small text-uppercase fw-bold mb-1">Ngày đăng ký tài khoản</div>
+                            <div class="text-dark small">@(Model.User != null ? Model.User.CreatedAt.ToString("dd/MM/yyyy") : "N/A")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold mb-0"><i class="fa-solid fa-truck me-2 text-primary"></i>Vận chuyển</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <div class="text-muted small text-uppercase fw-bold mb-1">Người nhận hàng</div>
+                            <div class="fw-bold fs-5">@Model.ReceiverName</div>
+                            <div class="text-primary fw-bold">@Model.PhoneNumber</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="text-muted small text-uppercase fw-bold mb-1">Địa chỉ giao hàng</div>
+                            <div class="text-dark">@Model.ShippingAddress</div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Note))
+                        {
+                            <div class="mb-0">
+                                <div class="text-muted small text-uppercase fw-bold mb-1">Ghi chú từ khách</div>
+                                <div class="bg-light p-2 rounded small text-danger italic">"@Model.Note"</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Column: Action Center -->
+    <div class="col-lg-4">
+        <!-- Order Fulfillment Status -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">Trình trạng đơn hàng</h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="UpdateStatus" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Trạng thái vận chuyển</label>
+                        <select name="status" class="form-select @GetStatusColor(Model.OrderStatus)">
+                            <option value="Pending" selected="@(Model.OrderStatus == "Pending")">Chờ xử lý (Pending)</option>
+                            <option value="Processing" selected="@(Model.OrderStatus == "Processing")">Đang đóng gói (Processing)</option>
+                            <option value="Shipped" selected="@(Model.OrderStatus == "Shipped")">Đang giao hàng (Shipped)</option>
+                            <option value="Delivered" selected="@(Model.OrderStatus == "Delivered")">Đã giao hàng (Delivered)</option>
+                            <option value="Cancelled" selected="@(Model.OrderStatus == "Cancelled")">Đã hủy (Cancelled)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Trạng thái thanh toán</label>
+                        <select name="paymentStatus" class="form-select">
+                            <option value="Unpaid" selected="@(Model.PaymentStatus == "Unpaid")">Chưa thanh toán</option>
+                            <option value="Paid" selected="@(Model.PaymentStatus == "Paid")">Đã thanh toán</option>
+                            <option value="Failed" selected="@(Model.PaymentStatus == "Failed")">Thanh toán thất bại</option>
+                            <option value="Refunded" selected="@(Model.PaymentStatus == "Refunded")">Đã hoàn tiền</option>
+                        </select>
+                        <p class="text-muted small mt-2">Phương thức: <span class="fw-bold text-dark">@Model.PaymentMethod</span></p>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary fw-bold text-uppercase py-3">
+                            <i class="fa-solid fa-save me-2"></i> Cập nhật ngay
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- System Logs / History -->
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+             <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-history me-2 text-primary"></i>Lịch sử hệ thống</h5>
+            </div>
+            <div class="card-body p-4 overflow-auto" style="max-height: 400px;">
+                <div class="admin-timeline">
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <div class="timeline-item">
+                            <div class="time">@Model.UpdatedAt.Value.ToString("HH:mm dd/MM")</div>
+                            <div class="text">Đã cập nhật trạng thái mới nhất</div>
+                        </div>
+                    }
+                    <div class="timeline-item">
+                        <div class="time">@Model.CreatedAt.ToString("HH:mm dd/MM")</div>
+                        <div class="text">Đơn hàng được khởi tạo từ website</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "Pending" => "border-warning text-warning",
+            "Processing" => "border-info text-info",
+            "Shipped" => "border-primary text-primary",
+            "Delivered" => "border-success text-success",
+            "Cancelled" => "border-danger text-danger",
+            _ => ""
+        };
+    }
+}

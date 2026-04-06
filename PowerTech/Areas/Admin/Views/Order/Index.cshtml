@@ -1,0 +1,112 @@
+@model IEnumerable<PowerTech.Models.Entities.Order>
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+}
+
+<div class="admin-page-title">
+    <div>
+        <h1 class="h3 fw-800 mb-0">Quản lý đơn hàng</h1>
+        <p class="text-muted small mb-0">Theo dõi, cập nhật và xử lý đơn hàng từ khách hàng</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+    <div class="card-body bg-light p-4">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-0"><i class="fa-solid fa-search text-muted"></i></span>
+                    <input name="q" value="@ViewBag.Query" type="text" class="form-control border-0 px-1" placeholder="Tìm theo mã đơn, tên, SĐT..."/>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select border-0">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="Pending" selected="@(ViewBag.Status == "Pending")">Chờ xử lý (Pending)</option>
+                    <option value="Processing" selected="@(ViewBag.Status == "Processing")">Đang đóng gói (Processing)</option>
+                    <option value="Shipped" selected="@(ViewBag.Status == "Shipped")">Đang giao hàng (Shipped)</option>
+                    <option value="Delivered" selected="@(ViewBag.Status == "Delivered")">Đã giao hàng (Delivered)</option>
+                    <option value="Cancelled" selected="@(ViewBag.Status == "Cancelled")">Đã hủy (Cancelled)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Lọc đơn hàng</button>
+            </div>
+            <div class="col-md-2">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">Làm mới</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light small text-muted text-uppercase">
+                    <tr>
+                        <th class="ps-4">Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Thời gian đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái hàng</th>
+                        <th>Thanh toán</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-bold text-primary">#@o.OrderCode</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold">@o.ReceiverName</div>
+                                <div class="text-muted small">@o.PhoneNumber</div>
+                            </td>
+                            <td class="small text-muted">@o.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="fw-bold">@o.TotalAmount.ToString("N0")₫</td>
+                            <td>
+                                <span class="badge @GetStatusBadge(o.OrderStatus) rounded-pill px-3">
+                                    @o.OrderStatus
+                                </span>
+                            </td>
+                            <td>
+                                @if (o.PaymentStatus == "Paid")
+                                {
+                                    <span class="text-success small"><i class="fa-solid fa-circle-check me-1"></i> Đã trả</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger small"><i class="fa-solid fa-clock me-1"></i> @o.PaymentStatus</span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                <a asp-action="Details" asp-route-id="@o.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    Chi tiết <i class="fa-solid fa-arrow-right ms-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Pending" => "bg-soft-warning text-warning",
+            "Processing" => "bg-soft-info text-info",
+            "Shipped" => "bg-soft-primary text-primary",
+            "Delivered" => "bg-success text-white",
+            "Cancelled" => "bg-soft-danger text-danger",
+            _ => "bg-soft-secondary text-secondary"
+        };
+    }
+}

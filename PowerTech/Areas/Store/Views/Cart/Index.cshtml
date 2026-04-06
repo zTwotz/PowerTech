@@ -1,0 +1,173 @@
+@model PowerTech.Models.Entities.Cart
+@{
+    ViewData["Title"] = "Giỏ hàng";
+    var totalAmount = Model.CartItems.Sum(ci => ci.Quantity * ci.UnitPrice);
+}
+
+<div class="container my-5">
+    <h1 class="h3 fw-bold mb-4"><i class="fa-solid fa-cart-shopping me-2 text-primary"></i>Giỏ hàng của bạn</h1>
+
+    @if (Model.CartItems == null || !Model.CartItems.Any())
+    {
+        <div class="text-center py-5 shadow-sm rounded-4 bg-white border border-soft">
+            <img src="https://placehold.co/200x200?text=Empty+Cart" alt="Empty Cart" class="mb-4 opacity-75">
+            <h3 class="h4">Giỏ hàng đang trống</h3>
+            <p class="text-muted mb-4">Hãy thêm một vài linh kiện để tiếp tục mua sắm nhé!</p>
+            <a asp-area="Store" asp-controller="Home" asp-action="Index" class="btn btn-primary px-5 py-3 rounded-pill fw-bold">TIẾP TỤC MUA SẮM</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Items Column -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light text-muted small text-uppercase">
+                            <tr>
+                                <th class="ps-4 py-3">Sản phẩm</th>
+                                <th class="py-3 text-center" style="width: 150px;">Số lượng</th>
+                                <th class="py-3 text-end" style="width: 120px;">Đơn giá</th>
+                                <th class="py-3 text-end pe-4" style="width: 150px;">Thành tiền</th>
+                                <th class="py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.CartItems)
+                            {
+                                <tr id="row-@item.ProductId" class="cart-item-row">
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-3 border border-soft p-1 me-3 shadow-sm" style="width: 70px; height: 70px;">
+                                                <img src="@(string.IsNullOrEmpty(item.Product.ThumbnailUrl) ? "https://placehold.co/60x60" : item.Product.ThumbnailUrl)" 
+                                                     class="w-100 h-100 object-fit-contain" alt="@item.Product.Name">
+                                            </div>
+                                            <div>
+                                                <a asp-area="Store" asp-controller="Product" asp-action="Detail" asp-route-slug="@item.Product.Slug" 
+                                                   class="text-decoration-none fw-bold text-dark d-block product-name-cart mb-1" title="@item.Product.Name">
+                                                    @item.Product.Name
+                                                </a>
+                                                <span class="text-muted small">SKU: @item.Product.SKU</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="input-group input-group-sm quantity-control mx-auto">
+                                            <button class="btn btn-outline-soft border-0 px-2" type="button" onclick="updateQty(@item.ProductId, -1)">
+                                                <i class="fa-solid fa-minus"></i>
+                                            </button>
+                                            <input type="number" class="form-control border-0 text-center fw-bold" value="@item.Quantity" 
+                                                   id="qty-@item.ProductId" min="1" readonly>
+                                            <button class="btn btn-outline-soft border-0 px-2" type="button" onclick="updateQty(@item.ProductId, 1)">
+                                                <i class="fa-solid fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="text-end fw-medium">@item.UnitPrice.ToString("N0")₫</td>
+                                    <td class="text-end fw-bold text-primary pe-4" id="total-@item.ProductId">
+                                        @((item.Quantity * item.UnitPrice).ToString("N0"))₫
+                                    </td>
+                                    <td class="text-center pe-3">
+                                        <button class="btn btn-link btn-remove text-muted p-0" onclick="removeItem(@item.ProductId)">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Summary Column -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px;">
+                    <h3 class="h5 fw-bold mb-4 border-bottom pb-3">Chi tiết đơn hàng</h3>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Tổng cộng (@Model.CartItems.Sum(ci => ci.Quantity) món):</span>
+                        <span class="fw-bold fs-5" id="cart-grand-total">@totalAmount.ToString("N0")₫</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Vận chuyển:</span>
+                        <span class="text-success small fw-bold">Liên hệ sau</span>
+                    </div>
+                    <hr class="my-3 border-soft">
+                    <p class="small text-muted mb-4">
+                        <i class="fa-solid fa-circle-info text-info me-1"></i> Giá chưa bao gồm phí vận chuyển và các chương trình khuyến mãi khác.
+                    </p>
+                    <a asp-area="Store" asp-controller="Checkout" asp-action="Index" class="btn btn-primary w-100 py-3 rounded-3 fw-bold btn-checkout">
+                        TIẾN HÀNH THANH TOÁN <i class="fa-solid fa-arrow-right ms-2"></i>
+                    </a>
+                    <a asp-area="Store" asp-controller="Home" asp-action="Index" class="btn btn-outline-soft w-100 py-3 rounded-3 fw-bold mt-2 text-dark">
+                        MUA THÊM SẢN PHẨM
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function updateQty(productId, delta) {
+            const input = document.getElementById('qty-' + productId);
+            let newVal = parseInt(input.value) + delta;
+            if (newVal < 1) return;
+            
+            input.value = newVal;
+
+            $.ajax({
+                url: '/Store/Cart/UpdateQuantity',
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    quantity: newVal,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(res) {
+                    if (res.success) {
+                        $('#total-' + productId).text(res.itemTotal.toLocaleString('vi-VN') + '₫');
+                        $('#cart-grand-total').text(res.total);
+                        updateHeaderCartCount();
+                    }
+                }
+            });
+        }
+
+        function removeItem(productId) {
+            Swal.fire({
+                title: 'Xóa khỏi giỏ hàng?',
+                text: "Bạn có chắc chắn muốn xóa sản phẩm này không?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#D7262E',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Đúng, xóa nó!',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Store/Cart/Remove',
+                        type: 'POST',
+                        data: {
+                            productId: productId,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                location.reload();
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        
+        function updateHeaderCartCount() {
+            $.get('/Store/Cart/GetCartCount', function(count) {
+                $('.badge-count').text(count);
+            });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+}

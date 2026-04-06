@@ -1,0 +1,70 @@
+@model IEnumerable<PowerTech.Models.Entities.Product>
+@{
+    Layout = "_WarehouseLayout";
+    ViewData["Title"] = "Hoạt động Nhập kho";
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 text-start">
+        <h4 class="fw-bold mb-1 text-dark">Hoạt động Nhập kho</h4>
+        <p class="text-muted small">Cập nhật số lượng tồn kho cho các sản phẩm linh kiện</p>
+    </div>
+    <div class="col-md-6 text-md-end pt-3">
+        <a asp-action="Create" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-bold">
+            <i class="bi bi-plus-circle me-1"></i> Tạo phiếu nhập mới
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white p-4 border-bottom">
+        <h5 class="mb-0 fw-bold">Chọn sản phẩm cần nhập hàng</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Sản phẩm</th>
+                        <th>SKU</th>
+                        <th class="text-center">Tồn hiện tại</th>
+                        <th class="pe-4 text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prod in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(prod.ThumbnailUrl))
+                                    {
+                                        <img src="@prod.ThumbnailUrl" class="rounded-3 me-2" style="width: 40px; height: 40px; object-fit: cover;" />
+                                    }
+                                    <span class="small fw-medium text-dark">@prod.Name</span>
+                                </div>
+                            </td>
+                            <td><span class="text-muted small">@prod.SKU</span></td>
+                            <td class="text-center">
+                                <span class="badge @(prod.StockQuantity <= 10 ? "bg-warning text-dark" : "bg-dark text-white") rounded-pill">
+                                    @prod.StockQuantity
+                                </span>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <a asp-action="Create" asp-route-productId="@prod.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold shadow-sm">
+                                    <i class="bi bi-box-arrow-in-down me-1"></i> Nhập kho
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">Chưa có sản phẩm nào cho nghiệp vụ này</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

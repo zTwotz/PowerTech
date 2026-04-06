@@ -1,0 +1,169 @@
+@model IEnumerable<PowerTech.Models.Entities.Product>
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+    var categories = ViewBag.Categories as List<PowerTech.Models.Entities.Category>;
+}
+
+<div class="admin-page-title">
+    <div>
+        <h1 class="h3 fw-800 mb-0">Quản lý sản phẩm</h1>
+        <p class="text-muted small mb-0">Tất cả sản phẩm hiện có trên hệ thống</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i> Thêm sản phẩm</a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-3">
+        <form method="get" class="row g-3 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                    <input type="text" name="q" value="@ViewBag.Query" class="form-control border-start-0" placeholder="Tìm theo tên hoặc SKU...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="categoryId" class="form-select" onchange="this.form.submit()">
+                    <option value="">Tất cả danh mục</option>
+                    @foreach (var cat in categories ?? new())
+                    {
+                        <option value="@cat.Id" selected="@(ViewBag.CategoryId == cat.Id)">@cat.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark w-100">Lọc</button>
+            </div>
+            @if (!string.IsNullOrEmpty(ViewBag.Query) || ViewBag.CategoryId != null)
+            {
+                <div class="col-md-2">
+                    <a asp-action="Index" class="btn btn-link link-danger text-decoration-none small">Xóa lọc</a>
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+<!-- Product Table -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light small text-muted text-uppercase">
+                    <tr>
+                        <th class="ps-4" style="width: 80px;">Hình ảnh</th>
+                        <th>Thông tin sản phẩm</th>
+                        <th>Danh mục / Brand</th>
+                        <th>Giá bán</th>
+                        <th>Kho</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="rounded border bg-white p-1" style="width: 50px; height: 50px;">
+                                    <img src="@(string.IsNullOrEmpty(p.ThumbnailUrl) ? "https://placehold.co/50x50?text=No+Img" : p.ThumbnailUrl)" class="w-100 h-100 object-fit-contain">
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">@p.Name</div>
+                                <div class="text-muted small">SKU: <span class="text-primary fw-medium">@p.SKU</span></div>
+                            </td>
+                            <td>
+                                <div class="small fw-medium">@p.Category?.Name</div>
+                                <div class="text-muted" style="font-size: 11px;">@p.Brand?.Name</div>
+                            </td>
+                            <td>
+                                @if (p.DiscountPrice.HasValue)
+                                {
+                                    <div class="fw-bold">@p.DiscountPrice.Value.ToString("N0")₫</div>
+                                    <div class="text-muted text-decoration-line-through small">@p.Price.ToString("N0")₫</div>
+                                }
+                                else
+                                {
+                                    <div class="fw-bold">@p.Price.ToString("N0")₫</div>
+                                }
+                            </td>
+                            <td>
+                                @if (p.StockQuantity <= 0)
+                                {
+                                    <span class="badge bg-danger rounded-pill">Hết hàng</span>
+                                }
+                                else if (p.StockQuantity < 10)
+                                {
+                                    <span class="badge bg-warning text-dark rounded-pill">Sắp hết (@p.StockQuantity)</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success rounded-pill">Còn @p.StockQuantity</span>
+                                }
+                            </td>
+                            <td>
+                                @if (p.IsActive)
+                                {
+                                    <span class="text-success small"><i class="fa-solid fa-circle-check me-1"></i> Hiển thị</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small"><i class="fa-solid fa-circle-minus me-1"></i> Ẩn</span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group">
+                                    <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(@p.Id)"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="card-footer bg-white py-3 border-0">
+            <nav>
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-q="@ViewBag.Query" asp-route-categoryId="@ViewBag.CategoryId">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function deleteProduct(id) {
+            Swal.fire({
+                title: 'Xác nhận xóa?',
+                text: "Dữ liệu sản phẩm sẽ không thể khôi phục!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#D7262E',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Xóa ngay',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Logic xóa AJAX sẽ thực hiện ở đây
+                    Swal.fire('Đã xóa!', 'Sản phẩm đã được loại bỏ.', 'success');
+                }
+            })
+        }
+    </script>
+}

@@ -1,0 +1,166 @@
+@model PowerTech.Models.ViewModels.Store.ProductListViewModel
+@{
+    ViewData["Title"] = "Danh sách sản phẩm";
+}
+
+<div class="container my-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-area="Store" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Sản phẩm</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3 col-md-4">
+            <form id="filterForm" method="get" asp-action="Index">
+                <input type="hidden" name="q" value="@Model.Query" />
+                <input type="hidden" name="sortOrder" value="@Model.SortOrder" />
+
+                <!-- Category Filter -->
+                <div class="filter-group">
+                    <div class="filter-title">Danh mục</div>
+                    <div class="filter-list">
+                        @foreach (var cat in Model.Categories)
+                        {
+                            <label class="filter-item">
+                                <input type="radio" name="categoryId" value="@cat.Id" 
+                                       @(Model.CategoryId == cat.Id ? "checked" : "") 
+                                       onchange="this.form.submit()" />
+                                @cat.Name
+                            </label>
+                        }
+                        @if (Model.CategoryId.HasValue)
+                        {
+                            <a asp-action="Index" asp-route-q="@Model.Query" asp-route-brandId="@Model.BrandId" class="small text-primary mt-2 d-block">
+                                <i class="fa-solid fa-xmark"></i> Bỏ chọn danh mục
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <!-- Brand Filter -->
+                <div class="filter-group">
+                    <div class="filter-title">Thương hiệu</div>
+                    <div class="filter-list">
+                        @foreach (var brand in Model.Brands)
+                        {
+                            <label class="filter-item">
+                                <input type="radio" name="brandId" value="@brand.Id" 
+                                       @(Model.BrandId == brand.Id ? "checked" : "") 
+                                       onchange="this.form.submit()" />
+                                @brand.Name
+                            </label>
+                        }
+                        @if (Model.BrandId.HasValue)
+                        {
+                            <a asp-action="Index" asp-route-q="@Model.Query" asp-route-categoryId="@Model.CategoryId" class="small text-primary mt-2 d-block">
+                                <i class="fa-solid fa-xmark"></i> Bỏ chọn thương hiệu
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <!-- Price Filter -->
+                <div class="filter-group">
+                    <div class="filter-title">Khoảng giá</div>
+                    <div class="d-flex gap-2">
+                        <input type="number" name="minPrice" value="@Model.MinPrice" class="form-control form-control-sm" placeholder="Từ" />
+                        <input type="number" name="maxPrice" value="@Model.MaxPrice" class="form-control form-control-sm" placeholder="Đến" />
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100 mt-2">Áp dụng</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9 col-md-8">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="search-result-info">
+                    Tìm thấy <strong>@Model.TotalCount</strong> sản phẩm
+                    @if (!string.IsNullOrEmpty(Model.Query))
+                    {
+                        <span> cho từ khóa "@Model.Query"</span>
+                    }
+                </div>
+                <div class="sort-box d-flex align-items-center gap-2">
+                    <span class="text-muted small">Sắp xếp:</span>
+                    <select class="sort-select" onchange="window.location.href = updateQueryStringParameter(window.location.href, 'sortOrder', this.value)">
+                        <option value="featured" selected="@(Model.SortOrder == "featured")">Nổi bật</option>
+                        <option value="newest" selected="@(Model.SortOrder == "newest")">Mới nhất</option>
+                        <option value="price_asc" selected="@(Model.SortOrder == "price_asc")">Giá tăng dần</option>
+                        <option value="price_desc" selected="@(Model.SortOrder == "price_desc")">Giá giảm dần</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            @if (Model.Products.Any())
+            {
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="col">
+                            <partial name="_ProductCard" model="product" />
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="pagination-custom">
+                        @if (Model.CurrentPage > 1)
+                        {
+                            <a class="page-link-custom" href="@Url.Action("Index", new { page = Model.CurrentPage - 1, q = Model.Query, categoryId = Model.CategoryId, brandId = Model.BrandId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder })">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </a>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <a class="page-link-custom @(i == Model.CurrentPage ? "active" : "")" 
+                               href="@Url.Action("Index", new { page = i, q = Model.Query, categoryId = Model.CategoryId, brandId = Model.BrandId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder })">
+                                @i
+                            </a>
+                        }
+
+                        @if (Model.CurrentPage < Model.TotalPages)
+                        {
+                            <a class="page-link-custom" href="@Url.Action("Index", new { page = Model.CurrentPage + 1, q = Model.Query, categoryId = Model.CategoryId, brandId = Model.BrandId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder })">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <img src="https://placehold.co/200x200?text=Empty" class="mb-3" />
+                    <h5>Rất tiếc, không tìm thấy sản phẩm phù hợp</h5>
+                    <p class="text-muted">Vui lòng thử lại với bộ lọc khác hoặc từ khóa khác.</p>
+                    <a asp-action="Index" class="btn btn-outline-primary mt-3">Xóa tất cả bộ lọc</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateQueryStringParameter(uri, key, value) {
+            var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+            var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+            if (uri.match(re)) {
+                return uri.replace(re, '$1' + key + "=" + value + '$2');
+            }
+            else {
+                return uri + separator + key + "=" + value;
+            }
+        }
+    </script>
+}

@@ -1,0 +1,254 @@
+@model PowerTech.Models.ViewModels.Store.HomeViewModel
+@{
+    ViewData["Title"] = "Thế giới linh kiện máy tính";
+}
+
+@section Styles {
+    <style>
+        .hero-section {
+            display: grid;
+            grid-template-columns: 260px 1fr 280px;
+            gap: 20px;
+            margin: 20px 0 40px;
+        }
+
+        .category-sidebar {
+            background: #fff;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .category-sidebar .card-header {
+            background: var(--primary);
+            color: #fff;
+            padding: 15px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .category-nav-link {
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-soft);
+            transition: all 0.2s;
+        }
+
+        .category-nav-link:hover {
+            background: var(--bg-body);
+            color: var(--primary);
+            padding-left: 20px;
+        }
+
+        .category-nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .hero-banner-main {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            height: 420px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+        }
+
+        .hero-banner-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .hero-banner-main:hover img {
+            transform: scale(1.02);
+        }
+
+        .side-banners {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .side-banner-item {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            height: 202px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .side-banner-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .section-title {
+            margin: 40px 0 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .section-title h2 {
+            font-size: 22px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin: 0;
+            color: var(--text-main);
+            position: relative;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -14px;
+            width: 80px;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        .view-all {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 14px;
+            transition: gap 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .view-all:hover {
+            gap: 10px;
+        }
+
+        @@media (max-width: 1200px) {
+            .hero-section {
+                grid-template-columns: 240px 1fr;
+            }
+            .hero-right {
+                display: none;
+            }
+        }
+
+        @@media (max-width: 992px) {
+            .hero-section {
+                grid-template-columns: 1fr;
+            }
+            .category-sidebar {
+                display: none;
+            }
+        }
+    </style>
+}
+
+<div class="hero-section">
+    <!-- Sidebar Navigation -->
+    <div class="category-sidebar">
+        <div class="card-header">
+            <i class="fa-solid fa-bars me-2"></i> DANH MỤC SẢN PHẨM
+        </div>
+        <div class="category-list">
+            @foreach (var cat in Model.FeaturedCategories)
+            {
+                <a asp-area="Store" asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.Id" class="category-nav-link text-decoration-none">
+                    <i class="fa-solid fa-microchip"></i>
+                    @cat.Name
+                    <i class="fa-solid fa-chevron-right ms-auto small-icon" style="font-size: 10px;"></i>
+                </a>
+            }
+            <a asp-area="Store" asp-controller="Product" asp-action="Index" class="category-nav-link text-decoration-none text-primary fw-bold">
+                <i class="fa-solid fa-plus"></i>
+                Tất cả danh mục
+            </a>
+        </div>
+    </div>
+    
+    <!-- Main Hero Carousel/Banner -->
+    <div class="hero-center">
+        <div class="hero-banner-main">
+            <img src="/images/banners/hero_main.png" alt="PowerTech Gaming Banner" />
+        </div>
+    </div>
+    
+    <!-- Side Banners -->
+    <div class="hero-right">
+        <div class="side-banners">
+            <div class="side-banner-item">
+                <img src="/images/banners/side_1.png" alt="Gaming Laptop Collection" />
+            </div>
+            <div class="side-banner-item">
+                <img src="/images/banners/side_2.png" alt="Graphics Card Hot Deal" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Products Section -->
+<section class="container mt-5">
+    <div class="section-title">
+        <h2>Sản phẩm nổi bật</h2>
+        <a asp-area="Store" asp-controller="Product" asp-action="Index" asp-route-sortOrder="featured" class="view-all text-decoration-none">
+            Xem tất cả <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+        @foreach (var product in Model.FeaturedProducts)
+        {
+            <div class="col">
+                <partial name="_ProductCard" model="product" />
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Discount Products Section -->
+@if (Model.DiscountProducts.Any())
+{
+    <section class="container mt-5">
+        <div class="section-title">
+            <h2>Deal sốc hôm nay</h2>
+            <a asp-area="Store" asp-controller="Product" asp-action="Index" asp-route-minPrice="1" class="view-all text-decoration-none">
+                Xem tất cả <i class="fa-solid fa-bolt"></i>
+            </a>
+        </div>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+            @foreach (var product in Model.DiscountProducts)
+            {
+                <div class="col">
+                    <partial name="_ProductCard" model="product" />
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<!-- New Products Section -->
+<section class="container mt-5">
+    <div class="section-title">
+        <h2>Sản phẩm mới nhất</h2>
+        <a asp-area="Store" asp-controller="Product" asp-action="Index" asp-route-sortOrder="newest" class="view-all text-decoration-none">
+            Khám phá ngay <i class="fa-solid fa-fire"></i>
+        </a>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+        @foreach (var product in Model.NewProducts)
+        {
+            <div class="col">
+                <partial name="_ProductCard" model="product" />
+            </div>
+        }
+    </div>
+</section>

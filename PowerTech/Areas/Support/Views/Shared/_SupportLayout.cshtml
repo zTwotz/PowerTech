@@ -1,0 +1,50 @@
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid py-4 min-vh-100 bg-light">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 100px;">
+                <div class="card-body p-0">
+                    <div class="p-3 border-bottom bg-info rounded-top-4 text-white d-flex align-items-center">
+                        <i class="bi bi-headset fs-4 me-2"></i>
+                        <div>
+                            <h6 class="fw-bold mb-0">SUPPORT</h6>
+                            <small class="text-white-50 small">Bộ phận hỗ trợ</small>
+                        </div>
+                    </div>
+                    <div class="list-group list-group-flush rounded-bottom-4">
+                        <a asp-area="Support" asp-controller="Home" asp-action="Index" 
+                           class="list-group-item list-group-item-action py-3 border-0 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "bg-info text-white active fw-bold" : "text-dark")">
+                            <i class="bi bi-speedometer2 me-2"></i> Tổng quan
+                        </a>
+                        <a asp-area="Support" asp-controller="Review" asp-action="Index" 
+                           class="list-group-item list-group-item-action py-3 border-0 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Review" ? "bg-info text-white active fw-bold" : "text-dark")">
+                            <i class="bi bi-chat-left-dots me-2"></i> Duyệt đánh giá
+                        </a>
+                        <a asp-area="Support" asp-controller="Ticket" asp-action="Index" 
+                           class="list-group-item list-group-item-action py-3 border-0 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Ticket" ? "bg-info text-white active fw-bold" : "text-dark")">
+                            <i class="bi bi-ticket-perforated me-2"></i> Hỗ trợ Ticket
+                        </a>
+                    </div>
+                    <div class="p-3 bg-light rounded-bottom-4">
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm w-100">
+                            <i class="bi bi-arrow-left me-1"></i> Về cửa hàng
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}

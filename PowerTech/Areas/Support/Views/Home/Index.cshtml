@@ -1,0 +1,131 @@
+@{
+    Layout = "_SupportLayout";
+    ViewData["Title"] = "Support Dashboard";
+}
+
+<div class="row g-4 mb-4">
+    <!-- Support Overview Cards -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-info border-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="flex-shrink-0 bg-info bg-opacity-10 rounded-3 p-2 me-3">
+                        <i class="bi bi-chat-left-text text-info fs-4"></i>
+                    </div>
+                    <h6 class="text-muted small fw-bold mb-0 text-uppercase">Đánh giá chờ duyệt</h6>
+                </div>
+                <h3 class="mb-0 fw-bold">@ViewBag.Stats.PendingReviews</h3>
+                <small class="text-muted">Cần phê duyệt để hiển thị</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-danger border-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="flex-shrink-0 bg-danger bg-opacity-10 rounded-3 p-2 me-3">
+                        <i class="bi bi-ticket-perforated-fill text-danger fs-4"></i>
+                    </div>
+                    <h6 class="text-muted small fw-bold mb-0 text-uppercase">Ticket đang mở</h6>
+                </div>
+                <h3 class="mb-0 fw-bold">@ViewBag.Stats.OpenTickets</h3>
+                <small class="text-muted">Yêu cầu hỗ trợ từ khách hàng</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-success border-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="flex-shrink-0 bg-success bg-opacity-10 rounded-3 p-2 me-3">
+                        <i class="bi bi-person-check-fill text-success fs-4"></i>
+                    </div>
+                    <h6 class="text-muted small fw-bold mb-0 text-uppercase">Đang xử lý</h6>
+                </div>
+                <h3 class="mb-0 fw-bold">@ViewBag.Stats.AssignedTickets</h3>
+                <small class="text-muted">Tickets đã được phân công</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Đánh giá mới nhất</h5>
+                <a asp-controller="Review" asp-action="Index" class="btn btn-info btn-sm text-white rounded-pill px-4 fw-bold">Xem tất cả</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Sản phẩm</th>
+                                <th>Khách hàng</th>
+                                <th class="text-center">Đánh giá</th>
+                                <th class="pe-4 text-end">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var review in ViewBag.Stats.RecentReviews)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="small fw-medium text-dark text-truncate" style="max-width: 250px;">@review.Product?.Name</div>
+                                    </td>
+                                    <td>
+                                        <div class="small fw-bold">@review.User?.FullName</div>
+                                        <small class="text-muted small">@review.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                    </td>
+                                    <td class="text-center text-warning">
+                                        @for (int i = 0; i < review.Rating; i++) { <i class="bi bi-star-fill"></i> }
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        <a asp-controller="Review" asp-action="Index" class="btn btn-outline-info btn-sm rounded-pill px-3">Duyệt</a>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!((IEnumerable<dynamic>)ViewBag.Stats.RecentReviews).Any())
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">Chưa có đánh giá nào</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 bg-info bg-opacity-10 border-0 mb-4 text-center p-4">
+            <h1 class="display-4 fw-bold text-info mb-0">😊</h1>
+            <h5 class="fw-bold text-info mt-3">Customer Focus</h5>
+            <p class="small text-muted mb-0">Luôn đặt trải nghiệm khách hàng lên hàng đầu. Phản hồi nhanh - Giải quyết triệt để.</p>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white p-4 border-bottom">
+                <h6 class="fw-bold mb-0">Quy trình xử lý Review</h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex align-items-start mb-3">
+                    <div class="bg-light rounded-circle p-2 me-3 small">1</div>
+                    <p class="small mb-0 text-muted">Kiểm tra nội dung đánh giá có vi phạm (quảng cáo, xúc phạm...) không.</p>
+                </div>
+                <div class="d-flex align-items-start mb-3">
+                    <div class="bg-light rounded-circle p-2 me-3 small">2</div>
+                    <p class="small mb-0 text-muted">Nhấn <b>Approve</b> để hiển thị lên website công khai.</p>
+                </div>
+                <div class="d-flex align-items-start">
+                    <div class="bg-light rounded-circle p-2 me-3 small">3</div>
+                    <p class="small mb-0 text-muted">Phản hồi khách hàng nếu nội dung là đóng góp tích cực hoặc khiếu nại.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

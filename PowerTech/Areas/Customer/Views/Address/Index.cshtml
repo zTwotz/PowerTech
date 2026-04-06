@@ -1,0 +1,140 @@
+@model IEnumerable<PowerTech.Models.Entities.UserAddress>
+
+@{
+    ViewData["Title"] = "Sổ địa chỉ";
+    Layout = "_CustomerLayout";
+}
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <h3 class="mb-0 fw-bold"><i class="fa-solid fa-location-dot me-2 text-primary"></i> Sổ địa chỉ</h3>
+    <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+        <i class="fa-solid fa-plus me-2"></i> Thêm địa chỉ mới
+    </button>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4 mt-2">
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <div class="mb-4" style="font-size: 64px; color: #dee2e6;">
+                <i class="fa-solid fa-map-location-dot"></i>
+            </div>
+            <h5 class="fw-bold">Bạn chưa có địa chỉ nhận hàng nào</h5>
+            <p class="text-muted">Thêm địa chỉ để quá trình đặt hàng nhanh chóng và thuận tiện hơn.</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var address in Model)
+        {
+            <div class="col-md-6">
+                <div class="card h-100 border @(address.IsDefault ? "border-primary" : "border-light-subtle") shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h6 class="fw-bold mb-0 text-dark">@address.ReceiverName</h6>
+                            @if (address.IsDefault)
+                            {
+                                <span class="badge bg-primary rounded-pill px-2 py-1"><i class="fa-solid fa-check me-1"></i> Mặc định</span>
+                            }
+                        </div>
+                        
+                        <div class="small text-muted mb-3">
+                            <div class="mb-1"><i class="fa-solid fa-phone me-2 opacity-50"></i> @address.PhoneNumber</div>
+                            <div><i class="fa-solid fa-location-dot me-2 opacity-50"></i> @address.StreetAddress, @address.Ward, @address.District, @address.Province</div>
+                        </div>
+
+                        <div class="d-flex gap-2 border-top pt-3 mt-auto">
+                            @if (!address.IsDefault)
+                            {
+                                <form asp-action="SetDefault" asp-route-id="@address.Id" method="post" class="flex-grow-1">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary w-100 fw-bold">Thiết lập mặc định</button>
+                                </form>
+                            }
+                            <form asp-action="Delete" asp-route-id="@address.Id" method="post" onsubmit="return confirm('Bạn chắc chắn muốn xóa địa chỉ này?')" class="@(address.IsDefault ? "w-100" : "flex-shrink-0")">
+                                <button type="submit" class="btn btn-sm btn-outline-danger @(address.IsDefault ? "w-100" : "")" @(address.IsDefault ? "disabled" : "")>
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold" id="addAddressModalLabel"><i class="fa-solid fa-plus me-2 text-primary"></i> Thêm địa chỉ mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Tên người nhận</label>
+                            <input name="ReceiverName" class="form-control" required placeholder="Họ và tên" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Số điện thoại</label>
+                            <input name="PhoneNumber" class="form-control" required placeholder="0xxx xxx xxx" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Tỉnh / Thành phố</label>
+                            <input name="Province" class="form-control" required placeholder="Ví dụ: TP.HCM" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Quận / Huyện</label>
+                            <input name="District" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Phường / Xã</label>
+                            <input name="Ward" class="form-control" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Địa chỉ cụ thể</label>
+                            <textarea name="StreetAddress" class="form-control" rows="2" required placeholder="Số nhà, tên đường..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top p-3">
+                    <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Lưu địa chỉ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+    }
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: none;
+    }
+</style>

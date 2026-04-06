@@ -1,0 +1,52 @@
+@model PowerTech.Models.Entities.UserAddress
+@{
+    ViewData["Title"] = "Thêm địa chỉ giao hàng";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h2 class="h4 fw-bold mb-4 text-center">Thông tin giao hàng</h2>
+                <form asp-action="AddAddress" method="post">
+                    <div class="mb-3">
+                        <label asp-for="ReceiverName" class="form-label small fw-bold text-muted">Họ và tên người nhận</label>
+                        <input asp-for="ReceiverName" class="form-control" placeholder="Ví dụ: Nguyễn Văn A" required>
+                        <span asp-validation-for="ReceiverName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PhoneNumber" class="form-label small fw-bold text-muted">Số điện thoại</label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="Ví dụ: 0912345678" required>
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Province" class="form-label small fw-bold text-muted">Tỉnh/Thành phố</label>
+                            <input asp-for="Province" class="form-control" placeholder="TP. Hồ Chí Minh" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="District" class="form-label small fw-bold text-muted">Quận/Huyện</label>
+                            <input asp-for="District" class="form-control" placeholder="Quận 1" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Ward" class="form-label small fw-bold text-muted">Phường/Xã</label>
+                            <input asp-for="Ward" class="form-control" placeholder="Phường Bến Nghé" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="StreetAddress" class="form-label small fw-bold text-muted">Địa chỉ chi tiết (số nhà, tên đường)</label>
+                        <input asp-for="StreetAddress" class="form-control" placeholder="Ví dụ: 123 Đường Lê Lợi" required>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary py-3 fw-bold rounded-pill">GIAO ĐẾN ĐỊA CHỈ NÀY</button>
+                        <a asp-action="Index" class="btn btn-link text-muted text-decoration-none small">Quay lại danh sách</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

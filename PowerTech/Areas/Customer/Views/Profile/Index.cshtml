@@ -1,0 +1,82 @@
+@model PowerTech.Models.Entities.ApplicationUser
+
+@{
+    ViewData["Title"] = "Thông tin hồ sơ";
+    Layout = "_CustomerLayout";
+}
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <h3 class="mb-0 fw-bold"><i class="fa-solid fa-id-card me-2 text-primary"></i> Thông tin hồ sơ</h3>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form asp-action="UpdateProfile" method="post">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Họ và tên</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-regular fa-user text-muted"></i></span>
+                <input asp-for="FullName" class="form-control border-start-0 ps-0" placeholder="Nhập họ và tên đầy đủ" required />
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Email</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="fa-regular fa-envelope text-muted"></i></span>
+                <input asp-for="Email" class="form-control border-start-0 ps-0 bg-light" readonly />
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">Số điện thoại</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-phone text-muted"></i></span>
+                <input asp-for="PhoneNumber" class="form-control border-start-0 ps-0" placeholder="0xxx xxx xxx" />
+            </div>
+        </div>
+
+        <div class="col-md-12 mt-5">
+            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">
+                <i class="fa-solid fa-floppy-disk me-2"></i> Lưu thay đổi
+            </button>
+        </div>
+    </div>
+</form>
+
+<style>
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: none;
+    }
+    .input-group-text {
+        border-color: #dee2e6;
+    }
+    .form-control {
+        border-color: #dee2e6;
+    }
+    .btn-primary {
+        background: var(--primary);
+        border: none;
+        transition: transform 0.2s;
+    }
+    .btn-primary:hover {
+        background: #b51e25;
+        transform: translateY(-2px);
+    }
+</style>

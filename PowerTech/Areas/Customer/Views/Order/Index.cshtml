@@ -1,0 +1,115 @@
+@model IEnumerable<PowerTech.Models.Entities.Order>
+
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+    Layout = "_CustomerLayout";
+}
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <h3 class="mb-0 fw-bold"><i class="fa-solid fa-box-open me-2 text-primary"></i> Đơn hàng của tôi</h3>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <div class="mb-4" style="font-size: 64px; color: #dee2e6;">
+            <i class="fa-solid fa-receipt"></i>
+        </div>
+        <h5 class="fw-bold">Bạn chưa có đơn hàng nào</h5>
+        <p class="text-muted">Hãy tham khảo các sản phẩm linh kiện chất lượng nhất tại cửa hàng nhé!</p>
+        <a asp-area="Store" asp-controller="Home" asp-action="Index" class="btn btn-outline-primary px-4 mt-3 fw-bold">
+            <i class="fa-solid fa-cart-shopping me-2"></i> Tiếp tục mua sắm
+        </a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="bg-light border-0">
+                <tr>
+                    <th class="py-3 border-0">Mã đơn hàng</th>
+                    <th class="py-3 border-0">Ngày đặt</th>
+                    <th class="py-3 border-0 text-end">Tổng tiền</th>
+                    <th class="py-3 border-0 text-center">Trạng thái</th>
+                    <th class="py-3 border-0 text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody class="border-top-0">
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td><span class="fw-bold text-primary">#@order.OrderCode</span></td>
+                        <td class="text-muted small">@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="text-end fw-bold text-danger">@order.TotalAmount.ToString("N0")₫</td>
+                        <td class="text-center">
+                            @{
+                                var badgeClass = order.OrderStatus switch
+                                {
+                                    "Pending" => "bg-warning",
+                                    "Processing" => "bg-info",
+                                    "Shipping" => "bg-primary",
+                                    "Completed" => "bg-success",
+                                    "Cancelled" => "bg-danger",
+                                    "Returned" => "bg-dark",
+                                    _ => "bg-secondary"
+                                };
+
+                                var statusText = order.OrderStatus switch
+                                {
+                                    "Pending" => "Chờ xác nhận",
+                                    "Processing" => "Đang xử lý",
+                                    "Shipping" => "Đang giao hàng",
+                                    "Completed" => "Hoàn tất",
+                                    "Cancelled" => "Đã hủy",
+                                    "Returned" => "Trả hàng",
+                                    _ => order.OrderStatus
+                                };
+                            }
+                            <span class="badge @badgeClass rounded-pill px-3 py-2 fw-normal">@statusText</span>
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Detail" asp-route-id="@order.Id" class="btn btn-sm btn-outline-secondary px-3 py-1 fw-bold">
+                                <i class="fa-solid fa-eye me-1 opacity-75"></i> Chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<style>
+    .table th {
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        color: #6c757d;
+        letter-spacing: 0.5px;
+    }
+    .table td {
+        font-size: 14px;
+        padding-top: 1.25rem;
+        padding-bottom: 1.25rem;
+    }
+    .badge {
+        font-size: 11px;
+    }
+    .btn-outline-primary {
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+    .btn-outline-primary:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+</style>

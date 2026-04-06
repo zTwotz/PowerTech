@@ -1,0 +1,57 @@
+@model PowerTech.Models.Entities.Product
+
+<div class="product-card">
+    <a asp-area="Store" asp-controller="Product" asp-action="Detail" asp-route-slug="@Model.Slug" class="text-decoration-none">
+        <div class="product-img-wrapper">
+            <img src="@(string.IsNullOrEmpty(Model.ThumbnailUrl) ? "https://placehold.co/300x300?text=No+Image" : Model.ThumbnailUrl)" 
+                 class="product-img" alt="@Model.Name" loading="lazy">
+            
+            @if (Model.DiscountPrice.HasValue)
+            {
+                <div class="product-badge discount">
+                    -@(((Model.Price - Model.DiscountPrice.Value) / Model.Price * 100).ToString("N0"))%
+                </div>
+            }
+            
+            @if (Model.IsFeatured)
+            {
+                <div class="product-badge featured">HOT</div>
+            }
+        </div>
+        
+        <div class="product-info">
+            <h3 class="product-name" title="@Model.Name">@Model.Name</h3>
+            
+            <div class="product-pricing">
+                @if (Model.DiscountPrice.HasValue)
+                {
+                    <div class="price-new">@Model.DiscountPrice.Value.ToString("N0")₫</div>
+                    <div class="price-old">@Model.Price.ToString("N0")₫</div>
+                }
+                else
+                {
+                    <div class="price-new">@Model.Price.ToString("N0")₫</div>
+                }
+            </div>
+            
+            <div class="product-footer mt-auto">
+                @if (Model.StockQuantity > 0)
+                {
+                    <span class="stock-status in-stock">
+                        <i class="fa-solid fa-check-circle"></i> Sẵn hàng
+                    </span>
+                    <button type="button" class="btn btn-sm btn-primary rounded-pill quick-add-btn" 
+                            onclick="event.preventDefault(); quickAddToCart(@Model.Id)" title="Thêm vào giỏ">
+                        <i class="fa-solid fa-cart-plus"></i>
+                    </button>
+                }
+                else
+                {
+                    <span class="stock-status out-of-stock">
+                        <i class="fa-solid fa-times-circle"></i> Hết hàng
+                    </span>
+                }
+            </div>
+        </div>
+    </a>
+</div>

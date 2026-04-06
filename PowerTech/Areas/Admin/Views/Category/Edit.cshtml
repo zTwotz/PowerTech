@@ -1,0 +1,99 @@
+@model PowerTech.Models.Entities.Category
+@{
+    ViewData["Title"] = $"Chỉnh sửa danh mục: {Model.Name}";
+    var categories = ViewBag.Categories as List<PowerTech.Models.Entities.Category>;
+}
+
+<div class="admin-page-title">
+    <div>
+        <h1 class="h3 fw-800 mb-0">@ViewData["Title"]</h1>
+        <p class="text-muted small mb-0">Cập nhật thông tin định danh và thuộc tính danh mục</p>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-2"></i> Quay lại</a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-body p-4 p-md-5">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CreatedAt" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-4"></div>
+
+                    <div class="row g-4">
+                        <div class="col-md-7">
+                            <label asp-for="Name" class="form-label fw-bold">Tên danh mục <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" placeholder="Tai nghe, Laptop, CPU..." onkeyup="generateSlug()" id="inputName"/>
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-5">
+                            <label asp-for="DisplayOrder" class="form-label fw-bold">Thứ tự hiển thị</label>
+                            <input asp-for="DisplayOrder" class="form-control" type="number" />
+                            <span asp-validation-for="DisplayOrder" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Slug" class="form-label fw-bold">Slug (URL) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted">/category/</span>
+                                <input asp-for="Slug" class="form-control" id="inputSlug" readonly/>
+                            </div>
+                            <span asp-validation-for="Slug" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="ParentCategoryId" class="form-label fw-bold">Danh mục cha</label>
+                            <select asp-for="ParentCategoryId" class="form-select">
+                                <option value="">-- Danh mục gốc (Cấp 1) --</option>
+                                @foreach (var cat in categories ?? new())
+                                {
+                                    <option value="@cat.Id">@cat.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ParentCategoryId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 d-flex align-items-end pb-2">
+                             <div class="form-check form-switch mb-2">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" id="isActiveCheck">
+                                <label class="form-check-label fw-bold" for="isActiveCheck">Trạng thái Kích hoạt</label>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label fw-bold">Mô tả danh mục</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Thông tin tóm tắt về sản phẩm thuộc danh mục này..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 mt-5">
+                            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold text-uppercase">
+                                <i class="fa-solid fa-save me-2"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function generateSlug() {
+            var name = document.getElementById('inputName').value;
+            var slug = name.toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[đĐ]/g, "d")
+                .replace(/([^0-9a-z-\s])/g, "")
+                .replace(/(\s+)/g, "-")
+                .replace(/-+/g, "-")
+                .replace(/^-+|-+$/g, "");
+            document.getElementById('inputSlug').value = slug;
+        }
+    </script>
+}

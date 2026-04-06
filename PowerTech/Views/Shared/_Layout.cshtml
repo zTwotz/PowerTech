@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PowerTech</title>
+    
+    <!-- Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons - FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PowerTech.styles.css" asp-append-version="true" />
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="top-bar">
+        @Html.AntiForgeryToken()
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <span class="me-3"><i class="fa-solid fa-phone me-1"></i> Hotline: 1900 1234</span>
+                <span><i class="fa-solid fa-location-dot me-1"></i> Hệ thống showroom</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="#"><i class="fa-solid fa-newspaper me-1"></i> Tin công nghệ</a>
+                <a href="#"><i class="fa-solid fa-headset me-1"></i> Hỗ trợ</a>
+                <partial name="_LoginPartial" />
+            </div>
+        </div>
+    </div>
+
+    <div class="header-wrapper">
+        <div class="container">
+            <header class="main-header">
+                <a class="logo" asp-area="Store" asp-controller="Home" asp-action="Index">
+                    <img src="/images/logo.png" alt="PowerTech Logo" style="height: 50px;" />
+                </a>
+
+                <div class="search-box">
+                    <form asp-area="Store" asp-controller="Product" asp-action="Index" method="get">
+                        <input type="text" name="q" placeholder="Hôm nay bạn cần tìm linh kiện gì?" value="@ViewContext.HttpContext.Request.Query["q"]" />
+                        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </form>
+                </div>
+
+                <div class="header-actions">
+                    @using PowerTech.Constants
+                    @if (User.Identity?.IsAuthenticated == true && (User.IsInRole(UserRoles.Admin) || User.IsInRole(UserRoles.SalesStaff) || User.IsInRole(UserRoles.WarehouseStaff) || User.IsInRole(UserRoles.SupportStaff)))
+                    {
+                        <div class="dropdown me-3">
+                            <a class="action-item dropdown-toggle no-caret border-0 bg-transparent p-0" 
+                               href="#" id="opsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-briefcase"></i>
+                                <span>Nghiệp vụ</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-3" aria-labelledby="opsDropdown" style="min-width: 240px; padding: 10px;">
+                                <li class="px-3 py-2 border-bottom mb-2">
+                                    <h6 class="fw-bold mb-0 text-dark small">QUẢN TRỊ VẬN HÀNH</h6>
+                                    <small class="text-muted" style="font-size: 10px;">Dành cho nhân viên & Admin</small>
+                                </li>
+                                @if (User.IsInRole(UserRoles.Admin))
+                                {
+                                    <li><a class="dropdown-item py-2 rounded-3" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-gauge-high me-2 text-danger"></i> Quản trị hệ thống</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                }
+                                @if (User.IsInRole(UserRoles.Admin) || User.IsInRole(UserRoles.SalesStaff))
+                                {
+                                    <li><a class="dropdown-item py-2 rounded-3" asp-area="Sales" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-sack-dollar me-2 text-success"></i> Bộ phận Sales</a></li>
+                                }
+                                @if (User.IsInRole(UserRoles.Admin) || User.IsInRole(UserRoles.WarehouseStaff))
+                                {
+                                    <li><a class="dropdown-item py-2 rounded-3" asp-area="Warehouse" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-boxes-stacked me-2 text-warning"></i> Bộ phận Kho</a></li>
+                                }
+                                @if (User.IsInRole(UserRoles.Admin) || User.IsInRole(UserRoles.SupportStaff))
+                                {
+                                    <li><a class="dropdown-item py-2 rounded-3" asp-area="Support" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-headset me-2 text-info"></i> Bộ phận Support</a></li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <a asp-area="Customer" asp-controller="Profile" asp-action="Index" class="action-item">
+                        <i class="fa-regular fa-user"></i>
+                        <span>Tài khoản</span>
+                    </a>
+                    <a asp-area="Store" asp-controller="Cart" asp-action="Index" class="action-item">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span>Giỏ hàng</span>
+                        <span class="badge-count">0</span>
+                    </a>
+                </div>
+            </header>
+        </div>
+        
+        <nav class="nav-menu">
+            <div class="container">
+                @await Component.InvokeAsync("CategoryMenu")
+            </div>
+        </nav>
+    </div>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-title">Thông tin thương hiệu</div>
+                    <ul class="footer-links">
+                        <li><a href="#">Về PowerTech</a></li>
+                        <li><a href="#">Hệ thống cửa hàng</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-title">Chính sách mua hàng</div>
+                    <ul class="footer-links">
+                        <li><a href="#">Chính sách bảo hành</a></li>
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">Phương thức thanh toán</a></li>
+                        <li><a href="#">Chính sách giao hàng</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-title">Hỗ trợ khách hàng</div>
+                    <ul class="footer-links">
+                        <li><a href="#">Hướng dẫn trả góp</a></li>
+                        <li><a href="#">Hướng dẫn mua hàng online</a></li>
+                        <li><a href="#">Gửi yêu cầu hỗ trợ</a></li>
+                        <li><a href="#">Khiếu nại - góp ý</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-title">Kết nối với chúng tôi</div>
+                    <div class="d-flex gap-3 mb-3">
+                        <a href="#" style="font-size: 24px; color: #1877F2;"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" style="font-size: 24px; color: #FF0000;"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#" style="font-size: 24px; color: #000000;"><i class="fa-brands fa-tiktok"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2026 - PowerTech. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function() {
+            $.get('/Store/Cart/GetCartCount', function(count) {
+                $('.badge-count').text(count);
+            });
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

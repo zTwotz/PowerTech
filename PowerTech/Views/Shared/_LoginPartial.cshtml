@@ -1,0 +1,35 @@
+@using Microsoft.AspNetCore.Identity
+@using PowerTech.Models.Entities
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav align-items-center gap-2">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+        <a class="nav-link p-0 text-white" asp-area="Customer" asp-controller="Profile" asp-action="Index" title="Hồ sơ">
+            <i class="fa-regular fa-circle-user me-1"></i> @User.Identity?.Name!
+        </a>
+    </li>
+    <li class="nav-item">
+        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "Store" })">
+            <button type="submit" class="nav-link btn btn-link p-0 text-white" style="font-size: 13px;">
+                <i class="fa-solid fa-right-from-bracket ms-2"></i> Đăng xuất
+            </button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link p-0 text-white" asp-area="Identity" asp-page="/Account/Login" style="font-size: 13px;">
+            <i class="fa-solid fa-lock me-1"></i> Đăng nhập
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link p-0 text-white" asp-area="Identity" asp-page="/Account/Register" style="font-size: 13px;">
+             Đăng ký
+        </a>
+    </li>
+}
+</ul>

@@ -1,0 +1,244 @@
+@model PowerTech.Models.Entities.Product
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+@section Styles {
+}
+
+<div class="main-content-wrapper">
+    <div class="container my-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="Store" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-area="Store" asp-controller="Product" asp-action="Index" asp-route-categoryId="@Model.CategoryId">@Model.Category?.Name</a></li>
+                <li class="breadcrumb-item active">@Model.Name</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4">
+            <!-- Gallery -->
+            <div class="col-lg-5">
+                <div class="product-gallery">
+                    <div class="main-img-container">
+                        <img id="mainImage" src="@(string.IsNullOrEmpty(Model.ThumbnailUrl) ? "https://placehold.co/600x600?text=No+Image" : Model.ThumbnailUrl)" class="main-img" />
+                    </div>
+                
+                @if (Model.ProductImages != null && Model.ProductImages.Any())
+                {
+                    <div class="thumb-list">
+                        <img src="@Model.ThumbnailUrl" class="thumb-item active" onclick="updateMainImage(this.src, this)" />
+                        @foreach (var img in Model.ProductImages)
+                        {
+                            <img src="@img.ImageUrl" class="thumb-item" onclick="updateMainImage(this.src, this)" />
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="col-lg-7">
+            <div class="product-info-card">
+                <a href="#" class="brand-link">@Model.Brand?.Name</a>
+                <h1 class="product-title">@Model.Name</h1>
+                
+                <div class="mb-3">
+                    <span class="me-3 small"><i class="fa-solid fa-barcode me-1"></i> SKU: <strong>@Model.SKU</strong></span>
+                    <span class="small"><i class="fa-solid fa-shield-halved me-1"></i> Bảo hành: <strong>@Model.WarrantyMonths tháng</strong></span>
+                </div>
+
+                <div class="price-section">
+                    @if (Model.DiscountPrice.HasValue)
+                    {
+                        <div class="detail-price-new">@Model.DiscountPrice.Value.ToString("N0")₫</div>
+                        <div>
+                            <span class="detail-price-old">@Model.Price.ToString("N0")₫</span>
+                            <span class="badge bg-danger ms-2">-@(((Model.Price - Model.DiscountPrice.Value) / Model.Price * 100).ToString("N0"))%</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="detail-price-new">@Model.Price.ToString("N0")₫</div>
+                    }
+                </div>
+
+                <div class="short-desc text-muted mb-4">
+                    @Model.ShortDescription
+                </div>
+
+                <div class="stock-info mb-4">
+                    Tình trạng: 
+                    @if (Model.StockQuantity > 0)
+                    {
+                        <span class="text-success fw-bold"><i class="fa-solid fa-circle-check"></i> Còn hàng (@Model.StockQuantity)</span>
+                    }
+                    else
+                    {
+                        <span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark"></i> Hết hàng</span>
+                    }
+                </div>
+
+                @if (Model.StockQuantity > 0)
+                {
+                    <div class="mb-3 d-flex align-items-center gap-3">
+                        <span class="small fw-bold">Số lượng:</span>
+                        <div class="input-group" style="width: 140px;">
+                            <button class="btn btn-outline-secondary" type="button" onclick="changeQty(-1)">-</button>
+                            <input type="number" id="productQuantity" class="form-control text-center fw-bold" value="1" min="1" max="@Model.StockQuantity">
+                            <button class="btn btn-outline-secondary" type="button" onclick="changeQty(1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="buy-actions">
+                        <button class="btn-buy-now" onclick="buyNow(@Model.Id)">MUA NGAY</button>
+                        <button class="btn-add-cart" id="btnAddToCart" onclick="addToCart(@Model.Id)">
+                            <i class="fa-solid fa-cart-plus me-2"></i> THÊM VÀO GIỎ
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <button class="btn btn-secondary w-100 p-3 fw-bold mt-4" disabled>SẢN PHẨM TẠM HẾT HÀNG</button>
+                }
+                
+                <div class="mt-4 p-3 rounded-2 border border-warning bg-light small">
+                    <i class="fa-solid fa-gift text-warning me-2"></i> <strong>Ưu đãi khi mua tại PowerTech:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Freeship nội thành trong vòng 2h.</li>
+                        <li>Tặng gói vệ sinh máy tính trọn đời.</li>
+                        <li>Hỗ trợ trả góp 0% qua thẻ tín dụng.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Tabs -->
+    <div class="row mt-5">
+        <div class="col-lg-8">
+            <div class="product-description-card p-4">
+                <h3 class="h5 fw-bold border-bottom pb-3 mb-4"><i class="fa-solid fa-file-lines me-2 text-primary"></i>Mô tả sản phẩm</h3>
+                <div class="desc-content">
+                    @Html.Raw(Model.Description)
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="product-spec-card p-4">
+                <h3 class="h5 fw-bold border-bottom pb-3 mb-4"><i class="fa-solid fa-list-check me-2 text-primary"></i>Thông số kỹ thuật</h3>
+                <table class="spec-table">
+                    @if (Model.ProductSpecifications != null)
+                    {
+                        @foreach (var spec in Model.ProductSpecifications)
+                        {
+                            <tr>
+                                <td class="spec-label">@(spec.SpecificationDefinition?.DisplayName ?? spec.SpecificationDefinition?.SpecName)</td>
+                                <td>@spec.DisplayValue</td>
+                            </tr>
+                        }
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    @if (ViewBag.RelatedProducts != null && ((IEnumerable<PowerTech.Models.Entities.Product>)ViewBag.RelatedProducts).Any())
+    {
+        <div class="related-section mt-5 py-5 border-top">
+            <h3 class="h4 fw-bold mb-4">Sản phẩm liên quan</h3>
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+                @foreach (var p in (IEnumerable<PowerTech.Models.Entities.Product>)ViewBag.RelatedProducts)
+                {
+                    <div class="col">
+                        <partial name="_ProductCard" model="p" />
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function updateMainImage(src, thumb) {
+            document.getElementById('mainImage').src = src;
+            document.querySelectorAll('.thumb-item').forEach(el => el.classList.remove('active'));
+            thumb.classList.add('active');
+        }
+
+        function changeQty(delta) {
+            const input = document.getElementById('productQuantity');
+            let val = parseInt(input.value) + delta;
+            if (val >= 1 && val <= parseInt(input.getAttribute('max'))) {
+                input.value = val;
+            }
+        }
+
+        function addToCart(productId) {
+            const qty = document.getElementById('productQuantity').value;
+            
+            $.ajax({
+                url: '/Store/Cart/Add',
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    quantity: qty,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(res) {
+                    if (res.success) {
+                        $('.badge-count').text(res.count);
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: res.message,
+                            icon: 'success',
+                            showCancelButton: true,
+                            confirmButtonText: 'Đến giỏ hàng',
+                            cancelButtonText: 'Tiếp tục mua sắm',
+                            confirmButtonColor: '#D7262E'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/Store/Cart';
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Thông báo',
+                            text: res.message,
+                            icon: 'info',
+                            confirmButtonText: 'Đăng nhập ngay',
+                            showCancelButton: true,
+                            confirmButtonColor: '#D7262E'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/Identity/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+                            }
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire('Lỗi', 'Đã có lỗi xảy ra, vui lòng thử lại sau!', 'error');
+                }
+            });
+        }
+
+        function buyNow(productId) {
+            const qty = document.getElementById('productQuantity').value;
+            $.post('/Store/Cart/Add', { 
+                productId: productId, 
+                quantity: qty,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            }, function(res) {
+                if (res.success) {
+                    window.location.href = '/Store/Cart';
+                } else {
+                    window.location.href = '/Identity/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+                }
+            });
+        }
+    </script>
+}
