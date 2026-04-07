@@ -1,0 +1,100 @@
+@model PowerTech.Models.Entities.Brand
+@{
+    ViewData["Title"] = "Sửa thương hiệu: " + Model.Name;
+    Layout = "_AdminLayout";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col-auto">
+        <a asp-action="Index" class="btn btn-outline-secondary btn-icon d-flex align-items-center justify-content-center p-2 rounded-2">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+    </div>
+    <div class="col px-0">
+        <h1 class="h3 fw-bold mb-0 text-dark">Sửa thương hiệu: @Model.Name</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8 col-lg-10 mx-auto">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4 p-md-5">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CreatedAt" />
+                    
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-4 fst-italic"></div>
+                    
+                    <div class="row gy-4">
+                        <!-- Brand Name & Status -->
+                        <div class="col-md-7">
+                            <label asp-for="Name" class="form-label fw-bold text-muted small text-uppercase">Tên thương hiệu <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control form-control-lg bg-light border-0 shadow-none px-4 py-3 rounded-2" placeholder="VD: ASUS, MSI..." required />
+                        </div>
+                        
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold text-muted small text-uppercase">Trạng thái hiện tại</label>
+                            <div class="form-check form-switch bg-light py-3 px-4 rounded-2 d-flex align-items-center gap-3">
+                                <input class="form-check-input ms-0 shadow-none" type="checkbox" asp-for="IsActive" style="width: 45px; height: 22px;">
+                                <label class="form-check-label mb-0 small fw-bold text-dark" for="IsActive">Đang hiển thị</label>
+                            </div>
+                        </div>
+
+                        <!-- Brand Country -->
+                        <div class="col-md-12">
+                            <label asp-for="Country" class="form-label fw-bold text-muted small text-uppercase">Quốc gia <span class="text-danger">*</span></label>
+                            <input asp-for="Country" class="form-control form-control-lg bg-light border-0 shadow-none px-4 py-3 rounded-2" placeholder="VD: Đài Loan, Mỹ..." required />
+                        </div>
+
+                        <!-- Logo URL -->
+                        <div class="col-12">
+                            <label asp-for="LogoUrl" class="form-label fw-bold text-muted small text-uppercase">Link ảnh Logo</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0 ps-4 pe-3 rounded-start-2 border-end border-white text-muted">
+                                    <i class="fa-solid fa-link"></i>
+                                </span>
+                                <input asp-for="LogoUrl" class="form-control form-control-lg bg-light border-0 shadow-none px-3 py-3 rounded-end-2" placeholder="Dán link ảnh mới..." id="logoUrlInput" />
+                            </div>
+                            
+                            <!-- Logo Preview -->
+                            <div class="mt-4 p-4 border border-dashed rounded-3 bg-light text-center" style="min-height: 150px; border-width: 2px;">
+                                <div id="previewContainer">
+                                    <img id="logoPreview" src="@(string.IsNullOrEmpty(Model.LogoUrl) ? "/images/no-image.png" : Model.LogoUrl)" 
+                                         class="object-fit-contain mw-100 mb-3 rounded shadow-sm" style="max-height: 120px; transition: all 0.3s ease;">
+                                    <div class="text-muted small">Xem trước logo thay đổi</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label fw-bold text-muted small text-uppercase">Mô tả ngắn hãng</label>
+                            <textarea asp-for="Description" rows="4" class="form-control bg-light border-0 shadow-none px-4 py-3 rounded-2" placeholder="Viết giới thiệu mới..."></textarea>
+                        </div>
+
+                        <div class="col-12 text-end pt-3">
+                            <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold shadow-sm rounded-2">
+                                <i class="fa-solid fa-save me-2"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('logoUrlInput').addEventListener('input', function() {
+            var url = this.value;
+            var preview = document.getElementById('logoPreview');
+            if (url) {
+                preview.src = url;
+            } else {
+                preview.src = "/images/no-image.png";
+            }
+        });
+    </script>
+}

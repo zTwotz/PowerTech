@@ -160,8 +160,31 @@
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Logic xóa AJAX sẽ thực hiện ở đây
-                    Swal.fire('Đã xóa!', 'Sản phẩm đã được loại bỏ.', 'success');
+                    $.ajax({
+                        url: '@Url.Action("Delete", "Product", new { area = "Admin" })',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function (res) {
+                            if (res.success) {
+                                Swal.fire({
+                                    title: 'Đã xóa!',
+                                    text: res.message || 'Sản phẩm đã được loại bỏ.',
+                                    icon: 'success'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Không thể xóa!',
+                                    text: res.message || 'Có lỗi xảy ra khi xóa sản phẩm.',
+                                    icon: 'error'
+                                });
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Lỗi!', 'Không thể kết nối đến máy chủ.', 'error');
+                        }
+                    });
                 }
             })
         }

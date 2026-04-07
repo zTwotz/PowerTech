@@ -207,12 +207,48 @@ namespace PowerTech.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var p = await _context.Products.FindAsync(id);
-            if (p == null) return Json(new { success = false });
+            try
+            {
+                var p = await _context.Products
+                    .Include(x => x.ProductImages)
+                    .Include(x => x.ProductSpecifications)
+                    .FirstOrDefaultAsync(x => x.Id == id);
 
-            _context.Products.Remove(p);
-            await _context.SaveChangesAsync();
-            return Json(new { success = true });
+                if (p == null) 
+                    return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
+
+                // Check if product is in any order
+                var isInOrder = await _context.OrderItems.AnyAsync(oi => oi.ProductId == id);
+                if (isInOrder)
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Sản phẩm này đã có trong đơn hàng. Bạn nên 'Ẩn' sản phẩm thay vì xóa để giữ lại lịch sử đơn hàng cho khách." 
+                    });
+                }
+
+                // Check if product is in any cart
+                var isInCart = await _context.CartItems.AnyAsync(ci => ci.ProductId == id);
+                if (isInCart)
+                {
+                    // Optionally we can remove it from carts or prevent delete
+                    var cartItems = _context.CartItems.Where(ci => ci.ProductId == id);
+                    _context.CartItems.RemoveRange(cartItems);
+                }
+
+                // Remove images and specs first
+                if (p.ProductImages != null) _context.ProductImages.RemoveRange(p.ProductImages);
+                if (p.ProductSpecifications != null) _context.ProductSpecifications.RemoveRange(p.ProductSpecifications);
+
+                _context.Products.Remove(p);
+                await _context.SaveChangesAsync();
+                
+                return Json(new { success = true, message = "Xóa sản phẩm thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
         }
 
         private async Task LoadDropdowns()

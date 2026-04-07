@@ -48,6 +48,11 @@
                         <i class="fa-solid fa-tags"></i> Danh mục
                     </a>
                 </li>
+                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Brand" ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="Brand" asp-action="Index">
+                        <i class="fa-solid fa-award"></i> Thương hiệu
+                    </a>
+                </li>
                 
                 <li class="menu-header">Hệ thống</li>
                 <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Order" ? "active" : "")">
