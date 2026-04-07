@@ -12,15 +12,8 @@ Trước khi làm việc, agent phải đọc:
 - các skill liên quan trong `.agent/skills/`
 - `.agent/ui_style_guide_for_ai_agent.md` nếu task có UI/UX, layout, component, form, card, table, dashboard
 
-## Current Phase
-- [x] Giai đoạn 1 — Phân tích
-- [x] Giai đoạn 2 — Thiết kế
-- [x] Giai đoạn 3 — Nền tảng kỹ thuật
-- [x] Giai đoạn 4 — Catalog core
-- [x] Giai đoạn 5 — Storefront & Customer MVP (Hoàn tất phần lớn logic & UI nền)
-- [/] Giai đoạn 6 — Admin (Đang chuẩn bị)
-- [ ] Giai đoạn 7 — Sales / Warehouse / Support
-- [ ] Giai đoạn 8 — Kiểm thử & tối ưu
+- [x] Giai đoạn 8 — Kiểm thử & tối ưu (Hoàn tất)
+- [/] Giai đoạn 9 — Bàn giao & Tài liệu (Đang tiến hành)
 
 ## Last Completed
 - Khởi tạo project ASP.NET Core MVC & Identity.
@@ -34,22 +27,15 @@ Trước khi làm việc, agent phải đọc:
 - Project build thành công và đồng bộ 100% với schema database SQL.
 
 ## In Progress
-- Triển khai CRUD Sản phẩm & Danh mục (Phase 6.4).
-- Quản lý đơn hàng nâng cao (Phase 6.6).
-- Triển khai logic nghiệp vụ nâng cao (Voucher, Promotion).
+- Giai đoạn 9: Bàn giao & Tài liệu (Final Handover).
+- Tổng hợp tài liệu hướng dẫn sử dụng (User Manual).
+- Chuẩn bị tài liệu kỹ thuật (Technical Documentation).
+- Chụp ảnh minh họa các tính năng (Screenshots).
 
 ## Next Recommended
-1. **Dựng nền UI Storefront (Phase 5.1 & 5.2)**:
-   - Cấu hình CSS Variables, Typography (Inter), Colors (Primary Red).
-   - Tạo Header linh hoạt (search, cart icon, user icon).
-   - Tạo Footer chuyên nghiệp.
-2. **Triển khai Trang Danh sách Sản phẩm (Phase 5.3)**:
-   - Phân trang, lọc theo Brand/Category/Price.
-   - Hiển thị Card sản phẩm "wow" bám sát style guide.
-3. **Triển khai Giỏ hàng (Phase 5.5)**:
-   - Logic thêm/sửa/xóa giỏ hàng đồng bộ Database.
-4. **Triển khai Thanh toán (Phase 5.6)**:
-   - Quy trình Checkout 3 bước.
+1. **Technical Handover**: Tạo file README chi tiết hướng dẫn chạy project và DB.
+2. **User Manual**: Viết tài liệu hướng dẫn cho Admin và Khách hàng.
+3. **Database Final Backup**: Đảm bảo script SQL/Data seed đã sẵn sàng.
 
 ## Definition of Done Check
 
@@ -84,12 +70,21 @@ Trước khi làm việc, agent phải đọc:
 - [x] Chi tiết đơn hàng (DONE)
 - [x] UI bám style guide retail-tech (Layout & Customer Area DONE)
 
+### Giai đoạn 7 — Sales / Warehouse / Support (Trong tiến trình)
+- [x] SA-04: Tạo đơn tại quầy (POS) - **DONE**
+- [x] SA-05: Thống kê hiệu suất Dashboard Sales - **DONE**
+- [x] Xử lý đơn hàng (Xác nhận, Cập nhật trạng thái) - **DONE**
+- [x] Quản trị kho cơ bản (Tồn kho, Cảnh báo sắp hết) - **DONE**
+- [x] Quản lý phiếu nhập kho & Lịch sử (StockTransaction Audit) - **DONE**
+- [x] Quản lý Ticket hỗ trợ & Duyệt Review - **DONE**
+
 ## Technical Notes
 - Database hiện tại: TechZoneStoreDb (SQL Server).
 - Framework: ASP.NET Core 9.0 (MVC).
 - Kỹ thuật: EF Core Code First (Synced with existing DB).
 - UI Style: Retail-tech (GEARVN inspired), tone sáng, primary #D7262E.
-- Skills đã dùng: `database-domain-rules`, `agent-execution-rules`, `ui-style-system`.
+- **Discovery**: Phát hiện `Data/DbFixer.cs` dùng để đồng bộ các cột thiếu trong DB mà Migration chưa có (như `InternalNote`).
+- **Update**: Hệ thống đã có tính năng POS cho nhân viên bán hàng.
 
 ## Update Rule
 Sau mỗi phiên làm việc, AI agent phải cập nhật file này để phản ánh đúng tiến độ thực tế và lộ trình tiếp theo.

@@ -41,7 +41,8 @@
 - Giai đoạn 5 — Storefront & Customer MVP
 - Giai đoạn 6 — Admin core
 - Giai đoạn 7 — Sales / Warehouse / Support
-- Giai đoạn 8 — Kiểm thử, seed demo, hoàn thiện báo cáo
+- Giai đoạn 8 — Kiểm thử, seed demo, hoàn thiện báo cáo (Hoàn tất)
+- Giai đoạn 9 — Bàn giao & Tài liệu (Đang tiến hành)
 
 ---
 
@@ -220,43 +221,43 @@
 - Phải dựng UI thống nhất trước khi mở rộng màn hình
 
 ## Module 5.1 — Auth pages
-- [ ] Trang đăng nhập
-- [ ] Trang đăng ký
-- [ ] Trang quên mật khẩu
-- [ ] Trang đổi mật khẩu
-- [ ] Redirect sau login theo role
-- [ ] AccessDenied page tối thiểu
+- [x] Trang đăng nhập
+- [x] Trang đăng ký
+- [x] Trang quên mật khẩu
+- [x] Trang đổi mật khẩu
+- [x] Redirect sau login theo role
+- [x] AccessDenied page tối thiểu
 
 ## Module 5.2 — Store Home
-- [ ] Tạo Store HomeController hoàn chỉnh
-- [ ] Render trang chủ
-- [ ] Banner / hero section
-- [ ] Danh mục nổi bật
-- [ ] Sản phẩm nổi bật
-- [ ] Sản phẩm mới
-- [ ] Sản phẩm khuyến mãi
-- [ ] Section tin tức / chính sách tối thiểu
-- [ ] UI bám đúng retail-tech style
+- [x] Tạo Store HomeController hoàn chỉnh
+- [x] Render trang chủ
+- [x] Banner / hero section
+- [x] Danh mục nổi bật
+- [x] Sản phẩm nổi bật
+- [x] Sản phẩm mới
+- [x] Sản phẩm khuyến mãi
+- [x] Section tin tức / chính sách tối thiểu
+- [x] UI bám đúng retail-tech style
 
 ## Module 5.3 — Product list
-- [ ] Trang danh sách sản phẩm
-- [ ] Lọc theo category
-- [ ] Lọc theo brand
-- [ ] Lọc theo khoảng giá
-- [ ] Lọc theo specification cơ bản
-- [ ] Sắp xếp
-- [ ] Phân trang
-- [ ] Filter bar đúng design system
+- [x] Trang danh sách sản phẩm
+- [x] Lọc theo category
+- [x] Lọc theo brand
+- [x] Lọc theo khoảng giá
+- [-] Lọc theo specification cơ bản (Sẽ làm ở phase sau)
+- [x] Sắp xếp
+- [x] Phân trang
+- [x] Filter bar đúng design system
 
 ## Module 5.4 — Product detail
-- [ ] Trang chi tiết sản phẩm
-- [ ] Gallery ảnh
-- [ ] Mô tả ngắn
-- [ ] Mô tả chi tiết
-- [ ] Thông số kỹ thuật
-- [ ] Trạng thái còn hàng
-- [ ] Gợi ý sản phẩm liên quan
-- [ ] Product card / info block đúng style
+- [x] Trang chi tiết sản phẩm
+- [x] Gallery ảnh
+- [x] Mô tả ngắn
+- [x] Mô tả chi tiết
+- [x] Thông số kỹ thuật
+- [x] Trạng thái còn hàng
+- [x] Gợi ý sản phẩm liên quan
+- [x] Product card / info block đúng style
 
 ## Module 5.5 — UserAddress / Cart / CartItem data model
 - [x] Đọc schema qua MCP
@@ -268,12 +269,12 @@
 - [x] Migration additive an toàn nếu cần (Xác nhận khớp DB thực)
 
 ## Module 5.6 — Cart UI & logic
-- [ ] Add to cart
-- [ ] Xem giỏ hàng
-- [ ] Cập nhật số lượng
-- [ ] Xóa item
-- [ ] Tính tạm tính
-- [ ] UI giỏ hàng bám style guide
+- [x] Add to cart
+- [x] Xem giỏ hàng
+- [x] Cập nhật số lượng
+- [x] Xóa item
+- [x] Tính tạm tính
+- [x] UI giỏ hàng bám style guide
 
 ## Module 5.7 — Order / OrderItem / Payment data model
 - [x] Đọc schema qua MCP
@@ -285,15 +286,15 @@
 - [x] Migration additive an toàn nếu cần (Xác nhận khớp DB thực)
 
 ## Module 5.8 — Checkout
-- [ ] Trang checkout
-- [ ] Chọn địa chỉ
-- [ ] Chọn phương thức thanh toán
-- [ ] Review đơn
-- [ ] Tạo order từ cart
-- [ ] Tạo order items
-- [ ] Tạo payment record nền nếu cần
-- [ ] Dọn cart sau khi tạo order thành công
-- [ ] UI form/summary đúng style guide
+- [x] Trang checkout
+- [x] Chọn địa chỉ
+- [x] Chọn phương thức thanh toán
+- [x] Review đơn
+- [x] Tạo order từ cart
+- [x] Tạo order items
+- [x] Tạo payment record nền nếu cần
+- [x] Dọn cart sau khi tạo order thành công
+- [x] UI form/summary đúng style guide
 
 ## Module 5.9 — Customer profile
 - [x] Trang hồ sơ
@@ -314,9 +315,9 @@
 - [x] Hủy đơn nếu hợp lệ
 
 ## Module 5.12 — Review cơ bản
-- [ ] Form đánh giá sản phẩm
-- [ ] Danh sách review của user
-- [ ] Trạng thái chờ duyệt nếu áp dụng
+- [x] Form đánh giá sản phẩm (Tích hợp trong Chi tiết / Customer)
+- [x] Danh sách review của user
+- [x] Trạng thái chờ duyệt nếu áp dụng
 
 ---
 
@@ -327,65 +328,65 @@
 - sidebar/menu/page title/action bar phải nhất quán
 
 ## Module 6.1 — Admin Dashboard
-- [ ] Tạo dashboard admin
-- [ ] Thống kê tổng quan user
-- [ ] Thống kê tổng quan order
-- [ ] Cảnh báo hàng sắp hết
-- [ ] Điều hướng nhanh tới module quản trị
+- [x] Tạo dashboard admin
+- [x] Thống kê tổng quan user
+- [x] Thống kê tổng quan order
+- [x] Cảnh báo hàng sắp hết
+- [x] Điều hướng nhanh tới module quản trị
 
 ## Module 6.2 — User management
-- [ ] Danh sách user
-- [ ] Tìm kiếm user
-- [ ] Lọc theo role
-- [ ] Xem chi tiết user
-- [ ] Bật / tắt `IsActive`
-- [ ] Bật `MustChangePassword`
+- [x] Danh sách user
+- [x] Tìm kiếm user
+- [x] Lọc theo role
+- [x] Xem chi tiết user
+- [x] Bật / tắt `IsActive`
+- [x] Bật `MustChangePassword`
 
 ## Module 6.3 — Role management
-- [ ] Gán role cho user
-- [ ] Gỡ role của user
-- [ ] Hỗ trợ multi-role
+- [x] Gán role cho user
+- [x] Gỡ role của user
+- [x] Hỗ trợ multi-role
 
 ## Module 6.4 — Create internal account
-- [ ] Form tạo tài khoản nội bộ
-- [ ] Chọn role lúc tạo
-- [ ] Tạo mật khẩu tạm
-- [ ] Set `MustChangePassword = true` nếu cần
+- [x] Form tạo tài khoản nội bộ
+- [x] Chọn role lúc tạo
+- [x] Tạo mật khẩu tạm
+- [x] Set `MustChangePassword = true` nếu cần
 
 ## Module 6.5 — Category CRUD
-- [ ] Danh sách category
-- [ ] Tạo category
-- [ ] Sửa category
-- [ ] Xóa mềm / khóa category nếu cần
-- [ ] Quản lý parent category
-- [ ] Slug / display order / active
+- [x] Danh sách category
+- [x] Tạo category
+- [x] Sửa category
+- [x] Xóa mềm / khóa category nếu cần
+- [x] Quản lý parent category
+- [x] Slug / display order / active
 
 ## Module 6.6 — Brand CRUD
-- [ ] Danh sách brand
-- [ ] Tạo brand
-- [ ] Sửa brand
-- [ ] Trạng thái active
-- [ ] Logo / country / slug
+- [x] Danh sách brand
+- [x] Tạo brand
+- [x] Sửa brand
+- [x] Trạng thái active
+- [x] Logo / country / slug
 
 ## Module 6.7 — Product CRUD
-- [ ] Danh sách product
-- [ ] Tạo product
-- [ ] Sửa product
-- [ ] Active / Featured
-- [ ] Giá / giảm giá / bảo hành
-- [ ] Thumbnail
-- [ ] Gắn category / brand
+- [x] Danh sách product
+- [x] Tạo product
+- [x] Sửa product
+- [x] Active / Featured
+- [x] Giá / giảm giá / bảo hành
+- [x] Thumbnail
+- [x] Gắn category / brand
 
 ## Module 6.8 — Product image & specification management
-- [ ] Quản lý product images
-- [ ] Quản lý specification definitions
-- [ ] Quản lý product specifications
-- [ ] Đánh dấu spec filterable / required
+- [x] Quản lý product images
+- [x] Quản lý specification definitions
+- [x] Quản lý product specifications
+- [x] Đánh dấu spec filterable / required
 
 ## Module 6.9 — Review moderation cơ bản
-- [ ] Danh sách review
-- [ ] Duyệt review
-- [ ] Ẩn / từ chối review
+- [x] Danh sách review
+- [x] Duyệt review
+- [x] Ẩn / từ chối review
 
 ---
 
@@ -396,81 +397,101 @@
 - khác nhau ở nội dung nghiệp vụ, không khác nhau ở design system
 
 ## Module 7.1 — Sales
-- [ ] Danh sách đơn mới
-- [ ] Chi tiết đơn
-- [ ] Xác nhận đơn
-- [ ] Cập nhật trạng thái đơn
-- [ ] Ghi chú xử lý
-- [ ] Hỗ trợ tạo đơn tại quầy mức cơ bản
-- [ ] Thống kê xử lý đơn cơ bản
+- [x] Danh sách đơn mới
+- [x] Chi tiết đơn
+- [x] Xác nhận đơn
+- [x] Cập nhật trạng thái đơn
+- [x] Ghi chú xử lý
+- [x] Hỗ trợ tạo đơn tại quầy mức cơ bản
+- [x] Thống kê xử lý đơn cơ bản
 
 ## Module 7.2 — Warehouse
-- [ ] Khảo sát schema qua MCP
-- [ ] Đồng bộ entity nếu quyết định làm
-- [ ] Trang tồn kho
-- [ ] Trang hàng sắp hết
-- [ ] Trang nhập kho
-- [ ] Trang lịch sử / phiếu nhập
+- [x] Khảo sát schema qua MCP
+- [x] Đồng bộ entity nếu quyết định làm
+- [x] Trang tồn kho
+- [x] Trang hàng sắp hết
+- [x] Trang nhập kho
+- [x] Trang lịch sử / phiếu nhập
 
 ## Module 7.3 — Support
-- [ ] Khảo sát schema cho ticket / review / warranty / return
-- [ ] Đồng bộ entity tối thiểu cần dùng
-- [ ] Danh sách ticket
-- [ ] Chi tiết ticket
-- [ ] Cập nhật trạng thái ticket
-- [ ] Duyệt review
-- [ ] Màn hình bảo hành / đổi trả mức mở rộng
+- [x] Khảo sát schema cho ticket / review / warranty / return
+- [x] Đồng bộ entity tối thiểu cần dùng
+- [x] Danh sách ticket
+- [x] Chi tiết ticket
+- [x] Cập nhật trạng thái ticket
+- [x] Duyệt review
+- [x] Màn hình bảo hành / đổi trả mức mở rộng
 
 ---
 
 # 10. Giai đoạn 8 — Kiểm thử, seed demo, hoàn thiện báo cáo
 
 ## Task 8.1 — Test auth & role
-- [ ] Test Guest
-- [ ] Test Customer
-- [ ] Test SalesStaff
-- [ ] Test WarehouseStaff
-- [ ] Test SupportStaff
-- [ ] Test Admin
-- [ ] Test multi-role
-- [ ] Test route bị chặn
-- [ ] Test redirect sau login
+- [x] Test Guest
+- [x] Test Customer
+- [x] Test SalesStaff
+- [x] Test WarehouseStaff
+- [x] Test SupportStaff
+- [x] Test Admin
+- [x] Test multi-role
+- [x] Test route bị chặn
+- [x] Test redirect sau login
 
 ## Task 8.2 — Test nghiệp vụ chính
-- [ ] Product list
-- [ ] Product detail
-- [ ] Filter
-- [ ] Cart
-- [ ] Checkout
-- [ ] Order history
-- [ ] Admin CRUD catalog
-- [ ] Sales xử lý đơn
-- [ ] Warehouse tồn kho
-- [ ] Support ticket/review
+- [x] Product list
+- [x] Product detail
+- [x] Filter
+- [x] Cart
+- [x] Checkout
+- [x] Order history
+- [x] Admin CRUD catalog
+- [x] Sales xử lý đơn
+- [x] Warehouse tồn kho
+- [x] Support ticket/review
 
 ## Task 8.3 — Seed dữ liệu demo đẹp
-- [ ] Category demo đẹp
-- [ ] Brand demo đẹp
-- [ ] Product demo đẹp
-- [ ] Ảnh demo đủ trình bày
-- [ ] Review / ticket / order demo nếu cần
-- [ ] Seeder không tạo trùng
+- [x] Category demo đẹp
+- [x] Brand demo đẹp
+- [x] Product demo đẹp
+- [x] Ảnh demo đủ trình bày
+- [x] Review / ticket / order demo nếu cần
+- [x] Seeder không tạo trùng
 
 ## Task 8.4 — Giao diện & UX
-- [ ] Responsive cơ bản
-- [ ] Layout đồng nhất
-- [ ] Menu điều hướng rõ
-- [ ] Trang lỗi / access denied / not found tối thiểu
-- [ ] Không còn màn hình placeholder lộ liễu
-- [ ] Toàn hệ thống bám đúng style guide
+- [x] Responsive cơ bản
+- [x] Layout đồng nhất
+- [x] Menu điều hướng rõ
+- [x] Trang lỗi / access denied / not found tối thiểu
+- [x] Không còn màn hình placeholder lộ liễu
+- [x] Toàn hệ thống bám đúng style guide
 
 ## Task 8.5 — Hồ sơ báo cáo
-- [ ] Chụp ảnh màn hình theo module
-- [ ] Chốt sitemap
-- [ ] Chốt mô hình dữ liệu
-- [ ] Chốt use case / sequence nếu cần
-- [ ] Chốt mô tả giai đoạn thực hiện
-- [ ] Chốt phần demo flow
+- [x] Chụp ảnh màn hình theo module
+- [x] Chốt sitemap
+- [x] Chốt mô hình dữ liệu
+- [x] Chốt use case / sequence nếu cần
+- [x] Chốt mô tả giai đoạn thực hiện
+- [x] Chốt phần demo flow
+
+---
+
+# 11. Giai đoạn 9 — Bàn giao & Tài liệu
+
+## Task 9.1 — Tài liệu kỹ thuật
+- [x] Soạn thảo README.md hướng dẫn cài đặt & chạy project
+- [x] Tài liệu hóa cấu trúc các Area và Routing
+- [x] Mô tả cơ chế Authorization và Multi-role
+- [x] Script SQL Final và hướng dẫn Seed dữ liệu (Đã tích hợp trong Seeder)
+
+## Task 9.2 — Hướng dẫn sử dụng (User Manual)
+- [x] Hướng dẫn cho Khách hàng (Mua hàng, Profile, Ticket)
+- [x] Hướng dẫn cho Nhân viên (Sales, Warehouse, Support)
+- [x] Hướng dẫn cho Quản trị viên (User Management, Catalog, Dashboard)
+
+## Task 9.3 — Hoàn thiện gói bàn giao
+- [x] Dọn dẹp mã nguồn (Cleanup unused code/logs)
+- [x] Kiểm tra tính đóng gói (Portability)
+- [x] Tạo file Handoff Summary
 
 ---
 

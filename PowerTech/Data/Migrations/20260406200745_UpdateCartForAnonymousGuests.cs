@@ -10,11 +10,17 @@ namespace PowerTech.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            /* Index might not exist, skipping drop
-            migrationBuilder.DropIndex(
-                name: "IX_Carts_UserId",
-                table: "Carts");
-            */
+            migrationBuilder.Sql(@"
+                IF EXISTS (
+                    SELECT 1
+                    FROM sys.indexes
+                    WHERE name = N'IX_Carts_UserId'
+                      AND object_id = OBJECT_ID(N'[Carts]')
+                )
+                BEGIN
+                    DROP INDEX [IX_Carts_UserId] ON [Carts];
+                END
+            ");
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
@@ -41,9 +47,17 @@ namespace PowerTech.Data.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_Carts_UserId",
-                table: "Carts");
+            migrationBuilder.Sql(@"
+                IF EXISTS (
+                    SELECT 1
+                    FROM sys.indexes
+                    WHERE name = N'IX_Carts_UserId'
+                      AND object_id = OBJECT_ID(N'[Carts]')
+                )
+                BEGIN
+                    DROP INDEX [IX_Carts_UserId] ON [Carts];
+                END
+            ");
 
             migrationBuilder.DropColumn(
                 name: "CookieId",

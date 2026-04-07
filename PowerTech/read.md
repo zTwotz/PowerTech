@@ -1,3 +1,34 @@
+dotnet ef migrations add AddUpdatedAtToUsers
+
+
+dotnet ef database update
+
+
+dotnet run
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 3. Nhóm lệnh Entity Framework Core (Database)
 Đối với các dự án web có sử dụng SQL Server hoặc database khác, bạn cần cài đặt dotnet-ef tool trước (dotnet tool install --global dotnet-ef).
 
@@ -9,7 +40,8 @@ dotnet ef dbcontext info: Kiểm tra thông tin về DbContext và database đan
 
 dotnet ef migrations remove: Xóa bản migration cuối cùng (nếu chưa update database).
 
-
+Email: admin@powertech.com
+Mật khẩu: Admin@123
 
 
 dotnet restore

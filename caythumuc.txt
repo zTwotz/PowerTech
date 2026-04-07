@@ -1,4 +1,4 @@
-PowerTech
+.
 ├── .agent
 │   ├── .DS_Store
 │   ├── skills
@@ -36,7 +36,8 @@ PowerTech
 │   │       └── SKILL.md
 │   └── ui_style_guide_for_ai_agent.md
 ├── .DS_Store
-├── cay.txt
+├── AGENT_BOOTSTRAP_PROMPT.md
+├── caythumuc.txt
 ├── Database.sql
 ├── Documents
 │   ├── bao_cao_mo_ta_chi_tiet_cap_nhat.docx
@@ -49,95 +50,227 @@ PowerTech
 │   ├── MÔ TẢ CHI TIẾT.pdf
 │   ├── Phân Tích Chức Năng & Giao Diện.pdf
 │   └── PHÂN TÍCH THIẾT KẾ DỮ LIỆU.pdf
+├── HANDOFF_INSTRUCTIONS_FOR_ANTIGRAVITY.md
+├── HANDOFF_SUMMARY.md
+├── PHASE_TASK_BREAKDOWN.md
 ├── PowerTech
+│   ├── .DS_Store
 │   ├── app.db
 │   ├── appsettings.Development.json
 │   ├── appsettings.json
 │   ├── Areas
 │   │   ├── Admin
 │   │   │   ├── Controllers
-│   │   │   │   └── DashboardController.cs
+│   │   │   │   ├── BrandController.cs
+│   │   │   │   ├── CategoryController.cs
+│   │   │   │   ├── DashboardController.cs
+│   │   │   │   ├── OrderController.cs
+│   │   │   │   ├── ProductController.cs
+│   │   │   │   └── UserController.cs
+│   │   │   ├── Models
+│   │   │   │   └── ViewModels
+│   │   │   │       └── ProductActionViewModel.cs
 │   │   │   └── Views
 │   │   │       ├── _ViewImports.cshtml
 │   │   │       ├── _ViewStart.cshtml
+│   │   │       ├── Brand
+│   │   │       │   ├── Create.cshtml
+│   │   │       │   ├── Edit.cshtml
+│   │   │       │   └── Index.cshtml
+│   │   │       ├── Category
+│   │   │       │   ├── Create.cshtml
+│   │   │       │   ├── Edit.cshtml
+│   │   │       │   └── Index.cshtml
 │   │   │       ├── Dashboard
 │   │   │       │   └── Index.cshtml
-│   │   │       └── Shared
+│   │   │       ├── Order
+│   │   │       │   ├── Details.cshtml
+│   │   │       │   └── Index.cshtml
+│   │   │       ├── Product
+│   │   │       │   ├── Create.cshtml
+│   │   │       │   ├── Edit.cshtml
+│   │   │       │   └── Index.cshtml
+│   │   │       ├── Shared
+│   │   │       └── User
+│   │   │           └── Index.cshtml
 │   │   ├── Customer
 │   │   │   ├── Controllers
-│   │   │   │   └── HomeController.cs
+│   │   │   │   ├── AddressController.cs
+│   │   │   │   ├── HomeController.cs
+│   │   │   │   ├── OrderController.cs
+│   │   │   │   └── ProfileController.cs
 │   │   │   └── Views
 │   │   │       ├── _ViewImports.cshtml
 │   │   │       ├── _ViewStart.cshtml
-│   │   │       └── Home
-│   │   │           └── Index.cshtml
+│   │   │       ├── Address
+│   │   │       │   └── Index.cshtml
+│   │   │       ├── Home
+│   │   │       │   └── Index.cshtml
+│   │   │       ├── Order
+│   │   │       │   ├── Detail.cshtml
+│   │   │       │   └── Index.cshtml
+│   │   │       ├── Profile
+│   │   │       │   └── Index.cshtml
+│   │   │       └── Shared
+│   │   │           └── _CustomerLayout.cshtml
 │   │   ├── Identity
 │   │   │   └── Pages
-│   │   │       └── _ViewStart.cshtml
+│   │   │       ├── _ViewImports.cshtml
+│   │   │       ├── _ViewStart.cshtml
+│   │   │       └── Account
+│   │   │           ├── Login.cshtml
+│   │   │           ├── Register.cshtml
+│   │   │           └── Register.cshtml.cs
 │   │   ├── Sales
 │   │   │   ├── Controllers
-│   │   │   │   └── HomeController.cs
+│   │   │   │   ├── HomeController.cs
+│   │   │   │   └── OrderController.cs
 │   │   │   └── Views
 │   │   │       ├── _ViewImports.cshtml
 │   │   │       ├── _ViewStart.cshtml
-│   │   │       └── Home
-│   │   │           └── Index.cshtml
+│   │   │       ├── Home
+│   │   │       │   └── Index.cshtml
+│   │   │       ├── Order
+│   │   │       │   ├── Create.cshtml
+│   │   │       │   ├── Details.cshtml
+│   │   │       │   └── Index.cshtml
+│   │   │       └── Shared
+│   │   │           └── _SalesLayout.cshtml
 │   │   ├── Store
 │   │   │   ├── Controllers
-│   │   │   │   └── HomeController.cs
+│   │   │   │   ├── CartController.cs
+│   │   │   │   ├── CheckoutController.cs
+│   │   │   │   ├── HomeController.cs
+│   │   │   │   └── ProductController.cs
 │   │   │   └── Views
 │   │   │       ├── _ViewImports.cshtml
 │   │   │       ├── _ViewStart.cshtml
-│   │   │       └── Home
+│   │   │       ├── Cart
+│   │   │       │   └── Index.cshtml
+│   │   │       ├── Checkout
+│   │   │       │   ├── AddAddress.cshtml
+│   │   │       │   ├── Confirmation.cshtml
+│   │   │       │   ├── Index.cshtml
+│   │   │       │   └── Payment.cshtml
+│   │   │       ├── Home
+│   │   │       │   ├── AccessDenied.cshtml
+│   │   │       │   ├── Error.cshtml
+│   │   │       │   ├── Index.cshtml
+│   │   │       │   └── NotFound.cshtml
+│   │   │       └── Product
+│   │   │           ├── Detail.cshtml
 │   │   │           └── Index.cshtml
 │   │   ├── Support
 │   │   │   ├── Controllers
-│   │   │   │   └── HomeController.cs
+│   │   │   │   ├── HomeController.cs
+│   │   │   │   ├── ReviewController.cs
+│   │   │   │   └── TicketController.cs
 │   │   │   └── Views
 │   │   │       ├── _ViewImports.cshtml
 │   │   │       ├── _ViewStart.cshtml
-│   │   │       └── Home
+│   │   │       ├── Home
+│   │   │       │   └── Index.cshtml
+│   │   │       ├── Review
+│   │   │       │   └── Index.cshtml
+│   │   │       ├── Shared
+│   │   │       │   └── _SupportLayout.cshtml
+│   │   │       └── Ticket
+│   │   │           ├── Details.cshtml
 │   │   │           └── Index.cshtml
 │   │   └── Warehouse
 │   │       ├── Controllers
-│   │       │   └── HomeController.cs
+│   │       │   ├── HomeController.cs
+│   │       │   ├── InventoryController.cs
+│   │       │   └── StockEntryController.cs
 │   │       └── Views
 │   │           ├── _ViewImports.cshtml
 │   │           ├── _ViewStart.cshtml
-│   │           └── Home
+│   │           ├── Home
+│   │           │   └── Index.cshtml
+│   │           ├── Inventory
+│   │           │   ├── History.cshtml
+│   │           │   └── Index.cshtml
+│   │           ├── Shared
+│   │           │   └── _WarehouseLayout.cshtml
+│   │           └── StockEntry
+│   │               ├── Create.cshtml
 │   │               └── Index.cshtml
-│   ├── caythumuc.txt
 │   ├── Constants
 │   │   └── UserRoles.cs
 │   ├── Controllers
 │   │   └── HomeController.cs
+│   ├── create_missing_dirs.py
 │   ├── Data
+│   │   ├── .DS_Store
 │   │   ├── ApplicationDbContext.cs
+│   │   ├── DbFixer.cs
 │   │   ├── Migrations
 │   │   │   ├── 20260405122421_InitialCreate.cs
 │   │   │   ├── 20260405122421_InitialCreate.Designer.cs
 │   │   │   ├── 20260405122827_DbInit.cs
 │   │   │   ├── 20260405122827_DbInit.Designer.cs
+│   │   │   ├── 20260406003501_AddCatalogEntities.cs
+│   │   │   ├── 20260406003501_AddCatalogEntities.Designer.cs
+│   │   │   ├── 20260406004908_AddOrderOrderItemPaymentCore.cs
+│   │   │   ├── 20260406004908_AddOrderOrderItemPaymentCore.Designer.cs
+│   │   │   ├── 20260406013227_AddUserAddressAndCart.cs
+│   │   │   ├── 20260406013227_AddUserAddressAndCart.Designer.cs
+│   │   │   ├── 20260406094525_UpdateOrderItemSnapshots.cs
+│   │   │   ├── 20260406094525_UpdateOrderItemSnapshots.Designer.cs
+│   │   │   ├── 20260406165852_SyncWarehouseSupport.cs
+│   │   │   ├── 20260406165852_SyncWarehouseSupport.Designer.cs
+│   │   │   ├── 20260406200745_UpdateCartForAnonymousGuests.cs
+│   │   │   ├── 20260406200745_UpdateCartForAnonymousGuests.Designer.cs
 │   │   │   └── ApplicationDbContextModelSnapshot.cs
 │   │   └── Seeders
-│   │       └── DbSeeder.cs
+│   │       ├── CatalogSeeder.cs
+│   │       ├── DbSeeder.cs
+│   │       └── OrderSeeder.cs
+│   ├── gallery.json
 │   ├── Helpers
+│   ├── missing_images_report.txt
 │   ├── Models
 │   │   ├── Entities
-│   │   │   └── ApplicationUser.cs
+│   │   │   ├── ApplicationUser.cs
+│   │   │   ├── Brand.cs
+│   │   │   ├── Cart.cs
+│   │   │   ├── CartItem.cs
+│   │   │   ├── Category.cs
+│   │   │   ├── Order.cs
+│   │   │   ├── OrderItem.cs
+│   │   │   ├── Payment.cs
+│   │   │   ├── Product.cs
+│   │   │   ├── ProductImage.cs
+│   │   │   ├── ProductSpecification.cs
+│   │   │   ├── Review.cs
+│   │   │   ├── SpecificationDefinition.cs
+│   │   │   ├── StockTransaction.cs
+│   │   │   ├── SupportTicket.cs
+│   │   │   └── UserAddress.cs
 │   │   ├── ErrorViewModel.cs
 │   │   └── ViewModels
+│   │       └── Store
+│   │           ├── HomeViewModel.cs
+│   │           └── ProductListViewModel.cs
 │   ├── PowerTech.csproj
 │   ├── PowerTech.csproj.user
+│   ├── products_1.json
+│   ├── products_2.json
 │   ├── Program.cs
 │   ├── Properties
 │   │   ├── launchSettings.json
 │   │   ├── serviceDependencies.json
 │   │   ├── serviceDependencies.local.json
 │   │   └── serviceDependencies.local.json.user
+│   ├── query.sql
 │   ├── read.md
 │   ├── Services
-│   ├── structure.txt
+│   │   ├── Implementations
+│   │   │   └── CartService.cs
+│   │   └── Interfaces
+│   │       └── ICartService.cs
+│   ├── ViewComponents
+│   │   └── CategoryMenuViewComponent.cs
 │   ├── Views
 │   │   ├── _ViewImports.cshtml
 │   │   ├── _ViewStart.cshtml
@@ -145,26 +278,405 @@ PowerTech
 │   │   │   ├── Index.cshtml
 │   │   │   └── Privacy.cshtml
 │   │   └── Shared
+│   │       ├── _AdminLayout.cshtml
 │   │       ├── _Layout.cshtml
 │   │       ├── _Layout.cshtml.css
 │   │       ├── _LoginPartial.cshtml
+│   │       ├── _ProductCard.cshtml
 │   │       ├── _ValidationScriptsPartial.cshtml
+│   │       ├── Components
+│   │       │   └── CategoryMenu
+│   │       │       └── Default.cshtml
 │   │       └── Error.cshtml
 │   └── wwwroot
+│       ├── .DS_Store
 │       ├── css
+│       │   ├── admin.css
 │       │   └── site.css
 │       ├── favicon.ico
+│       ├── images
+│       │   ├── banners
+│       │   │   ├── hero_main.png
+│       │   │   ├── side_1.png
+│       │   │   └── side_2.png
+│       │   ├── logo_web.png
+│       │   ├── logo.png
+│       │   ├── logo2.png
+│       │   └── no-image.png
 │       ├── js
 │       │   └── site.js
-│       └── lib
-│           ├── bootstrap
-│           │   └── LICENSE
-│           ├── jquery
-│           │   └── LICENSE.txt
-│           ├── jquery-validation
-│           │   └── LICENSE.md
-│           └── jquery-validation-unobtrusive
-│               └── LICENSE.txt
-└── PowerTech.slnx
+│       ├── lib
+│       │   ├── bootstrap
+│       │   │   └── LICENSE
+│       │   ├── jquery
+│       │   │   └── LICENSE.txt
+│       │   ├── jquery-validation
+│       │   │   └── LICENSE.md
+│       │   └── jquery-validation-unobtrusive
+│       │       └── LICENSE.txt
+│       └── uploads
+│           ├── .DS_Store
+│           └── products
+│               ├── .DS_Store
+│               ├── 66b6cc37-1d19-4775-b3ad-306f2db1168c_logo_flutter_music_app.png
+│               ├── 973c5fb6-912e-41fb-90f5-b7a23b57f926_ChatGPT Image 16_19_40 3 thg 4, 2026.png
+│               ├── accessories
+│               │   ├── .DS_Store
+│               │   ├── apple-smart-keyboard-folio-ipad-pro-129-4th-gen
+│               │   │   └── thumb.jpg
+│               │   ├── mazer-alu-usb-c-to-vga-1080p-adapter-m-usbcal351-gy
+│               │   │   └── thumb.jpg
+│               │   ├── ugreen-gan-100w-cd226-40747
+│               │   │   └── thumb.jpg
+│               │   ├── ugreen-nexode-200w-cd271-40913
+│               │   │   └── thumb.jpg
+│               │   └── ugreen-usb-c-hub-5-in-1-cm136-50209
+│               │       └── thumb.jpg
+│               ├── case
+│               │   ├── .DS_Store
+│               │   ├── asus-rog-hyperion-gr701
+│               │   │   └── thumb.jpg
+│               │   ├── cooler-master-td500-v2-chunli
+│               │   │   └── thumb.jpg
+│               │   ├── corsair-6500x-black
+│               │   │   └── thumb.jpg
+│               │   ├── corsair-6500x-white
+│               │   │   ├── .DS_Store
+│               │   │   └── thumb.jpg
+│               │   ├── jonsbo-d300-black
+│               │   │   └── thumb.jpg
+│               │   ├── jonsbo-tk3-white
+│               │   │   └── thumb.jpg
+│               │   ├── jonsbo-z20-pink
+│               │   │   └── thumb.jpg
+│               │   ├── jonsbo-z20-white
+│               │   │   └── thumb.jpg
+│               │   ├── nzxt-h9-elite-white
+│               │   │   └── thumb.jpg
+│               │   └── tryx-luca-l70-black
+│               │       └── thumb.jpg
+│               ├── cpu
+│               │   ├── .DS_Store
+│               │   ├── amd-athlon-3000g
+│               │   │   └── thumb.jpg
+│               │   ├── amd-ryzen-3-4300g
+│               │   │   └── thumb.jpg
+│               │   ├── amd-ryzen-5-7600
+│               │   │   └── thumb.jpg
+│               │   ├── amd-ryzen-7-9700x
+│               │   │   └── thumb.jpg
+│               │   ├── amd-ryzen-9-9950x
+│               │   │   ├── .DS_Store
+│               │   │   └── thumb.jpg
+│               │   ├── amd-ryzen-9-9950x-tray
+│               │   │   └── thumb.jpg
+│               │   ├── intel-core-i3-14100
+│               │   │   └── thumb.jpg
+│               │   ├── intel-core-i5-14400f
+│               │   ├── intel-core-ultra-5-245k
+│               │   │   └── thumb.jpg
+│               │   ├── intel-core-ultra-7-265k
+│               │   │   └── thumb.jpg
+│               │   └── intel-core-ultra-9-285k
+│               │       ├── .DS_Store
+│               │       └── thumb.jpg
+│               ├── gpu
+│               │   ├── .DS_Store
+│               │   ├── asus-rog-matrix-rtx4090-24g
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rog-rtx-5080-16g
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rog-rtx5080-16g
+│               │   │   ├── .DS_Store
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rtx4070-super-12g
+│               │   │   └── thumb.jpg
+│               │   ├── asus-tuf-rtx-5090-32g
+│               │   │   └── thumb.jpg
+│               │   ├── asus-tuf-rtx5070ti-16g
+│               │   │   └── thumb.jpg
+│               │   └── asus-tuf-rtx5090-32g
+│               │       └── thumb.jpg
+│               ├── headset
+│               │   ├── .DS_Store
+│               │   ├── asus-rog-pelta-wl-rgb-black
+│               │   │   └── thumb.jpg
+│               │   ├── corsair-virtuoso-rgb-wireless-se-espresso
+│               │   │   └── thumb.jpg
+│               │   ├── edifier-w830nb-black
+│               │   │   └── thumb.jpg
+│               │   ├── hyperx-cloud-stinger-core-ii
+│               │   │   └── thumb.jpg
+│               │   ├── logitech-g435-lightspeed-wireless-white
+│               │   │   └── thumb.jpg
+│               │   ├── onikuma-b5-tri-mode-white
+│               │   │   └── thumb.jpg
+│               │   ├── rapoo-gaming-vh600
+│               │   │   └── thumb.jpg
+│               │   ├── razer-blackshark-v3-pro-cs2-edition
+│               │   │   └── thumb.jpg
+│               │   ├── tai-nghe-asus-rog-pelta-wl-rgb-black
+│               │   │   └── thumb.jpg
+│               │   ├── tai-nghe-corsair-virtuoso-rgb-wireless-se-espresso
+│               │   │   └── thumb.jpg
+│               │   ├── tai-nghe-edifier-w830nb-black
+│               │   ├── tai-nghe-hyperx-cloud-stinger-core-ii
+│               │   ├── tai-nghe-logitech-g435-lightspeed-wireless-white
+│               │   ├── tai-nghe-onikuma-tai-meo-b5-rgb-tri-mode-trang
+│               │   ├── tai-nghe-rapoo-gaming-vh600
+│               │   └── tai-nghe-razer-blackshark-v3-pro-counter-strike-2-edition
+│               ├── keyboard
+│               │   ├── .DS_Store
+│               │   ├── akko-5075b-plus-black-world-tour-viet-nam
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rog-strix-scope-ii-96-wireless-rog-nx-snow-switch
+│               │   │   └── thumb.jpg
+│               │   ├── aula-f75-co-day-trang-red-switch-f7512
+│               │   │   └── thumb.jpg
+│               │   ├── ban-phim-akko-5075b-plus-black-world-tour-viet-nam
+│               │   ├── ban-phim-asus-rog-strix-scope-ii-96-wireless-rog-nx-snow-switch
+│               │   ├── ban-phim-aula-f75-co-day-trang-red-switch-f7512
+│               │   ├── ban-phim-co-dareu-ek75-rapid-trigger-black
+│               │   ├── ban-phim-co-khong-day-durgod-cavalry-87-black-kailh-turbo-silent-red-switch
+│               │   ├── ban-phim-co-razer-blackwidow-v4-pro-green-switch
+│               │   │   └── thumb.jpg
+│               │   ├── ban-phim-corsair-k70-pro-red-switch
+│               │   ├── ban-phim-e-dra-ek3104l-beta-brown-switch
+│               │   ├── ban-phim-logitech-g913-tkl-lightspeed-wireless-clicky
+│               │   │   └── thumb.jpg
+│               │   ├── ban-phim-rapoo-v700-a8-dark-grey-blue-switch
+│               │   │   └── thumb.jpg
+│               │   ├── corsair-k70-pro-red-switch
+│               │   │   └── thumb.jpg
+│               │   ├── dareu-ek75-rapid-trigger-black
+│               │   │   └── thumb.jpg
+│               │   ├── durgod-cavalry-87-black-kailh-turbo-silent-red-switch
+│               │   │   └── thumb.jpg
+│               │   ├── e-dra-ek3104l-beta-brown-switch
+│               │   │   └── thumb.jpg
+│               │   ├── logitech-g913-tkl-lightspeed-wireless-clicky
+│               │   │   └── thumb.jpg
+│               │   ├── rapoo-v700-a8-dark-grey-blue-switch
+│               │   │   └── thumb.jpg
+│               │   └── razer-blackwidow-v4-pro-green-switch
+│               │       └── thumb.jpg
+│               ├── laptop
+│               │   ├── .DS_Store
+│               │   ├── acer-swift-go-sfg14-74t-55hd
+│               │   │   └── thumb.jpg
+│               │   ├── asus-tuf-gaming-f16-fx608jmr-rv048w
+│               │   │   └── thumb.jpg
+│               │   ├── asus-zenbook-14-um3406ka-pp555ws
+│               │   │   └── thumb.jpg
+│               │   ├── dell-15-dc15250-i7u161w11slu
+│               │   │   └── thumb.jpg
+│               │   ├── gigabyte-a16-cmhi2vn893sh
+│               │   │   └── thumb.jpg
+│               │   ├── hp-envy-13-ba1534tu-4u6m3pa
+│               │   │   └── thumb.jpg
+│               │   ├── lenovo-legion-pro-7-16iax10h-83f500jgvn
+│               │   │   └── thumb.jpg
+│               │   ├── lenovo-thinkpad-x9-15-gen-1-21q60055vn
+│               │   │   └── thumb.jpg
+│               │   ├── lg-gram-2022-17zd90q-g-ax52a5
+│               │   │   └── thumb.jpg
+│               │   └── msi-prestige-16-ai-mercedes-amg-b2vmg-088vn
+│               │       └── thumb.jpg
+│               ├── mainboard
+│               │   ├── .DS_Store
+│               │   ├── asus-proart-z890-creator-wifi
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rog-maximus-z890-apex
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rog-maximus-z890-extreme
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rog-maximus-z890-hero
+│               │   │   └── thumb.jpg
+│               │   ├── gigabyte-h610m-h-v3-ddr4
+│               │   │   └── thumb.jpg
+│               │   ├── gigabyte-z890-aorus-elite-wifi7
+│               │   │   └── thumb.jpg
+│               │   ├── gigabyte-z890-eagle-wifi7
+│               │   │   └── thumb.jpg
+│               │   ├── MAIN10.jpg
+│               │   ├── MAIN8.png
+│               │   └── MAIN9.png
+│               ├── monitor
+│               │   ├── .DS_Store
+│               │   ├── acer-27q-ips-gaming
+│               │   │   └── thumb.jpg
+│               │   ├── aoc-27q-fastips-gaming
+│               │   │   └── thumb.jpg
+│               │   ├── asus-32u-woled-dual-mode
+│               │   │   └── thumb.jpg
+│               │   ├── dell-43u-ips-black-4k
+│               │   │   └── thumb.jpg
+│               │   ├── gigabyte-32u-oled-gaming
+│               │   │   └── thumb.jpg
+│               │   ├── hkc-mb27s9u
+│               │   │   └── thumb.jpg
+│               │   ├── lg-27u-nanoips-dual-mode
+│               │   │   └── thumb.jpg
+│               │   ├── msi-32u-qdoled-gaming
+│               │   │   └── thumb.jpg
+│               │   ├── samsung-27q180-ips-gaming
+│               │   │   └── thumb.jpg
+│               │   └── viewsonic-27q-color-usbc-90w
+│               │       └── thumb.jpg
+│               ├── mouse
+│               │   ├── .DS_Store
+│               │   ├── asus-rog-aimpoint-pro-wireless-black
+│               │   │   └── thumb.jpg
+│               │   ├── atk-paw3950-wireless-white
+│               │   │   └── thumb.jpg
+│               │   ├── chuot-asus-rog-aimpoint-pro-wireless-black
+│               │   │   └── .DS_Store
+│               │   ├── chuot-atk-paw3950-wireless-white
+│               │   ├── chuot-corsair-wireless-black
+│               │   ├── chuot-dareu-bravo-wireless-black
+│               │   ├── chuot-glorious-wired-black
+│               │   ├── chuot-hyperx-26k-wireless-white
+│               │   ├── chuot-logitech-g502-hero-black
+│               │   ├── chuot-logitech-g502-x-plus-white
+│               │   ├── chuot-rapoo-26k-wireless-white
+│               │   ├── chuot-razer-wireless-black
+│               │   ├── corsair-wireless-black
+│               │   │   └── thumb.jpg
+│               │   ├── dareu-bravo-wireless-black
+│               │   │   └── thumb.jpg
+│               │   ├── glorious-wired-black
+│               │   │   └── thumb.jpg
+│               │   ├── hyperx-26k-wireless-white
+│               │   │   └── thumb.jpg
+│               │   ├── logitech-g502-hero-black
+│               │   │   └── thumb.jpg
+│               │   ├── logitech-g502x-plus-white
+│               │   │   └── thumb.jpg
+│               │   ├── rapoo-26k-wireless-white
+│               │   │   └── thumb.jpg
+│               │   └── razer-wireless-black
+│               │       └── thumb.jpg
+│               ├── network
+│               │   ├── .DS_Store
+│               │   ├── asus-rt-ac1300uhp
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rt-ac1500uhp
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rt-ac59u-mobile-gaming-ac1500
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rt-ax92u-2-pack
+│               │   │   └── thumb.jpg
+│               │   ├── asus-xt8-w-2-pk
+│               │   │   └── thumb.jpg
+│               │   ├── wifi10.jpg
+│               │   ├── wifi6.jpg
+│               │   ├── wifi9.jpg
+│               │   ├── wwifi7.jpg
+│               │   └── wwifi8.jpg
+│               ├── pc-build
+│               │   ├── .DS_Store
+│               │   ├── gvn-i5-14400f-rtx5060ti
+│               │   │   └── thumb.jpg
+│               │   ├── gvn-i7-14700f-rtx3050
+│               │   │   └── thumb.jpg
+│               │   ├── gvn-i7-14700f-rtx5080
+│               │   │   └── thumb.jpg
+│               │   ├── gvn-r5-5600x-rx7600
+│               │   │   └── thumb.jpg
+│               │   ├── gvn-r7-9800x3d-rtx5080-powered-by-msi
+│               │   │   └── thumb.jpg
+│               │   ├── gvn-rog-hatsune-miku-9800x3d-rtx5080
+│               │   │   └── thumb.jpg
+│               │   ├── gvn-ultra5-225f-arc-b580-ddr5
+│               │   │   └── thumb.jpg
+│               │   ├── gvn-ultra7-265f-rtx5070
+│               │   │   └── thumb.jpg
+│               │   └── gvn-ultra7-265f-rtx5080
+│               │       └── thumb.jpg
+│               ├── psu
+│               │   ├── .DS_Store
+│               │   ├── asus-rog-strix-1000w-aura
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rog-thor-1200p2
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rog-thor-1600t3
+│               │   │   └── thumb.jpg
+│               │   ├── asus-rog-thor-850p
+│               │   │   └── thumb.jpg
+│               │   └── gigabyte-ud850gm-pg5
+│               │       └── thumb.jpg
+│               ├── ram
+│               │   ├── .DS_Store
+│               │   ├── corsair-dominator-titanium-black-32gb-6000-cmp32gx5m2b6000c30
+│               │   │   └── thumb.jpg
+│               │   ├── corsair-dominator-titanium-black-96gb-6600-cmp96gx5m2b6600c32
+│               │   │   └── thumb.jpg
+│               │   ├── corsair-dominator-titanium-white-64gb-6000-cmp64gx5m2b6000c30w
+│               │   │   └── thumb.jpg
+│               │   ├── corsair-vengeance-lpx-8gb-3200-cmk8gx4m1e3200c16
+│               │   │   └── thumb.jpg
+│               │   ├── corsair-vengeance-rgb-96gb-5600-cmh96gx5m2b5600c40
+│               │   │   └── thumb.jpg
+│               │   ├── corsair-vengeance-rgb-white-32gb-5600-cmh32gx5m2b5600c40w
+│               │   │   └── thumb.jpg
+│               │   ├── gskill-trident-z5-rgb-32gb-5600-f5-5600j4040c16gx2-tz5rs
+│               │   │   └── thumb.jpg
+│               │   ├── gskill-trident-z5-rgb-64gb-6000-f5-6000j3040g32gx2-tz5rs
+│               │   │   └── thumb.jpg
+│               │   ├── kingston-fury-beast-8gb-3200-kf432c16bba-8
+│               │   │   └── thumb.jpg
+│               │   └── teamgroup-tforce-delta-black-16gb-3600
+│               │       └── thumb.jpg
+│               ├── software
+│               │   ├── .DS_Store
+│               │   ├── microsoft-365-family-ep2-36890
+│               │   │   └── thumb.jpg
+│               │   ├── microsoft-365-personal-ep2-32313
+│               │   │   └── thumb.jpg
+│               │   ├── office-home-2024-ep2-06796
+│               │   │   └── thumb.jpg
+│               │   ├── windows-11-home-esd-kw9-00664
+│               │   │   └── thumb.jpg
+│               │   └── windows-11-pro-esd-fqc-10572
+│               │       └── thumb.jpg
+│               ├── speaker
+│               │   ├── logitech-g560
+│               │   │   └── thumb.jpg
+│               │   ├── razer-leviathan-v2
+│               │   │   └── thumb.jpg
+│               │   ├── razer-leviathan-v2-x
+│               │   │   └── thumb.jpg
+│               │   ├── razer-nommo-v2
+│               │   │   └── thumb.jpg
+│               │   └── thonet-vander-kumpel-2-0-black
+│               │       └── thumb.jpg
+│               └── storage
+│                   ├── .DS_Store
+│                   ├── kingston-nv3-1tb
+│                   │   └── thumb.jpg
+│                   ├── kingston-nv3-2tb
+│                   │   └── thumb.jpg
+│                   ├── kingston-nv3-500gb
+│                   │   ├── .DS_Store
+│                   │   └── thumb.jpg
+│                   ├── samsung-9100-pro-1tb
+│                   │   └── thumb.jpg
+│                   ├── samsung-990-pro-2tb
+│                   │   └── thumb.jpg
+│                   ├── seagate-barracuda-2tb
+│                   │   └── thumb.jpg
+│                   ├── wd-blue-1tb
+│                   │   └── thumb.jpg
+│                   ├── wd-blue-2tb-7200rpm
+│                   │   └── thumb.jpg
+│                   ├── wd-blue-4tb
+│                   │   └── thumb.jpg
+│                   └── wd-blue-6tb-5400rpm
+│                       └── thumb.jpg
+├── POWERTECH_MASTER_SPEC.md
+├── PowerTech.slnx
+├── PROJECT_STATUS.md
+├── PROMPT_LIBRARY_BY_PHASE.md
+└── README.md
 
-70 directories, 98 files
+285 directories, 395 files
