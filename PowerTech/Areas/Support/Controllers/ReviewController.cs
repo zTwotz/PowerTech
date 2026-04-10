@@ -18,11 +18,12 @@ namespace PowerTech.Areas.Support.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(bool? approved, int? minRating)
+        public async Task<IActionResult> Index(bool? approved, int? minRating, string q)
         {
             var query = _context.Reviews
                 .Include(r => r.Product)
                 .Include(r => r.User)
+                .Include(r => r.ReviewImages)
                 .OrderByDescending(r => r.CreatedAt)
                 .AsQueryable();
 
@@ -34,6 +35,15 @@ namespace PowerTech.Areas.Support.Controllers
             if (minRating.HasValue)
             {
                 query = query.Where(r => r.Rating >= minRating.Value);
+            }
+
+            if (!string.IsNullOrEmpty(q))
+            {
+                query = query.Where(r => 
+                    (r.Product != null && r.Product.Name.Contains(q)) || 
+                    (r.User != null && r.User.FullName.Contains(q)) ||
+                    (r.Comment != null && r.Comment.Contains(q)));
+                ViewBag.SearchTerm = q;
             }
 
             var reviews = await query.ToListAsync();

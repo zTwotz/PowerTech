@@ -11,5 +11,6 @@ namespace PowerTech.Services.Interfaces
         Task<bool> ClearCartAsync(string userId);
         Task<int> GetCartItemCountAsync(string userId);
         Task<decimal> GetCartTotalAsync(string userId);
+        Task<int> MergeCartAsync(string guestId, string userId);
     }
 }

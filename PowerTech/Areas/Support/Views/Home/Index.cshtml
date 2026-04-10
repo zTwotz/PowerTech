@@ -1,130 +1,339 @@
 @{
-    ViewData["Title"] = "Support Dashboard";
+    ViewData["Title"] = "Trung tâm Hỗ trợ & CSKH | PowerTech";
+    var stats = ViewBag.Stats;
 }
 
-<div class="row g-4 mb-4">
-    <!-- Support Overview Cards -->
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-info border-4">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-2">
-                    <div class="flex-shrink-0 bg-info bg-opacity-10 rounded-3 p-2 me-3">
-                        <i class="bi bi-chat-left-text text-info fs-4"></i>
+<div class="support-dashboard">
+    <!-- TOP STATS ROW -->
+    <div class="row g-4 mb-4">
+        <!-- New Tickets -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card glass-morph bg-primary-gradient">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label">Ticket Đợi Mới</p>
+                            <h2 class="stat-value">@stats.OpenTickets</h2>
+                        </div>
+                        <div class="stat-icon-box">
+                            <i class="bi bi-envelope-plus"></i>
+                        </div>
                     </div>
-                    <h6 class="text-muted small fw-bold mb-0 text-uppercase">Đánh giá chờ duyệt</h6>
+                    <div class="stat-footer">
+                        <span class="trend-item"><i class="bi bi-lightning-fill"></i> Ưu tiên cao</span>
+                        <a asp-controller="Ticket" asp-action="Index" asp-route-status="Open" class="stat-link mt-1">Xử lý ngay <i class="bi bi-chevron-right"></i></a>
+                    </div>
                 </div>
-                <h3 class="mb-0 fw-bold">@ViewBag.Stats.PendingReviews</h3>
-                <small class="text-muted">Cần phê duyệt để hiển thị</small>
+            </div>
+        </div>
+
+        <!-- SLA Warning -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card glass-morph @(stats.OverdueTickets > 0 ? "bg-danger-gradient shimmer" : "bg-neutral-gradient")">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label">Vi Phạm SLA (>24h)</p>
+                            <h2 class="stat-value">@stats.OverdueTickets</h2>
+                        </div>
+                        <div class="stat-icon-box">
+                            <i class="bi bi-alarm"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span class="text-white-50">Cần phản hồi khẩn cấp</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Reviews -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card glass-morph bg-info-gradient">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label">Review Đợi Duyệt</p>
+                            <h2 class="stat-value">@stats.PendingReviews</h2>
+                        </div>
+                        <div class="stat-icon-box">
+                            <i class="bi bi-star-half"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <a asp-controller="Review" asp-action="Index" asp-route-approved="false" class="stat-link mt-1">Duyệt đánh giá <i class="bi bi-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CSAT Score -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card glass-morph bg-success-gradient">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="stat-label">Chỉ Số CSAT</p>
+                            <h2 class="stat-value">@(((double)stats.AverageCsat).ToString("0.0"))<small class="fs-6">/5.0</small></h2>
+                        </div>
+                        <div class="stat-icon-box">
+                            <i class="bi bi-emoji-smile"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span class="text-white-50">@stats.ResolvedToday ticket đã giải quyết hôm nay</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-danger border-4">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-2">
-                    <div class="flex-shrink-0 bg-danger bg-opacity-10 rounded-3 p-2 me-3">
-                        <i class="bi bi-ticket-perforated-fill text-danger fs-4"></i>
-                    </div>
-                    <h6 class="text-muted small fw-bold mb-0 text-uppercase">Ticket đang mở</h6>
+    <div class="row g-4">
+        <!-- Main Content Area -->
+        <div class="col-lg-9">
+            <!-- RECENT TICKETS TABLE -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-800 text-dark mb-0">Ticket mới nhận</h5>
+                    <a asp-controller="Ticket" asp-action="Index" class="btn btn-sm btn-light rounded-pill px-3">Tất cả <i class="bi bi-arrow-right"></i></a>
                 </div>
-                <h3 class="mb-0 fw-bold">@ViewBag.Stats.OpenTickets</h3>
-                <small class="text-muted">Yêu cầu hỗ trợ từ khách hàng</small>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0 table-hover-modern">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Ticket</th>
+                                    <th>Khách hàng</th>
+                                    <th>Mức độ</th>
+                                    <th>Thời gian</th>
+                                    <th>Trạng thái</th>
+                                    <th class="pe-4 text-end">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ticket in stats.RecentTickets)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="fw-bold text-dark">#@ticket.TicketCode</div>
+                                            <div class="text-muted tiny text-truncate" style="max-width: 180px;">@ticket.Title</div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://ui-avatars.com/api/?name=@ticket.User?.FullName&background=random" class="rounded-circle me-2" style="width: 24px;">
+                                                <span class="small fw-semibold">@ticket.User?.FullName</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill tiny py-1 @(ticket.Priority == "High" ? "bg-danger" : ticket.Priority == "Medium" ? "bg-warning text-dark" : "bg-info")">
+                                                @ticket.Priority
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="tiny text-muted">@ticket.CreatedAt.ToString("dd/MM HH:mm")</div>
+                                        </td>
+                                        <td>
+                                            <span class="status-indicator @(ticket.Status == "Open" ? "status-new" : ticket.Status == "In Progress" ? "status-working" : "status-done")"></span>
+                                            <span class="x-small fw-bold">@ticket.Status</span>
+                                        </td>
+                                        <td class="pe-4 text-end">
+                                            <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-outline-primary rounded-pill fw-bold">Xử lý</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RECENT REVIEWS -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white p-4 border-0">
+                    <h5 class="fw-800 text-dark mb-0">Đánh giá cần phản hồi</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <tbody>
+                                @foreach (var review in stats.RecentReviews)
+                                {
+                                    <tr class="review-row">
+                                        <td class="ps-4" style="width: 50%;">
+                                            <div class="d-flex gap-3">
+                                                <img src="@review.Product?.ThumbnailUrl" class="rounded-3 shadow-sm" style="width: 48px; height: 48px; object-fit: cover;">
+                                                <div>
+                                                    <div class="fw-bold small text-dark line-clamp-1">@review.Product?.Name</div>
+                                                    <div class="text-muted x-small mt-1">@review.User?.FullName commented</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-warning">
+                                                @for (int i = 0; i < review.Rating; i++) { <i class="bi bi-star-fill tiny"></i> }
+                                                @for (int i = review.Rating; i < 5; i++) { <i class="bi bi-star tiny text-muted opacity-25"></i> }
+                                            </div>
+                                        </td>
+                                        <td class="pe-4 text-end">
+                                            <a asp-controller="Review" asp-action="Index" class="btn btn-link px-0 text-primary text-decoration-none fw-bold small">Duyệt</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-start border-success border-4">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-2">
-                    <div class="flex-shrink-0 bg-success bg-opacity-10 rounded-3 p-2 me-3">
-                        <i class="bi bi-person-check-fill text-success fs-4"></i>
-                    </div>
-                    <h6 class="text-muted small fw-bold mb-0 text-uppercase">Đang xử lý</h6>
+        <!-- Sidebar Area -->
+        <div class="col-lg-3">
+            <!-- Action Sidebar -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 bg-dark text-white p-4">
+                <h6 class="fw-800 text-white-50 small text-uppercase mb-4">Truy cập nhanh</h6>
+                <div class="d-grid gap-3">
+                    <a asp-controller="Customer" asp-action="Index" class="quick-action-btn">
+                        <i class="bi bi-people"></i> Tra cứu khách hàng
+                    </a>
+                    <a asp-controller="Ticket" asp-action="Index" asp-route-priority="High" class="quick-action-btn danger">
+                        <i class="bi bi-lightning"></i> Ưu tiên khẩn cấp
+                    </a>
                 </div>
-                <h3 class="mb-0 fw-bold">@ViewBag.Stats.AssignedTickets</h3>
-                <small class="text-muted">Tickets đã được phân công</small>
+            </div>
+
+            <!-- Quick Search Customer -->
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h6 class="fw-800 text-dark small text-uppercase mb-3">Tìm khách hàng nhanh</h6>
+                <form asp-controller="Customer" asp-action="Index" method="get">
+                    <div class="input-group search-group mb-2">
+                        <input type="text" name="q" class="form-control border-0 bg-light rounded-start-pill ps-3 shadow-none small" placeholder="SĐT hoặc Email...">
+                        <button type="submit" class="btn btn-primary rounded-end-pill px-3"><i class="bi bi-search"></i></button>
+                    </div>
+                </form>
+                <p class="x-small text-muted mb-0">Hỗ trợ tra cứu nhanh lịch sử đơn hàng và ticket liên quan.</p>
+            </div>
+
+            <!-- Support Online Status -->
+            <div class="card border-0 shadow-sm rounded-4 mt-4 overflow-hidden">
+                <div class="p-4">
+                    <h6 class="fw-800 text-dark small text-uppercase mb-4">Hệ thống & SLA</h6>
+                    <div class="sla-item mb-3">
+                        <div class="d-flex justify-content-between x-small fw-bold mb-1">
+                            <span>Mục tiêu phản hồi</span>
+                            <span class="text-success">98%</span>
+                        </div>
+                        <div class="progress rounded-pill bg-light" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: 98%"></div>
+                        </div>
+                    </div>
+                    <div class="sla-item">
+                        <div class="d-flex justify-content-between x-small fw-bold mb-1">
+                            <span>Độ hài lòng (CSAT)</span>
+                            <span class="text-warning">@((stats.AverageCsat / 5.0 * 100).ToString("0"))%</span>
+                        </div>
+                        <div class="progress rounded-pill bg-light" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: @((stats.AverageCsat / 5.0 * 100).ToString("0"))%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-light p-3 border-top text-center">
+                    <span class="x-small fw-bold text-muted fw-bold"><i class="bi bi-shield-check text-success me-1"></i> Hệ thống đang hoạt động ổn định</span>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row g-4">
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold">Đánh giá mới nhất</h5>
-                <a asp-controller="Review" asp-action="Index" class="btn btn-info btn-sm text-white rounded-pill px-4 fw-bold">Xem tất cả</a>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light">
-                            <tr>
-                                <th class="ps-4">Sản phẩm</th>
-                                <th>Khách hàng</th>
-                                <th class="text-center">Đánh giá</th>
-                                <th class="pe-4 text-end">Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var review in ViewBag.Stats.RecentReviews)
-                            {
-                                <tr>
-                                    <td class="ps-4">
-                                        <div class="small fw-medium text-dark text-truncate" style="max-width: 250px;">@review.Product?.Name</div>
-                                    </td>
-                                    <td>
-                                        <div class="small fw-bold">@review.User?.FullName</div>
-                                        <small class="text-muted small">@review.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
-                                    </td>
-                                    <td class="text-center text-warning">
-                                        @for (int i = 0; i < review.Rating; i++) { <i class="bi bi-star-fill"></i> }
-                                    </td>
-                                    <td class="pe-4 text-end">
-                                        <a asp-controller="Review" asp-action="Index" class="btn btn-outline-info btn-sm rounded-pill px-3">Duyệt</a>
-                                    </td>
-                                </tr>
-                            }
-                            @if (!((IEnumerable<dynamic>)ViewBag.Stats.RecentReviews).Any())
-                            {
-                                <tr>
-                                    <td colspan="4" class="text-center py-5 text-muted">Chưa có đánh giá nào</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm rounded-4 bg-info bg-opacity-10 border-0 mb-4 text-center p-4">
-            <h1 class="display-4 fw-bold text-info mb-0">😊</h1>
-            <h5 class="fw-bold text-info mt-3">Customer Focus</h5>
-            <p class="small text-muted mb-0">Luôn đặt trải nghiệm khách hàng lên hàng đầu. Phản hồi nhanh - Giải quyết triệt để.</p>
-        </div>
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .support-dashboard { padding: 5px; }
+        .fw-800 { font-weight: 800; }
+        .x-small { font-size: 0.75rem; }
+        .tiny { font-size: 0.65rem; }
 
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-white p-4 border-bottom">
-                <h6 class="fw-bold mb-0">Quy trình xử lý Review</h6>
-            </div>
-            <div class="card-body p-4">
-                <div class="d-flex align-items-start mb-3">
-                    <div class="bg-light rounded-circle p-2 me-3 small">1</div>
-                    <p class="small mb-0 text-muted">Kiểm tra nội dung đánh giá có vi phạm (quảng cáo, xúc phạm...) không.</p>
-                </div>
-                <div class="d-flex align-items-start mb-3">
-                    <div class="bg-light rounded-circle p-2 me-3 small">2</div>
-                    <p class="small mb-0 text-muted">Nhấn <b>Approve</b> để hiển thị lên website công khai.</p>
-                </div>
-                <div class="d-flex align-items-start">
-                    <div class="bg-light rounded-circle p-2 me-3 small">3</div>
-                    <p class="small mb-0 text-muted">Phản hồi khách hàng nếu nội dung là đóng góp tích cực hoặc khiếu nại.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        /* Stat Cards with Glassmorphism */
+        .stat-card {
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            transition: transform 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card-body { position: relative; z-index: 2; }
+        
+        .bg-primary-gradient { background: linear-gradient(135deg, #0D6EFD 0%, #0046b8 100%); }
+        .bg-danger-gradient { background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%); }
+        .bg-info-gradient { background: linear-gradient(135deg, #0DCAF0 0%, #0099b8 100%); }
+        .bg-success-gradient { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .bg-neutral-gradient { background: linear-gradient(135deg, #64748b 0%, #334155 100%); }
+
+        .stat-label { font-size: 0.85rem; font-weight: 600; opacity: 0.85; margin-bottom: 5px; }
+        .stat-value { font-weight: 800; letter-spacing: -1px; margin-bottom: 0; }
+        .stat-icon-box {
+            width: 45px; height: 45px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+        }
+        .stat-footer { margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; font-size: 0.75rem; }
+        .stat-link { color: white; text-decoration: none; font-weight: bold; opacity: 0.8; }
+        .stat-link:hover { opacity: 1; }
+
+        .trend-item { font-weight: 600; border-radius: 10px; background: rgba(0,0,0,0.2); padding: 2px 8px; }
+
+        /* Shimmer effect for overdue */
+        .shimmer {
+            background-size: 200% auto;
+            animation: shine 2s linear infinite;
+        }
+        @@keyframes shine { to { background-position: 200% center; } }
+
+        /* Tables Modern */
+        .table-hover-modern tbody tr { transition: all 0.2s; cursor: pointer; }
+        .table-hover-modern tbody tr:hover { background-color: #f8fafc; }
+        .table thead th { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; border: none; padding: 15px 12px; }
+        .table tbody td { border-bottom: 1px solid #f1f5f9; padding: 15px 12px; }
+
+        .status-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .status-new { background-color: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+        .status-working { background-color: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+        .status-done { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
+
+        /* Quick Action */
+        .quick-action-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .quick-action-btn:hover { background: rgba(255,255,255,0.2); color: white; transform: translateX(5px); }
+        .quick-action-btn.danger { background: rgba(220,53,69,0.2); }
+        .quick-action-btn.danger:hover { background: rgba(220,53,69,0.4); }
+
+        .search-group input { height: 45px; }
+        .search-group .btn { height: 45px; }
+
+        .line-clamp-1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .review-row:hover { background-color: #f8fafc; }
+        
+        .transition-hover:hover {
+            transform: scale(1.02);
+            filter: brightness(0.95);
+        }
+    </style>
+}

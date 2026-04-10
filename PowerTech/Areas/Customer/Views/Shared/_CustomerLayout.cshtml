@@ -16,8 +16,8 @@
                         <span class="badge bg-secondary">Khách hàng thân thiết</span>
                     </div>
                     <div class="list-group list-group-flush customer-nav">
-                        <a asp-area="Customer" asp-controller="Profile" asp-action="Index" 
-                           class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString() == "Profile" ? "active" : "")">
+                        <a asp-area="Customer" asp-controller="Profile" asp-action="Index" asp-route-tab="profile"
+                           class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString() == "Profile" && (Context.Request.Query["tab"] == "profile" || string.IsNullOrEmpty(Context.Request.Query["tab"])) ? "active" : "")">
                             <i class="fa-solid fa-id-card me-3 opacity-75"></i> Thông tin hồ sơ
                         </a>
                         <a asp-area="Customer" asp-controller="Address" asp-action="Index" 
@@ -28,10 +28,16 @@
                            class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString() == "Order" ? "active" : "")">
                             <i class="fa-solid fa-box-open me-3 opacity-75"></i> Lịch sử đơn hàng
                         </a>
-                        <a href="#" class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center">
+                        <a asp-area="Customer" asp-controller="Support" asp-action="Index" 
+                           class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString() == "Support" ? "active" : "")">
+                            <i class="fa-solid fa-headset me-3 opacity-75"></i> Yêu cầu hỗ trợ
+                        </a>
+                        <a asp-area="Customer" asp-controller="Profile" asp-action="Index" asp-route-tab="notifications"
+                           class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center @(Context.Request.Query["tab"] == "notifications" ? "active" : "")">
                             <i class="fa-solid fa-bell me-3 opacity-75"></i> Thông báo
                         </a>
-                        <a href="#" class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center">
+                        <a asp-area="Customer" asp-controller="Profile" asp-action="Index" asp-route-tab="password"
+                           class="list-group-item list-group-item-action py-3 border-0 d-flex align-items-center @(Context.Request.Query["tab"] == "password" ? "active" : "")">
                             <i class="fa-solid fa-key me-3 opacity-75"></i> Đổi mật khẩu
                         </a>
                         <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "Store" })" method="post" id="logoutForm">
@@ -67,6 +73,10 @@
         color: var(--primary);
     }
 </style>
+
+@section Styles {
+    @await RenderSectionAsync("Styles", required: false)
+}
 
 @section Scripts {
     @await RenderSectionAsync("Scripts", required: false)

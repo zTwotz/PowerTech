@@ -103,6 +103,7 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.MapHub<PowerTech.Hubs.OrderHub>("/orderHub");
+app.MapHub<PowerTech.Hubs.SupportHub>("/supportHub");
 app.MapRazorPages();
 
 app.Run();

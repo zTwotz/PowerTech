@@ -1,0 +1,117 @@
+@model PowerTech.Models.Entities.SupportTicket
+@{
+    ViewData["Title"] = "Gửi yêu cầu hỗ trợ";
+    Layout = "_CustomerLayout";
+}
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-area="Store" asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Yêu cầu hỗ trợ</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Gửi yêu cầu mới</li>
+    </ol>
+</nav>
+
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-primary text-white py-4 px-4 border-0">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="fa-solid fa-headset fs-3"></i>
+                            </div>
+                            <div>
+                                <h3 class="h4 fw-bold mb-0 text-white">Gửi yêu cầu hỗ trợ</h3>
+                                <p class="mb-0 text-white opacity-75 small text-white">Chúng tôi sẽ phản hồi sớm nhất có thể.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 p-md-5">
+                        <form asp-action="Create" method="post" enctype="multipart/form-data">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+
+                            <div class="row g-4">
+                                <!-- Title -->
+                                <div class="col-12">
+                                    <label asp-for="Title" class="form-label fw-bold text-dark">Tiêu đề yêu cầu <span class="text-danger">*</span></label>
+                                    <input asp-for="Title" class="form-control form-control-lg border-2 rounded-3 shadow-none fs-6" 
+                                           placeholder="Ví dụ: Cần hỗ trợ bảo hành VGA, Lỗi cài đặt Driver..." required>
+                                    <span asp-validation-for="Title" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Issue Type and Order -->
+                                <div class="col-md-6">
+                                    <label asp-for="Priority" class="form-label fw-bold text-dark">Vấn đề cần hỗ trợ</label>
+                                    <select asp-for="Priority" class="form-select border-2 rounded-3 shadow-none p-2 fs-6">
+                                        <option value="Bảo hành">Bảo hành</option>
+                                        <option value="Hỏi đáp">Hỏi đáp</option>
+                                        <option value="Sửa chữa">Sửa chữa</option>
+                                        <option value="Khiếu nại">Khiếu nại</option>
+                                        <option value="Hỗ trợ kỹ thuật">Hỗ trợ kỹ thuật</option>
+                                        <option value="Khác">Khác</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="OrderId" class="form-label fw-bold text-dark">Đơn hàng liên quan (nếu có)</label>
+                                    <select asp-for="OrderId" class="form-select border-2 rounded-3 shadow-none p-2 fs-6" asp-items="ViewBag.Orders">
+                                        <option value="">-- Không liên quan --</option>
+                                    </select>
+                                </div>
+
+                                <!-- Content -->
+                                <div class="col-12">
+                                    <label asp-for="Content" class="form-label fw-bold text-dark">Chi tiết nội dung cần hỗ trợ <span class="text-danger">*</span></label>
+                                    <textarea asp-for="Content" class="form-control border-2 rounded-3 shadow-none fs-6" rows="6" 
+                                              placeholder="Vui lòng mô tả chi tiết vấn đề bạn đang gặp phải..." required></textarea>
+                                    <span asp-validation-for="Content" class="text-danger small"></span>
+                                </div>
+
+                                <!-- File Attachment -->
+                                <div class="col-12">
+                                    <label for="attachment" class="form-label fw-bold text-dark">Hình ảnh đính kèm (Tùy chọn)</label>
+                                    <input type="file" id="attachment" name="attachment" class="form-control border-2 rounded-3 shadow-none p-2 fs-6" accept="image/*">
+                                    <div class="form-text text-muted mt-2 small">
+                                        <i class="fa-solid fa-image me-1"></i> Gửi kèm hình ảnh lỗi để kỹ thuật viên hỗ trợ nhanh hơn.
+                                    </div>
+                                </div>
+                                <!-- Submit Buttons -->
+                                <div class="col-12 mt-5">
+                                    <div class="d-flex flex-column flex-md-row gap-3">
+                                        <button type="submit" class="btn btn-primary px-5 py-3 rounded-pill fw-bold shadow-sm flex-grow-1">
+                                            GỬI YÊU CẦU NGAY <i class="fa-solid fa-paper-plane ms-2"></i>
+                                        </button>
+                                        <a asp-action="Index" class="btn btn-outline-secondary px-5 py-3 rounded-pill fw-bold border-2">
+                                            HỦY BỎ
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div class="mt-4 p-4 bg-white rounded-4 border-0 shadow-sm border-start border-primary border-4">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-lightbulb text-warning me-2"></i>Mẹo nhỏ để được hỗ trợ nhanh hơn:</h5>
+                    <ul class="mb-0 small text-muted">
+                        <li class="mb-2">Mô tả rõ ràng lỗi hoặc thắc mắc bạn đang gặp phải.</li>
+                        <li class="mb-2">Nếu là lỗi kỹ thuật, hãy nêu tên linh kiện hoặc mã sản phẩm.</li>
+                        <li>Nếu là vấn đề về đơn hàng, hãy chọn đúng mã đơn hàng trong danh sách.</li>
+                    </ul>
+                </div>
+
+<style>
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "\f105";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        font-size: 10px;
+        color: #adb5bd;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--bs-primary);
+        background-color: #f8f9ff;
+    }
+    textarea {
+        resize: none;
+    }
+</style>

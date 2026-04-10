@@ -17,7 +17,8 @@ namespace PowerTech.Data.Seeders
                 UserRoles.Customer,
                 UserRoles.SalesStaff,
                 UserRoles.WarehouseStaff,
-                UserRoles.SupportStaff
+                UserRoles.SupportStaff,
+                UserRoles.Shipper
             };
 
             foreach (var roleName in roleNames)

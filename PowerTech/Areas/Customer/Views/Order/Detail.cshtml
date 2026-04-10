@@ -79,11 +79,33 @@
                     <tr>
                         <td class="py-3 ps-4">
                             <div class="d-flex align-items-center">
-                                <img src="@(string.IsNullOrEmpty(item.ProductImageSnapshot) ? "/images/no-image.png" : item.ProductImageSnapshot)" class="rounded shadow-sm me-3" style="width: 50px; height: 50px; object-fit: cover;" />
+                                <a asp-area="Store" asp-controller="Product" asp-action="Detail" asp-route-slug="@item.Product?.Slug">
+                                    <img src="@(string.IsNullOrEmpty(item.ProductImageSnapshot) ? "/images/no-image.png" : item.ProductImageSnapshot)" class="rounded shadow-sm me-3" style="width: 50px; height: 50px; object-fit: cover;" />
+                                </a>
                                 <div>
-                                    <div class="fw-bold text-dark" style="font-size: 14px;">@item.ProductNameSnapshot</div>
+                                    <a asp-area="Store" asp-controller="Product" asp-action="Detail" asp-route-slug="@item.Product?.Slug" class="text-decoration-none">
+                                        <div class="fw-bold text-dark hover-danger" style="font-size: 14px;">@item.ProductNameSnapshot</div>
+                                    </a>
                                     <div class="text-muted small" style="font-size: 12px;">SKU: @item.ProductSkuSnapshot</div>
                                     <div class="text-danger fw-bold" style="font-size: 13px;">@item.UnitPrice.ToString("N0")₫</div>
+                                    
+                                    @if (Model.OrderStatus == "Completed")
+                                    {
+                                        var reviewedIds = ViewBag.ReviewedProductIds as List<int> ?? new List<int>();
+                                        if (!reviewedIds.Contains(item.ProductId))
+                                        {
+                                            <button class="btn btn-sm btn-outline-primary mt-2 py-1 px-2 x-small fw-bold" 
+                                                    onclick="openReviewModal(@item.ProductId, '@item.ProductNameSnapshot')">
+                                                <i class="fa-solid fa-star me-1 text-warning"></i> Đánh giá ngay
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-soft-success text-success mt-2 x-small fw-bold">
+                                                <i class="fa-solid fa-check-circle me-1"></i> Đã đánh giá
+                                            </span>
+                                        }
+                                    }
                                 </div>
                             </div>
                         </td>
@@ -147,3 +169,129 @@
         transition: all 0.2s;
     }
 </style>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold" id="reviewModalLabel">Đánh giá sản phẩm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="reviewForm" action="/Customer/Review/Create" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" id="reviewProductId" />
+                <input type="hidden" name="orderId" value="@Model.Id" />
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <div id="productNameReview" class="fw-bold text-dark mb-3"></div>
+                        <div class="star-rating fs-2">
+                            <i class="fa-regular fa-star text-warning cursor-pointer" data-rating="1"></i>
+                            <i class="fa-regular fa-star text-warning cursor-pointer" data-rating="2"></i>
+                            <i class="fa-regular fa-star text-warning cursor-pointer" data-rating="3"></i>
+                            <i class="fa-regular fa-star text-warning cursor-pointer" data-rating="4"></i>
+                            <i class="fa-regular fa-star text-warning cursor-pointer" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" name="rating" id="selectedRating" value="5" />
+                        <div id="ratingText" class="text-muted small mt-1 fw-bold">Cực kỳ hài lòng</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-2">Nhận xét của bạn</label>
+                        <textarea name="comment" class="form-control border-0 bg-light p-3 rounded-3 shadow-none" rows="3" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..." required></textarea>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-2">Hình ảnh thực tế (Tối đa 3 ảnh)</label>
+                        <input type="file" name="images" class="form-control border-0 bg-light p-2 rounded-3 shadow-none" multiple accept="image/*" id="reviewImageInput" />
+                        <div id="imagePreview" class="d-flex gap-2 mt-2"></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">Gửi đánh giá</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openReviewModal(productId, productName) {
+            $('#reviewProductId').val(productId);
+            $('#productNameReview').text(productName);
+            resetStars();
+            $('#reviewModal').modal('show');
+        }
+
+        const ratingTexts = {
+            1: "Rất không hài lòng",
+            2: "Không hài lòng",
+            3: "Bình thường",
+            4: "Hài lòng",
+            5: "Cực kỳ hài lòng"
+        };
+
+        $('.star-rating i').on('mouseover', function() {
+            const rating = $(this).data('rating');
+            updateStars(rating);
+        }).on('mouseout', function() {
+            const selected = $('#selectedRating').val();
+            updateStars(selected);
+        }).on('click', function() {
+            const rating = $(this).data('rating');
+            $('#selectedRating').val(rating);
+            $('#ratingText').text(ratingTexts[rating]);
+            updateStars(rating);
+        });
+
+        function updateStars(rating) {
+            $('.star-rating i').each(function() {
+                const r = $(this).data('rating');
+                if (r <= rating) {
+                    $(this).removeClass('fa-regular').addClass('fa-solid');
+                } else {
+                    $(this).removeClass('fa-solid').addClass('fa-regular');
+                }
+            });
+        }
+
+        function resetStars() {
+            $('#selectedRating').val(5);
+            $('#ratingText').text(ratingTexts[5]);
+            updateStars(5);
+        }
+
+        $('#reviewImageInput').on('change', function() {
+            const preview = $('#imagePreview');
+            preview.empty();
+            const files = this.files;
+            
+            if (files.length > 3) {
+                alert("Bạn chỉ được tải lên tối đa 3 ảnh.");
+                this.value = "";
+                return;
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = $('<img>').attr('src', e.target.result)
+                        .addClass('rounded shadow-sm')
+                        .css({ width: '60px', height: '60px', objectFit: 'cover' });
+                    preview.append(img);
+                };
+                reader.readAsDataURL(files[i]);
+            }
+        });
+
+        $('#reviewForm').on('submit', function(e) {
+            const comment = $(this).find('textarea[name="comment"]').val();
+            if (comment.length < 10) {
+                e.preventDefault();
+                Swal.fire('Chú ý', 'Nhận xét của bạn hơi ngắn. Vui lòng viết ít nhất 10 ký tự.', 'info');
+            }
+        });
+    </script>
+}

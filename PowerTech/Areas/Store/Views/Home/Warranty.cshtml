@@ -1,0 +1,130 @@
+@{
+    ViewData["Title"] = "Chính sách bảo hành - PowerTech";
+}
+
+<div class="warranty-page pb-5">
+    <!-- Hero Section -->
+    <div class="position-relative overflow-hidden mb-5" style="height: 400px; background: #0a192f;">
+        <img src="/images/news/warranty.png" alt="Warranty Policy" class="w-100 h-100 object-fit-cover opacity-50">
+        <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-100 px-3" style="z-index: 2;">
+            <h1 class="display-3 fw-bold mb-3">Chính Sách Bảo Hành</h1>
+            <p class="lead mb-0 opacity-75">An tâm mua sắm với cam kết hỗ trợ tuyệt đối từ PowerTech</p>
+        </div>
+        <div class="position-absolute bottom-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(10,25,47,1), transparent); z-index: 1;"></div>
+    </div>
+
+    <div class="container mt-n5 position-relative" style="z-index: 3;">
+        <div class="row g-4">
+            <!-- Warranty Commitments -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 pb-5">
+                    <div class="bg-primary p-4 text-white text-center">
+                        <i class="fa-solid fa-medal fs-1 mb-2"></i>
+                        <h4 class="fw-bold mb-0">Cam kết vàng</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled d-flex flex-column gap-4">
+                            <li class="d-flex gap-3">
+                                <i class="fa-solid fa-circle-check text-success fs-4"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">100% Chính hãng</h6>
+                                    <p class="text-muted small mb-0">Tất cả sản phẩm đều đầy đủ hóa đơn, chứng từ CO/CQ.</p>
+                                </div>
+                            </li>
+                            <li class="d-flex gap-3">
+                                <i class="fa-solid fa-circle-check text-success fs-4"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Đổi mới 15 ngày</h6>
+                                    <p class="text-muted small mb-0">Lỗi là đổi mới ngay lập tức (với linh kiện rời).</p>
+                                </div>
+                            </li>
+                            <li class="d-flex gap-3">
+                                <i class="fa-solid fa-circle-check text-success fs-4"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Bảo hành siêu tốc</h6>
+                                    <p class="text-muted small mb-0">Cam kết trả máy bảo hành trong tối đa 7 ngày làm việc.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Policy Content -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm p-5 rounded-4 bg-white h-100">
+                    <h3 class="fw-bold mb-4 text-primary">Chi tiết các gói bảo hành</h3>
+                    
+                    <div class="accordion accordion-flush" id="warrantyAccordion">
+                        <div class="accordion-item border-bottom py-3">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold text-dark fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne">
+                                    <i class="fa-solid fa-laptop me-3 text-primary"></i> Laptop & Máy bộ nguyên chiếc
+                                </button>
+                            </h2>
+                            <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#warrantyAccordion">
+                                <div class="accordion-body text-muted">
+                                    - Bảo hành chính hãng tại tất cả các trung tâm ủy quyền (ASUS, MSI, DELL, HP...).<br>
+                                    - Hỗ trợ vệ sinh, cài đặt phần mềm miễn phí trọn đời sản phẩm tại PowerTech.<br>
+                                    - Thời gian bảo hành: Theo quy định của hãng (Thường là 12-24 tháng).
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border-bottom py-3">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold text-dark fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo">
+                                    <i class="fa-solid fa-microchip me-3 text-primary"></i> Linh kiện rời (CPU, GPU, RAM, SSD...)
+                                </button>
+                            </h2>
+                            <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#warrantyAccordion">
+                                <div class="accordion-body text-muted">
+                                    - Đổi mới 100% trong 30 ngày đầu nếu phát sinh lỗi phần cứng.<br>
+                                    - Hỗ trợ mượn linh kiện tương đương để sử dụng trong thời gian chờ bảo hành.<br>
+                                    - Thời gian bảo hành: 36 - 60 tháng tùy dòng sản phẩm.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border-bottom py-3">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold text-dark fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree">
+                                    <i class="fa-solid fa-headset me-3 text-primary"></i> Phụ kiện & Gaming Gear
+                                </button>
+                            </h2>
+                            <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#warrantyAccordion">
+                                <div class="accordion-body text-muted">
+                                    - Bảo hành 1 đổi 1 trong xuyên suốt thời gian bảo hành.<br>
+                                    - Áp dụng cho các sản phẩm chuột, bàn phím, tai nghe, ghế gaming chính hãng.<br>
+                                    - Thời gian bảo hành: 12 - 24 tháng.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-4 rounded-3 mt-5">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-triangle-exclamation text-warning me-2"></i> Lưu ý từ chối bảo hành</h5>
+                        <ul class="text-muted small mb-0">
+                            <li>Sản phẩm hết hạn bảo hành hoặc mất tem niêm phong.</li>
+                            <li>Sản phẩm bị tác động vật lý: Rơi vỡ, móp méo, cháy nổ, biến dạng.</li>
+                            <li>Sản phẩm bị ẩm ướt, vào chất lỏng hoặc có côn trùng xâm nhập.</li>
+                            <li>Sử dụng sai quy cách, tự ý tháo lắp hoặc can thiệp phần cứng trái phép.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .warranty-page {
+        background-color: #f1f3f5;
+    }
+    .mt-n5 {
+        margin-top: -80px !important;
+    }
+    .accordion-button:not(.collapsed) {
+        background-color: transparent;
+        box-shadow: none;
+        color: var(--bs-primary);
+    }
+</style>

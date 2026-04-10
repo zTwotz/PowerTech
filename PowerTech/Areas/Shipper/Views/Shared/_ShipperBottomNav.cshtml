@@ -1,0 +1,59 @@
+<nav class="bottom-nav">
+    <a asp-area="Shipper" asp-controller="Order" asp-action="Index" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+        <i class="fa-solid fa-truck-ramp-box"></i>
+        ĐƠN CẦN GIAO
+    </a>
+    <a asp-area="Shipper" asp-controller="Order" asp-action="History" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "History" ? "active" : "")">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        LỊCH SỬ
+    </a>
+    <a asp-area="Shipper" asp-controller="Order" asp-action="Wallet" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Wallet" ? "active" : "")">
+        <i class="fa-solid fa-wallet"></i>
+        VÍ TIỀN
+    </a>
+    <a asp-area="Shipper" asp-controller="Order" asp-action="Settings" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "active" : "")">
+        <i class="fa-solid fa-user-gear"></i>
+        CÀI ĐẶT
+    </a>
+</nav>
+
+<style>
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        display: flex;
+        justify-content: space-around;
+        padding: 12px 5px;
+        box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+        z-index: 1000;
+        transition: left 0.3s;
+    }
+
+    /* On large screens, push the bottom nav to the right to avoid Admin Sidebar */
+    @@media (min-width: 992px) {
+        .admin-body .bottom-nav {
+            left: 280px; /* Width of admin sidebar */
+        }
+    }
+
+    .nav-item {
+        text-align: center;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+    .nav-item.active {
+        color: #3b82f6;
+    }
+
+    .nav-item i {
+        display: block;
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
+</style>

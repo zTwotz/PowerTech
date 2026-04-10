@@ -1,8 +1,10 @@
+@using PowerTech.Constants
 @using PowerTech.Models.Entities
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
 @{
     var user = await UserManager.GetUserAsync(User);
+    var isAdmin = User.IsInRole(UserRoles.Admin);
 }
 
 <!DOCTYPE html>
@@ -30,81 +32,125 @@
         
         <nav class="admin-sidebar-menu">
             <ul>
-                <li class="menu-header">Hệ thống</li>
-                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
-                    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                        <i class="fa-solid fa-grid-2"></i> Dashboard
-                    </a>
-                </li>
+                @if (isAdmin)
+                {
+                    <li class="menu-header">Hệ thống</li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Admin" && ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                            <i class="fa-solid fa-grid-2"></i> Dashboard
+                        </a>
+                    </li>
+                }
                 
-                <li class="menu-header">Cửa hàng</li>
-                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")">
-                    <a asp-area="Admin" asp-controller="Product" asp-action="Index">
-                        <i class="fa-solid fa-box-open"></i> Sản phẩm
-                    </a>
-                </li>
-                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Category" ? "active" : "")">
-                    <a asp-area="Admin" asp-controller="Category" asp-action="Index">
-                        <i class="fa-solid fa-layer-group"></i> Danh mục
-                    </a>
-                </li>
-                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Brand" ? "active" : "")">
-                    <a asp-area="Admin" asp-controller="Brand" asp-action="Index">
-                        <i class="fa-solid fa-copyright"></i> Thương hiệu
-                    </a>
-                </li>
-                
-                <li class="menu-header">Nghiệp vụ</li>
-                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Order" ? "active" : "")">
-                    <a asp-area="Admin" asp-controller="Order" asp-action="Index">
-                        <i class="fa-solid fa-receipt"></i> Đơn hàng
-                    </a>
-                </li>
+                @if (isAdmin || User.IsInRole(UserRoles.WarehouseStaff))
+                {
+                    <li class="menu-header">Kho vận</li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Warehouse" && ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                        <a asp-area="Warehouse" asp-controller="Home" asp-action="Index">
+                            <i class="fa-solid fa-warehouse"></i> Tổng quan kho
+                        </a>
+                    </li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Admin" && ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Product" asp-action="Index">
+                            <i class="fa-solid fa-box-open"></i> Quản lý Sản phẩm
+                        </a>
+                    </li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Admin" && ViewContext.RouteData.Values["controller"]?.ToString() == "Category" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Category" asp-action="Index">
+                            <i class="fa-solid fa-layer-group"></i> Quản lý Danh mục
+                        </a>
+                    </li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Admin" && ViewContext.RouteData.Values["controller"]?.ToString() == "Brand" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Brand" asp-action="Index">
+                            <i class="fa-solid fa-copyright"></i> Quản lý Thương hiệu
+                        </a>
+                    </li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Warehouse" && ViewContext.RouteData.Values["controller"]?.ToString() == "Inventory" ? "active" : "")">
+                        <a asp-area="Warehouse" asp-controller="Inventory" asp-action="Index">
+                            <i class="fa-solid fa-boxes-stacked"></i> Quản lý tồn kho
+                        </a>
+                    </li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Warehouse" && ViewContext.RouteData.Values["controller"]?.ToString() == "StockEntry" ? "active" : "")">
+                        <a asp-area="Warehouse" asp-controller="StockEntry" asp-action="Index">
+                            <i class="fa-solid fa-file-import"></i> Nhập hàng vào kho
+                        </a>
+                    </li>
+                }
 
-                <li class="menu-header">Kho vận</li>
-                <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Warehouse" ? "active" : "")">
-                    <a asp-area="Warehouse" asp-controller="Home" asp-action="Index">
-                        <i class="fa-solid fa-warehouse"></i> Quản lý kho
-                    </a>
-                </li>
-                
-                <li class="menu-header">Logistics</li>
-                <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Shipper" ? "active" : "")">
-                    <a asp-area="Shipper" asp-controller="Order" asp-action="Index">
-                        <i class="fa-solid fa-truck-fast"></i> Giao nhận (Shipper)
-                    </a>
-                </li>
+                @if (isAdmin || User.IsInRole(UserRoles.Shipper))
+                {
+                    <li class="menu-header">Logistics</li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Shipper" ? "active" : "")">
+                        <a asp-area="Shipper" asp-controller="Order" asp-action="Index">
+                            <i class="fa-solid fa-truck-fast"></i> Giao nhận (Shipper)
+                        </a>
+                    </li>
+                }
 
-                <li class="menu-header">Kinh doanh</li>
-                <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Sales" ? "active" : "")">
-                    <a asp-area="Sales" asp-controller="Home" asp-action="Index">
-                        <i class="fa-solid fa-chart-line"></i> Bán hàng (Sales)
-                    </a>
-                </li>
+                @if (isAdmin || User.IsInRole(UserRoles.SalesStaff))
+                {
+                    <li class="menu-header">Kinh doanh</li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Sales" && ViewContext.RouteData.Values["controller"]?.ToString() == "Order" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                        <a asp-area="Sales" asp-controller="Order" asp-action="Index">
+                            <i class="fa-solid fa-receipt"></i> Quản lý Đơn hàng
+                        </a>
+                    </li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Sales" && ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                        <a asp-area="Sales" asp-controller="Home" asp-action="Index">
+                            <i class="fa-solid fa-chart-line"></i> Bán hàng (Sales)
+                        </a>
+                    </li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Sales" && ViewContext.RouteData.Values["controller"]?.ToString() == "Order" && ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "active" : "")">
+                        <a asp-area="Sales" asp-controller="Order" asp-action="Create">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> Tạo đơn tại quầy
+                        </a>
+                    </li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Sales" && ViewContext.RouteData.Values["controller"]?.ToString() == "Coupons" ? "active" : "")">
+                        <a asp-area="Sales" asp-controller="Coupons" asp-action="Index">
+                            <i class="fa-solid fa-ticket"></i> Quản lý mã giảm giá
+                        </a>
+                    </li>
+                }
 
-                <li class="menu-header">Hỗ trợ</li>
-                <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Support" ? "active" : "")">
-                    <a asp-area="Support" asp-controller="Home" asp-action="Index">
-                        <i class="fa-solid fa-headset"></i> Chăm sóc khách hàng
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#">
-                        <i class="fa-solid fa-circle-exclamation"></i> Khiếu nại (Tickets)
-                    </a>
-                </li>
+                @if (isAdmin || User.IsInRole(UserRoles.SupportStaff))
+                {
+                    <li class="menu-header">Hỗ trợ</li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Support" && ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                        <a asp-area="Support" asp-controller="Home" asp-action="Index">
+                            <i class="fa-solid fa-chart-line"></i> Dashboard Support
+                        </a>
+                    </li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Support" && ViewContext.RouteData.Values["controller"]?.ToString() == "Customer" ? "active" : "")">
+                        <a asp-area="Support" asp-controller="Customer" asp-action="Index">
+                            <i class="fa-solid fa-headset"></i> Chăm sóc khách hàng
+                        </a>
+                    </li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Support" && ViewContext.RouteData.Values["controller"]?.ToString() == "Review" ? "active" : "")">
+                        <a asp-area="Support" asp-controller="Review" asp-action="Index">
+                            <i class="fa-solid fa-star-half-stroke"></i> Duyệt đánh giá
+                        </a>
+                    </li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Support" && ViewContext.RouteData.Values["controller"]?.ToString() == "Ticket" ? "active" : "")">
+                        <a asp-area="Support" asp-controller="Ticket" asp-action="Index">
+                            <i class="fa-solid fa-circle-exclamation"></i> Khiếu nại (Tickets)
+                        </a>
+                    </li>
+                }
                 
-                <li class="menu-header">Người dùng</li>
-                <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")">
-                    <a asp-area="Admin" asp-controller="User" asp-action="Index">
-                        <i class="fa-solid fa-user-gear"></i> Nhân viên
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#">
-                        <i class="fa-solid fa-users"></i> Khách hàng
-                    </a>
-                </li>
+                @if (isAdmin)
+                {
+                    <li class="menu-header">Người dùng</li>
+                    <li class="menu-item @(ViewContext.RouteData.Values["area"]?.ToString() == "Admin" && ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="User" asp-action="Index">
+                            <i class="fa-solid fa-users-gear"></i> Quản lý TK
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#">
+                            <i class="fa-solid fa-address-book"></i> Phân quyền (Roles)
+                        </a>
+                    </li>
+                }
             </ul>
         </nav>
         
@@ -117,18 +163,14 @@
         </div>
     </aside>
 
+    <div id="sidebar-backdrop" onclick="toggleSidebar()" class="d-none"></div>
+
     <div class="admin-wrapper">
         <header class="admin-header">
-            <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-light d-lg-none" onclick="toggleSidebar()">
-                    <i class="fa-solid fa-bars-staggered"></i>
+            <div class="header-left d-flex align-items-center flex-grow-1">
+                <button class="btn btn-icon btn-light d-lg-none me-3" id="mobile-sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
-                <div class="header-search d-none d-md-block">
-                    <div class="position-relative">
-                        <i class="fa-solid fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="font-size: 12px;"></i>
-                        <input type="text" class="ps-5" placeholder="Tìm kiếm nhanh..."/>
-                    </div>
-                </div>
             </div>
             
             <div class="header-right">
@@ -140,8 +182,13 @@
                 
                 <div class="admin-profile-btn">
                     <div class="text-end d-none d-md-block">
-                        <div class="fw-bold fs-7 lh-1 text-dark">@(user?.FullName ?? "Administrator")</div>
-                        <div class="text-muted" style="font-size: 10px;">Quản trị viên</div>
+                        <div class="fw-bold fs-7 lh-1 text-dark">@(user?.FullName ?? user?.UserName)</div>
+                        <div class="text-muted" style="font-size: 10px;">
+                            @(isAdmin ? "Quản trị viên" : 
+                              User.IsInRole(UserRoles.WarehouseStaff) ? "Nhân viên Kho" :
+                              User.IsInRole(UserRoles.SalesStaff) ? "Nhân viên Bán hàng" :
+                              User.IsInRole(UserRoles.SupportStaff) ? "Nhân viên Hỗ trợ" : "Nhân viên")
+                        </div>
                     </div>
                     <img src="https://ui-avatars.com/api/?name=@(user?.FullName ?? "Admin")&background=1e293b&color=fff&rounded=true" />
                 </div>
@@ -149,13 +196,51 @@
         </header>
 
         <main class="admin-content">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show m-4 shadow-sm border-0" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show m-4 shadow-sm border-0" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            
             @RenderBody()
         </main>
+
+        @if (ViewContext.RouteData.Values["area"]?.ToString() == "Shipper")
+        {
+            <partial name="/Areas/Shipper/Views/Shared/_ShipperBottomNav.cshtml" />
+        }
         
         <footer class="p-4 bg-white mt-auto py-3 border-top text-center">
             <span class="text-muted small">© 2026 <span class="fw-bold text-dark">PowerTech</span> Dashboard. Designed by Deepmind.</span>
         </footer>
     </div>
+
+    <style>
+        #sidebar-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            z-index: 1045;
+        }
+        @@media (max-width: 991.98px) {
+            .admin-sidebar.mobile-open {
+                left: 0 !important;
+                z-index: 1050;
+            }
+        }
+    </style>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -163,7 +248,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.toggle('mobile-open');
+            backdrop.classList.toggle('d-none');
         }
 
         // Global SignalR Notification Listener

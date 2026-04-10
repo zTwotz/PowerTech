@@ -4,86 +4,86 @@
     ViewData["Title"] = "Quản lý đơn hàng";
 }
 
-<div class="card border-0 shadow-sm rounded-4">
-    <div class="card-header bg-white p-4 border-bottom">
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white p-4 border-0">
         <div class="row align-items-center">
-            <div class="col-md-4 text-start">
-                <h5 class="mb-0 fw-bold">Danh sách đơn hàng</h5>
-                <small class="text-muted">Quản lý và thực hiện các bước xử lý đơn hàng</small>
+            <div class="col-md-5">
+                <h5 class="mb-0 fw-800 text-dark">Danh sách đơn hàng</h5>
+                <p class="text-muted small mb-0 mt-1">Quản lý và thực hiện các bước xử lý đơn hàng chi tiết</p>
             </div>
-            <div class="col-md-8 text-md-end mt-3 mt-md-0">
-                <form asp-action="Index" method="get" class="d-inline-block">
+            <div class="col-md-7 mt-3 mt-md-0 d-flex justify-content-md-end align-items-center gap-3">
+                <form asp-action="Index" method="get" class="position-relative">
                     <input type="hidden" name="status" value="@ViewBag.CurrentStatus" />
-                    <div class="input-group input-group-sm rounded-pill border overflow-hidden shadow-sm d-inline-flex" style="max-width: 300px;">
-                        <input type="text" name="searchTerm" class="form-control border-0 px-3" placeholder="Mã đơn, Tên, SĐT..." value="@ViewBag.SearchTerm" />
-                        <button class="btn btn-white border-0 px-3" type="submit">
-                            <i class="bi bi-search text-primary"></i>
-                        </button>
-                        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
-                        {
-                            <a asp-action="Index" asp-route-status="@ViewBag.CurrentStatus" class="btn btn-white border-0 px-3 text-danger">
-                                <i class="bi bi-x-lg"></i>
-                            </a>
-                        }
-                    </div>
+                    <input type="text" name="searchTerm" class="form-control border-0 shadow-sm ps-4 pe-5 rounded-pill bg-light py-2" style="width: 250px; font-size: 14px;" placeholder="Tìm nhanh..." value="@ViewBag.SearchTerm">
+                    <button type="submit" class="btn p-0 border-0 position-absolute top-50 translate-middle-y end-0 me-3">
+                        <i class="bi bi-search text-muted" style="font-size: 13px;"></i>
+                    </button>
+                    @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+                    {
+                        <a asp-action="Index" asp-route-status="@ViewBag.CurrentStatus" class="position-absolute top-50 translate-middle-y end-0 me-5 text-danger pt-1">
+                            <i class="bi bi-x-circle"></i>
+                        </a>
+                    }
                 </form>
-                
-                <div class="btn-group rounded-pill overflow-hidden border shadow-sm ms-2">
-                    <a asp-action="Index" asp-route-status="" asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-sm btn-@(string.IsNullOrEmpty(ViewBag.CurrentStatus) ? "primary" : "outline-primary border-0") px-3">Tất cả</a>
-                    <a asp-action="Index" asp-route-status="Pending" asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-sm btn-@(ViewBag.CurrentStatus == "Pending" ? "primary" : "outline-primary border-0") px-3">Mới</a>
-                    <a asp-action="Index" asp-route-status="Processing" asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-sm btn-@(ViewBag.CurrentStatus == "Processing" ? "primary" : "outline-primary border-0") px-3">Đang xử lý</a>
-                    <a asp-action="Index" asp-route-status="Completed" asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-sm btn-@(ViewBag.CurrentStatus == "Completed" ? "primary" : "outline-primary border-0") px-3">Hoàn tất</a>
-                </div>
             </div>
         </div>
     </div>
     
+    <!-- Unified Filter Pills -->
+    <div class="px-4 mb-3 d-flex flex-wrap gap-2">
+        <a asp-action="Index" asp-route-status="" asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-pill-filter @(string.IsNullOrEmpty(ViewBag.CurrentStatus) ? "active" : "")">
+            <i class="bi bi-grid-fill me-1"></i> Tất cả
+        </a>
+        <a asp-action="Index" asp-route-status="Pending" asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-pill-filter @(ViewBag.CurrentStatus == "Pending" ? "active" : "")">
+            <i class="bi bi-patch-exclamation me-1"></i> Chờ duyệt
+        </a>
+        <a asp-action="Index" asp-route-status="Processing" asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-pill-filter @(ViewBag.CurrentStatus == "Processing" ? "active" : "")">
+            <i class="bi bi-gear-fill me-1"></i> Đang xử lý
+        </a>
+        <a asp-action="Index" asp-route-status="Completed" asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-pill-filter @(ViewBag.CurrentStatus == "Completed" ? "active" : "")">
+            <i class="bi bi-check-circle-fill me-1"></i> Hoàn tất
+        </a>
+    </div>
+
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
+            <table class="table align-middle mb-0 table-modern">
+                <thead>
                     <tr>
-                        <th class="ps-4">Mã đơn</th>
-                        <th>Khách hàng</th>
-                        <th>Ngày tạo</th>
-                        <th>Tổng tiền</th>
-                        <th>Thanh toán</th>
-                        <th>Trạng thái</th>
-                        <th class="pe-4 text-end">Chi tiết</th>
+                        <th class="ps-4"><i class="bi bi-hash me-1"></i> Mã đơn</th>
+                        <th><i class="bi bi-person me-1"></i> Khách hàng</th>
+                        <th><i class="bi bi-calendar3 me-1"></i> Ngày tạo</th>
+                        <th class="text-end"><i class="bi bi-currency-dollar me-1"></i> Tổng cộng</th>
+                        <th class="text-center"><i class="bi bi-shield-check me-1"></i> Trạng thái</th>
+                        <th class="pe-4 text-end"><i class="bi bi-lightning-charge me-1"></i> Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var order in Model)
                     {
                         <tr>
-                            <td class="ps-4 fw-bold">
-                                @order.OrderCode
-                                @if (!string.IsNullOrEmpty(order.InternalNote))
-                                {
-                                    <i class="bi bi-clipboard-check text-success ms-1" title="Có ghi chú nội bộ"></i>
-                                }
+                            <td class="ps-4">
+                                <div class="fw-bold text-primary">#@order.OrderCode</div>
                             </td>
                             <td>
-                                <div class="fw-medium">@order.ReceiverName</div>
-                                <small class="text-muted">@order.PhoneNumber</small>
-                            </td>
-                            <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td class="fw-bold text-primary">@order.TotalAmount.ToString("N0")₫</td>
-                            <td>
-                                <span class="badge rounded-pill bg-@(order.PaymentStatus switch {
-                                    "Paid" => "success",
-                                    "Unpaid" => "warning text-dark",
-                                    _ => "secondary"
-                                })">@order.PaymentStatus</span>
+                                <div class="fw-bold text-dark mb-0">@order.ReceiverName</div>
+                                <div class="text-muted small x-small">@order.PhoneNumber</div>
                             </td>
                             <td>
-                                <span class="badge rounded-pill @OrderHelper.GetStatusBadgeClass(order.OrderStatus)">
-                                    @OrderHelper.GetStatusDisplayName(order.OrderStatus)
+                                <div class="text-muted small fw-medium">@order.CreatedAt.ToString("dd/MM/yyyy")</div>
+                                <div class="x-small text-muted opacity-75">@order.CreatedAt.ToString("HH:mm")</div>
+                            </td>
+                            <td class="text-end">
+                                <div class="fw-800 text-dark fs-6">@order.TotalAmount.ToString("N0")₫</div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-status @GetStatusClass(order.OrderStatus)">
+                                    @GetStatusText(order.OrderStatus)
                                 </span>
                             </td>
                             <td class="pe-4 text-end">
-                                <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-white border rounded-pill shadow-sm px-3 text-primary fw-medium transition-all hover-elevate">
-                                    <i class="bi bi-eye me-1"></i> Chi tiết
+                                <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-action-view">
+                                    Chi tiết
                                 </a>
                             </td>
                         </tr>
@@ -91,7 +91,7 @@
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">Không tìm thấy đơn hàng nào</td>
+                            <td colspan="6" class="text-center py-5 text-muted fst-italic">Không tìm thấy đơn hàng nào</td>
                         </tr>
                     }
                 </tbody>
@@ -100,21 +100,105 @@
     </div>
 </div>
 
-@section Scripts {
+@functions {
+    string GetStatusClass(string status) => status switch {
+        "Pending" => "status-pending",
+        "Processing" or "Confirmed" => "status-processing",
+        "Shipping" or "Shipped" => "status-shipping",
+        "Completed" => "status-completed",
+        "Cancelled" => "status-cancelled",
+        _ => "status-neutral"
+    };
+
+    string GetStatusText(string status) => status switch {
+        "Pending" => "Chờ duyệt",
+        "Processing" => "Đang xử lý",
+        "Shipping" or "Shipped" => "Đang giao",
+        "Completed" => "Hoàn tất",
+        "Cancelled" => "Đã hủy",
+        _ => status
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        .hover-elevate {
-            transition: all 0.2s ease-in-out;
+        :root {
+            --pt-primary: #e30019;
+            --pt-bg: #f8fafc;
         }
-        .hover-elevate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-            background-color: #f8f9fa;
+
+        .fw-800 { font-weight: 800; }
+        .x-small { font-size: 0.75rem; }
+
+        /* Pill Filters */
+        .btn-pill-filter {
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #64748b;
+            border-radius: 20px;
+            padding: 5px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
         }
-        .table-hover tbody tr {
-            transition: background-color 0.2s;
+        .btn-pill-filter:hover, .btn-pill-filter.active {
+            background: var(--pt-primary);
+            color: #fff;
+            border-color: var(--pt-primary);
         }
-        .table-hover tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.02) !important;
+
+        /* Table Modern */
+        .table-modern thead th {
+            border: none;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 16px 12px;
+        }
+        
+        .table-modern tbody td {
+            padding: 18px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .table-modern tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        /* Badges */
+        .badge-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-processing { background-color: #dcfce7; color: #166534; }
+        .status-shipping { background-color: #e0f2fe; color: #075985; }
+        .status-completed { background-color: #dcfce7; color: #166534; }
+        .status-cancelled { background-color: #fee2e2; color: #991b1b; }
+        .status-neutral { background-color: #f1f5f9; color: #475569; }
+
+        /* Action Buttons */
+        .btn-action-view {
+            background-color: #fff;
+            color: var(--pt-primary);
+            border: 1px solid var(--pt-primary);
+            border-radius: 8px;
+            padding: 4px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-action-view:hover {
+            background-color: var(--pt-primary);
+            color: #fff;
         }
     </style>
 }

@@ -1,0 +1,231 @@
+@{
+    ViewData["Title"] = "Tin tức công nghệ - PowerTech";
+}
+
+<div class="news-page pb-5">
+    <!-- Hero Section -->
+    <div class="news-hero position-relative overflow-hidden mb-5" style="height: 400px; background: #000;">
+        <img src="/images/news/hero-banner.png" alt="Tech News" class="w-100 h-100 object-fit-cover opacity-50">
+        <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-100 px-3" style="z-index: 2;">
+            <h1 class="display-4 fw-bold mb-3 text-uppercase tracking-wider">Tin Tức Công Nghệ</h1>
+            <p class="lead mb-0 opacity-75">Cập nhật những xu hướng và sản phẩm mới nhất từ thế giới công nghệ</p>
+        </div>
+        <div class="position-absolute bottom-0 start-0 w-100 h-50" style="background: linear-gradient(transparent, rgba(0,0,0,0.8)); z-index: 1;"></div>
+    </div>
+
+    <div class="container">
+        <!-- Hot News Section -->
+        <div class="row mb-5">
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm overflow-hidden h-100 group">
+                    <div class="position-relative overflow-hidden" style="height: 450px;">
+                        <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover:scale-105" alt="Featured News">
+                        <div class="position-absolute top-0 start-0 m-3">
+                            <span class="badge bg-danger px-3 py-2">HOT</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-2 text-muted small">
+                            <span class="me-3"><i class="fa-regular fa-calendar me-1"></i> 10/04/2026</span>
+                            <span><i class="fa-regular fa-user me-1"></i> Bởi Admin</span>
+                        </div>
+                        <h2 class="card-title h3 fw-bold mb-3">
+                            <a href="#" class="text-dark text-decoration-none hover:text-primary transition-colors">Đánh giá chi tiết NVIDIA RTX 5090: Bước nhảy vọt về hiệu năng đồ họa</a>
+                        </h2>
+                        <p class="card-text text-muted mb-4">RTX 5090 hứa hẹn mang lại hiệu năng gấp đôi so với thế hệ tiền nhiệm, mở ra kỷ nguyên mới cho gaming 8K và xử lý AI chuyên sâu...</p>
+                        <a href="#" class="btn btn-outline-primary px-4">Đọc tiếp <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mt-4 mt-md-0">
+                <div class="d-flex flex-column gap-4">
+                    <!-- Smaller News Cards -->
+                    <div class="card border-0 shadow-sm overflow-hidden group">
+                        <div class="row g-0">
+                            <div class="col-4 position-relative overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="News">
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body p-3">
+                                    <h5 class="card-title h6 fw-bold mb-1 line-clamp-2">Intel chính thức ra mắt dòng CPU Core Ultra thế hệ 2</h5>
+                                    <p class="text-muted small mb-0">1 giờ trước</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card border-0 shadow-sm overflow-hidden group">
+                        <div class="row g-0">
+                            <div class="col-4 position-relative overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="News">
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body p-3">
+                                    <h5 class="card-title h6 fw-bold mb-1 line-clamp-2">Top 5 bàn phím cơ hot nhất mùa hè 2026 cho game thủ</h5>
+                                    <p class="text-muted small mb-0">3 giờ trước</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm overflow-hidden group">
+                        <div class="row g-0">
+                            <div class="col-4 position-relative overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1624705002806-5d72df19c3ad?q=80&w=2070&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="News">
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body p-3">
+                                    <h5 class="card-title h6 fw-bold mb-1 line-clamp-2">Lộ diện thiết kế thùng máy "trong suốt" độc đáo từ ASUS</h5>
+                                    <p class="text-muted small mb-0">5 giờ trước</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm overflow-hidden group">
+                        <div class="row g-0">
+                            <div class="col-4 position-relative overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?q=80&w=2070&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="News">
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body p-3">
+                                    <h5 class="card-title h6 fw-bold mb-1 line-clamp-2">Mẹo tối ưu Windows 12 để chơi game mượt mà nhất</h5>
+                                    <p class="text-muted small mb-0">Hôm qua</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Grid -->
+        <h3 class="fw-bold mb-4 border-start border-primary border-4 ps-3">Các chuyên mục tin tức</h3>
+        <div class="row g-4 mb-5">
+            <div class="col-6 col-md-3">
+                <a href="#" class="category-card nav-link text-center p-4 bg-white shadow-sm rounded-4 transition-all hover:-translate-y-2">
+                    <div class="icon-circle bg-primary bg-opacity-10 text-primary mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                        <i class="fa-solid fa-laptop fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Review Sản Phẩm</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="#" class="category-card nav-link text-center p-4 bg-white shadow-sm rounded-4 transition-all hover:-translate-y-2">
+                    <div class="icon-circle bg-success bg-opacity-10 text-success mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                        <i class="fa-solid fa-bolt fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Thủ Thuật Công Nghệ</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="#" class="category-card nav-link text-center p-4 bg-white shadow-sm rounded-4 transition-all hover:-translate-y-2">
+                    <div class="icon-circle bg-warning bg-opacity-10 text-warning mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                        <i class="fa-solid fa-gamepad fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Tin Esports</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="#" class="category-card nav-link text-center p-4 bg-white shadow-sm rounded-4 transition-all hover:-translate-y-2">
+                    <div class="icon-circle bg-info bg-opacity-10 text-info mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                        <i class="fa-solid fa-microchip fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Phần Cứng & AI</h5>
+                </a>
+            </div>
+        </div>
+
+        <!-- Latest News Feed -->
+        <h3 class="fw-bold mb-4 border-start border-primary border-4 ps-3">Tin mới cập nhật</h3>
+        <div class="row g-4">
+            @for (int i = 1; i <= 6; i++)
+            {
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 overflow-hidden group">
+                        <div class="position-relative overflow-hidden" style="height: 200px;">
+                            <img src="https://picsum.photos/seed/@(i+100)/600/400" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover:scale-110" alt="News @i">
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="mb-2">
+                                <span class="badge bg-light text-primary border border-primary border-opacity-25 px-2 py-1">Tin tức</span>
+                            </div>
+                            <h5 class="card-title fw-bold mb-3 line-clamp-2">Đây là tiêu đề bài viết tin tức số @i mô phỏng cho trang Tin Tức PowerTech</h5>
+                            <p class="card-text text-muted small mb-4 line-clamp-3">Nội dung tóm tắt của bài viết được hiển thị ở đây để người dùng có cái nhìn tổng quan trước khi nhấn vào xem chi tiết...</p>
+                            <a href="#" class="stretched-link text-primary text-decoration-none fw-bold small">Xem thêm <i class="fa-solid fa-angle-right ms-1"></i></a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled"><a class="page-link" href="#"><i class="fa-solid fa-chevron-left"></i></a></li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#"><i class="fa-solid fa-chevron-right"></i></a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<style>
+    .news-page {
+        background-color: #f8f9fa;
+    }
+    .tracking-wider {
+        letter-spacing: 0.1em;
+    }
+    .object-fit-cover {
+        object-fit: cover;
+    }
+    .group:hover .group-hover\:scale-105 {
+        transform: scale(1.05);
+    }
+    .group:hover .group-hover\:scale-110 {
+        transform: scale(1.1);
+    }
+    .transition-transform {
+        transition: transform 0.5s ease;
+    }
+    .duration-500 {
+        transition-duration: 0.5s;
+    }
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .hover\:-translate-y-2:hover {
+        transform: translateY(-8px);
+    }
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+    .category-card:hover {
+        background: white !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    .pagination .page-link {
+        border-radius: 8px;
+        margin: 0 5px;
+        border: none;
+        color: #333;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #ef1d25;
+        color: white;
+    }
+</style>

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PowerTech.Models.Entities;
 using PowerTech.Services.Interfaces;
 
@@ -11,12 +12,14 @@ namespace PowerTech.Areas.Store.Controllers
     {
         private readonly ICartService _cartService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly PowerTech.Data.ApplicationDbContext _context;
         private const string ANONYMOUS_CART_COOKIE = "PT_GuestCartId";
 
-        public CartController(ICartService cartService, UserManager<ApplicationUser> userManager)
+        public CartController(ICartService cartService, UserManager<ApplicationUser> userManager, PowerTech.Data.ApplicationDbContext context)
         {
             _cartService = cartService;
             _userManager = userManager;
+            _context = context;
         }
 
         private async Task<string> GetCartOwnerIdAsync()
@@ -134,6 +137,74 @@ namespace PowerTech.Areas.Store.Controllers
             });
 
             return Json(count);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ValidateCoupon(string code, string? selectedProductIds)
+        {
+            if (string.IsNullOrEmpty(code))
+                return Json(new { success = false, message = "Vui lòng nhập mã giảm giá." });
+
+            var coupon = await _context.Coupons
+                .FirstOrDefaultAsync(c => c.Code == code && c.IsActive);
+
+            if (coupon == null)
+                return Json(new { success = false, message = "Mã giảm giá không tồn tại hoặc đã hết hạn." });
+
+            // Check timing
+            var now = DateTime.UtcNow;
+            if (coupon.StartDate.HasValue && coupon.StartDate.Value > now)
+                return Json(new { success = false, message = "Mã này chưa đến thời hạn sử dụng." });
+            
+            if (coupon.EndDate.HasValue && coupon.EndDate.Value < now)
+                return Json(new { success = false, message = "Mã này đã hết hạn sử dụng." });
+
+            // Check usage limit
+            if (coupon.UsageLimit.HasValue && coupon.UsedCount >= coupon.UsageLimit.Value)
+                return Json(new { success = false, message = "Mã này đã hết lượt sử dụng." });
+
+            // Calculate subtotal for selected products
+            var cartOwnerId = await GetCartOwnerIdAsync();
+            var cart = await _cartService.GetCartAsync(cartOwnerId);
+            decimal subtotal = 0;
+
+            if (!string.IsNullOrEmpty(selectedProductIds))
+            {
+                var idList = selectedProductIds.Split(',').Select(int.Parse).ToList();
+                subtotal = cart.CartItems
+                    .Where(ci => idList.Contains(ci.ProductId))
+                    .Sum(ci => ci.Quantity * ci.UnitPrice);
+            }
+            else
+            {
+                subtotal = cart.CartItems.Sum(ci => ci.Quantity * ci.UnitPrice);
+            }
+
+            // Check min order value
+            if (coupon.MinOrderValue.HasValue && subtotal < coupon.MinOrderValue.Value)
+                return Json(new { 
+                    success = false, 
+                    message = $"Mã này chỉ áp dụng cho đơn hàng từ {coupon.MinOrderValue.Value:N0}₫ trở lên." 
+                });
+
+            // Calculate discount
+            decimal discountAmount = 0;
+            if (coupon.Type == CouponType.Percentage)
+            {
+                discountAmount = subtotal * (coupon.Value / 100);
+                if (coupon.MaxDiscountAmount.HasValue && discountAmount > coupon.MaxDiscountAmount.Value)
+                    discountAmount = coupon.MaxDiscountAmount.Value;
+            }
+            else
+            {
+                discountAmount = coupon.Value;
+            }
+
+            return Json(new { 
+                success = true, 
+                discountAmount = discountAmount, 
+                message = "Áp dụng mã giảm giá thành công!" 
+            });
         }
     }
 }

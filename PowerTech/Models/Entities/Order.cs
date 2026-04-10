@@ -58,6 +58,8 @@ namespace PowerTech.Models.Entities
         public string? InternalNote { get; set; }
         public int DeliveryFailCount { get; set; } = 0;
 
+        public int? CouponId { get; set; }
+
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -66,6 +68,9 @@ namespace PowerTech.Models.Entities
         // Navigation Properties
         [ForeignKey(nameof(UserId))]
         public virtual ApplicationUser User { get; set; } = null!;
+
+        [ForeignKey(nameof(CouponId))]
+        public virtual Coupon? Coupon { get; set; }
 
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public virtual ICollection<OrderHistory> OrderHistories { get; set; } = new List<OrderHistory>();

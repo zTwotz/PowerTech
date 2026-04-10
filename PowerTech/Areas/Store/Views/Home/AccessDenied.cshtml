@@ -19,7 +19,7 @@
             </a>
         </div>
         <div class="error-meta mt-4 p-3 bg-light rounded text-muted small">
-            Vai trò hiện tại: @(User.Identity.IsAuthenticated ? string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value)) : "Khách")
+            Vai trò hiện tại: @(User.Identity?.IsAuthenticated == true ? string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value)) : "Khách")
         </div>
     </div>
 </div>

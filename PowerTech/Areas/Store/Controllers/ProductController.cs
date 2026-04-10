@@ -116,6 +116,10 @@ namespace PowerTech.Areas.Store.Controllers
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductSpecifications)
                     .ThenInclude(ps => ps.SpecificationDefinition)
+                .Include(p => p.Reviews.Where(r => r.IsApproved))
+                    .ThenInclude(r => r.User)
+                .Include(p => p.Reviews.Where(r => r.IsApproved))
+                    .ThenInclude(r => r.ReviewImages)
                 .FirstOrDefaultAsync(p => p.Slug == slug && p.IsActive);
 
             if (product == null)

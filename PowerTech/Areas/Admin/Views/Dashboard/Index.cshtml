@@ -1,155 +1,596 @@
 @model IEnumerable<PowerTech.Models.Entities.Order>
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Bảng điều khiển Admin";
+    var topProducts = ViewBag.TopProducts as IEnumerable<dynamic>;
 }
 
-<div class="admin-page-title">
-    Dashboard Tổng Quan
-    <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-white border"><i class="fa-solid fa-calendar me-2"></i> Hôm nay</button>
-        <button class="btn btn-sm btn-primary"><i class="fa-solid fa-download me-2"></i> Xuất báo cáo</button>
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-end">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">Chào mừng trở lại, Admin!</h2>
+                <p class="text-muted mb-0">Hôm nay là @DateTime.Now.ToString("dd MMMM, yyyy"). Toàn bộ hệ thống đang hoạt động ổn định.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-glass dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-calendar-day me-2"></i> @ViewBag.FilterDisplay
+                    </button>
+                    <ul class="dropdown-menu shadow border-0">
+                        <li><a class="dropdown-item @(ViewBag.CurrentFilter == "today" ? "active" : "")" href="@Url.Action("Index", new { filter = "today" })">Hôm nay</a></li>
+                        <li><a class="dropdown-item @(ViewBag.CurrentFilter == "yesterday" ? "active" : "")" href="@Url.Action("Index", new { filter = "yesterday" })">Hôm qua</a></li>
+                        <li><a class="dropdown-item @(ViewBag.CurrentFilter == "7days" ? "active" : "")" href="@Url.Action("Index", new { filter = "7days" })">7 ngày qua</a></li>
+                        <li><a class="dropdown-item @(ViewBag.CurrentFilter == "month" ? "active" : "")" href="@Url.Action("Index", new { filter = "month" })">Tháng này</a></li>
+                    </ul>
+                </div>
+                <button class="btn btn-primary shadow-sm"><i class="fa-solid fa-plus me-2"></i> Tạo báo cáo</button>
+            </div>
+        </div>
     </div>
-</div>
 
-<!-- Stat Cards -->
-<div class="row g-4 mb-5">
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card">
-            <div class="stat-icon bg-primary">
-                <i class="fa-solid fa-cart-shopping"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-label">Tổng đơn hàng</div>
-                <div class="stat-value">@ViewBag.TotalOrders</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card">
-            <div class="stat-icon bg-success">
-                <i class="fa-solid fa-money-bill-trend-up"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-label">Tổng doanh thu</div>
-                <div class="stat-value">@ViewBag.TotalRevenue.ToString("N0")₫</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card">
-            <div class="stat-icon bg-info">
-                <i class="fa-solid fa-microchip"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-label">Tổng sản phẩm</div>
-                <div class="stat-value">@ViewBag.TotalProducts</div>
+    <!-- Top Key Metrics Cards -->
+    <div class="row g-4 mb-4">
+        <!-- Revenue Card (Sales Dept focus) -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card card-revenue clickable-card" onclick="location.href='@Url.Action("Index", "Order", new { area = "Sales" })'">
+                <div class="metric-body">
+                    <div class="metric-info">
+                        <span class="label">Doanh thu (@ViewBag.FilterDisplay)</span>
+                        <h3 class="value">@ViewBag.PeriodRevenue.ToString("N0")₫</h3>
+                        @if (ViewBag.CurrentFilter == "today")
+                        {
+                            <span class="trend @(ViewBag.RevenueGrowth >= 0 ? "up" : "down")">
+                                <i class="fa-solid fa-arrow-trend-@(ViewBag.RevenueGrowth >= 0 ? "up" : "down")"></i> 
+                                @(ViewBag.RevenueGrowth >= 0 ? "+" : "")@ViewBag.RevenueGrowth.ToString("0.0")%
+                            </span>
+                        }
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fa-solid fa-money-bill-trend-up"></i>
+                    </div>
+                </div>
+                <div class="metric-footer">
+                    <span>Tổng doanh thu: <strong>@ViewBag.TotalRevenue.ToString("N0")₫</strong></span>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card">
-            <div class="stat-icon bg-warning">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-label">Đơn hàng chờ xử lý</div>
-                <div class="stat-value">@ViewBag.PendingOrders</div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row g-4">
-    <!-- Recent Orders Table -->
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h3 class="h6 fw-bold mb-0">Đơn hàng mới nhất</h3>
-                <a href="#" class="btn btn-sm btn-link text-primary text-decoration-none small">Xem tất cả</a>
+        <!-- Orders Card (Operations focus) -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card card-orders clickable-card" onclick="location.href='@Url.Action("Index", "Order", new { area = "Sales" })'">
+                <div class="metric-body">
+                    <div class="metric-info">
+                        <span class="label">Đơn hàng (@ViewBag.FilterDisplay)</span>
+                        <h3 class="value">@ViewBag.PeriodOrdersCount</h3>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                             <span class="trend small-badge"><i class="fa-solid fa-clock"></i> @ViewBag.PendingOrders Chờ</span>
+                             <span class="trend small-badge"><i class="fa-solid fa-truck"></i> @ViewBag.ShippingOrders Giao</span>
+                             <span class="trend small-badge"><i class="fa-solid fa-check"></i> @ViewBag.CompletedOrders Xong</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                </div>
+                <div class="metric-footer">
+                    <span>Tổng đơn toàn hệ thống: <strong>@ViewBag.TotalOrders</strong></span>
+                </div>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light small text-muted text-uppercase">
-                            <tr>
-                                <th class="ps-4">Mã đơn</th>
-                                <th>Khách hàng</th>
-                                <th>Thành tiền</th>
-                                <th>Trạng thái</th>
-                                <th class="text-end pe-4">Chi tiết</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var order in Model)
-                            {
-                                <tr>
-                                    <td class="ps-4 fw-bold">@order.OrderCode</td>
-                                    <td>
-                                        <div class="small fw-medium">@order.ReceiverName</div>
-                                        <div class="text-muted" style="font-size: 11px;">@order.PhoneNumber</div>
-                                    </td>
-                                    <td class="fw-bold">@order.TotalAmount.ToString("N0")₫</td>
-                                    <td>
-                                        <span class="badge rounded-pill @OrderHelper.GetStatusBadgeClass(order.OrderStatus)">
-                                            @OrderHelper.GetStatusDisplayName(order.OrderStatus)
-                                        </span>
-                                    </td>
-                                    <td class="text-end pe-4">
-                                        <a asp-area="Admin" asp-controller="Order" asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-white border rounded-pill px-3 text-info fw-medium shadow-sm transition-all hover-elevate">
-                                            <i class="fa-solid fa-eye me-1"></i> Xem
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+        </div>
+
+        <!-- Inventory Card (Warehouse focus) -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card card-inventory clickable-card @(ViewBag.LowStockCount > 0 ? "warning-blink" : "")" onclick="location.href='@Url.Action("Index", "Product", new { area = "Admin" })'">
+                <div class="metric-body">
+                    <div class="metric-info">
+                        <span class="label">Tình trạng kho</span>
+                        <h3 class="value">@ViewBag.TotalProducts <small class="fs-6 fw-normal">SP</small></h3>
+                        <span class="trend @(ViewBag.LowStockCount > 0 ? "down" : "")">
+                            <i class="fa-solid fa-triangle-exclamation"></i> @ViewBag.LowStockCount SP sắp hết hàng
+                        </span>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                </div>
+                <div class="metric-footer">
+                    <span>Hết hàng: <strong class="text-danger">@ViewBag.OutOfStockCount</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Card (Customer Care focus) -->
+        <div class="col-xl-3 col-md-6">
+            <div class="metric-card card-support clickable-card" onclick="location.href='@Url.Action("Index", "Ticket", new { area = "Support" })'">
+                <div class="metric-body">
+                    <div class="metric-info">
+                        <span class="label">CSKH / Hỗ trợ</span>
+                        <h3 class="value">@ViewBag.OpenTickets <small class="fs-6 fw-normal">Ticket</small></h3>
+                        <span class="trend"><i class="fa-solid fa-user-group"></i> @ViewBag.TotalCustomers khách hàng</span>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                </div>
+                <div class="metric-footer">
+                    <span>Đang chờ phản hồi: <strong>@ViewBag.OpenTickets</strong></span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions / Support -->
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-            <h3 class="h6 fw-bold mb-4">Lối tắt nhanh</h3>
-            <div class="d-grid gap-2">
-                <button class="btn btn-outline-primary text-start p-3 rounded-3"><i class="fa-solid fa-plus me-2"></i> Thêm sản phẩm mới</button>
-                <button class="btn btn-outline-secondary text-start p-3 rounded-3 text-dark"><i class="fa-solid fa-file-invoice me-2"></i> Tạo hóa đơn tay</button>
-                <button class="btn btn-outline-info text-start p-3 rounded-3 text-dark"><i class="fa-solid fa-user-plus me-2"></i> Thêm nhân viên</button>
+    <div class="row g-4 mb-4">
+        <!-- Sales Performance Chart (Visual overview) -->
+        <div class="col-xl-8">
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <div>
+                        <h5 class="fw-bold mb-0">Hiệu suất kinh doanh</h5>
+                        <small class="text-muted">Biểu đồ doanh thu 7 ngày qua</small>
+                    </div>
+                    <button class="btn btn-sm btn-white border"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                </div>
+                <div class="card-body-custom pt-0">
+                    <div id="revenueChartContainer" style="height: 300px; display: flex; align-items: center; justify-content: center; background: #fafafa; border-radius: 12px; margin-top: 20px;">
+                         <div class="text-center text-muted">
+                             <i class="fa-solid fa-chart-line fa-3x mb-3 opacity-25"></i>
+                             <p>Đang tải dữ liệu biểu đồ...</p>
+                         </div>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div class="card border-0 shadow-sm rounded-4 p-4 bg-primary text-white">
-            <h3 class="h6 fw-bold mb-3">Thông tin hệ thống</h3>
-            <p class="small opacity-75">Tình trạng máy chủ: <span class="badge bg-success">Hoạt động tốt</span></p>
-            <p class="small opacity-75">Phiên bản: <span class="badge bg-light text-dark">v1.2.0-MVP</span></p>
-            <hr class="opacity-25" />
-            <button class="btn btn-sm btn-light w-100 fw-bold">KIỂM TRA CẬP NHẬT</button>
+
+        <!-- Top Selling Products (Sales focus) -->
+        <div class="col-xl-4">
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <h5 class="fw-bold mb-0">Sản phẩm bán chạy</h5>
+                </div>
+                <div class="card-body-custom px-0">
+                    <div class="top-products-list">
+                        @if (topProducts != null && topProducts.Any())
+                        {
+                            foreach (var item in topProducts)
+                            {
+                                <div class="product-item">
+                                    <div class="product-img">
+                                        <img src="@(string.IsNullOrEmpty(item.ThumbnailUrl) ? "/images/no-image.png" : item.ThumbnailUrl)" alt="@item.Name">
+                                    </div>
+                                    <div class="product-info">
+                                        <div class="product-name text-truncate">@item.Name</div>
+                                        <div class="product-meta">
+                                            <span class="text-primary fw-bold">@item.Price.ToString("N0")₫</span>
+                                            <span class="mx-2">•</span>
+                                            <span class="text-muted">Đã bán: @item.SoldQuantity</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-rank">
+                                        <div class="rank-badge">#</div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-center text-muted p-4">Chưa có dữ liệu sản phẩm.</p>
+                        }
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="@Url.Action("Index", "Product")" class="btn btn-sm btn-link text-decoration-none fw-bold">Xem tất cả kho hàng</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent Orders (Operations/Logistics) -->
+        <div class="col-xl-12">
+            <div class="content-card">
+                <div class="card-header-custom border-bottom">
+                    <h5 class="fw-bold mb-0">Đơn hàng mới nhất</h5>
+                    <a href="@Url.Action("Index", "Order", new { area = "Sales" })" class="btn btn-sm btn-outline-primary rounded-pill px-3">Xử lý toàn bộ</a>
+                </div>
+                <div class="card-body-custom p-0">
+                    <div class="table-responsive">
+                        <table class="table table-custom align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Số tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th class="text-end pe-4">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <span class="order-id">#@order.OrderCode</span>
+                                        </td>
+                                        <td>
+                                            <div class="customer-info d-flex align-items-center">
+                                                <div class="customer-avatar me-2">@order.ReceiverName.Substring(0, 1)</div>
+                                                <div>
+                                                    <div class="fw-bold fs-7">@order.ReceiverName</div>
+                                                    <div class="text-muted fs-xs">@order.PhoneNumber</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="fs-7 text-dark">@order.CreatedAt.ToString("dd/MM/yyyy")</div>
+                                            <div class="fs-xs text-muted">@order.CreatedAt.ToString("HH:mm")</div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark">@order.TotalAmount.ToString("N0")₫</div>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge status-@(order.OrderStatus.ToLower())">
+                                                @OrderHelper.GetStatusDisplayName(order.OrderStatus)
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <a asp-area="Sales" asp-controller="Order" asp-action="Details" asp-route-id="@order.Id" class="btn btn-action shadow-sm">
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    .hover-elevate {
-        transition: all 0.2s ease-in-out;
+    :root {
+        --primary: #4361ee;
+        --success: #2ec4b6;
+        --warning: #ff9f1c;
+        --danger: #e71d36;
+        --dark: #212529;
+        --light: #f8f9fa;
+        --glass: rgba(255, 255, 255, 0.7);
     }
-    .hover-elevate:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-        background-color: #f8f9fa;
+
+    .dashboard-container {
+        padding: 1rem 0;
+        font-family: 'Inter', sans-serif;
     }
-    .table-hover tbody tr {
-        transition: background-color 0.2s;
+
+    /* Metric Cards */
+    .metric-card {
+        border-radius: 20px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        color: white;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .table-hover tbody tr:hover {
-        background-color: rgba(13, 110, 253, 0.02) !important;
+
+    .clickable-card {
+        cursor: pointer;
     }
-    .btn-white {
-        background-color: #fff;
-        color: #333;
+
+    .clickable-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        filter: brightness(1.05);
     }
-    .btn-white:hover {
-        background-color: #f8f9fa;
+
+    .card-revenue { background: linear-gradient(135deg, #4361ee, #4cc9f0); }
+    .card-orders { background: linear-gradient(135deg, #7209b7, #b5179e); }
+    .card-inventory { background: linear-gradient(135deg, #2ec4b6, #80ffdb); color: #004d40; }
+    .card-support { background: linear-gradient(135deg, #ff9f1c, #ffbf69); color: #5d4037; }
+
+    .metric-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .metric-info .label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        opacity: 0.8;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-info .value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-info .trend {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 20px;
+        display: inline-block;
+    }
+
+    .small-badge {
+        font-size: 0.65rem !important;
+        padding: 2px 8px !important;
+        background: rgba(0,0,0,0.15) !important;
+        white-space: nowrap;
+    }
+
+    .metric-icon {
+        font-size: 2rem;
+        opacity: 0.3;
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+    }
+
+    .metric-footer {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        font-size: 0.8rem;
+    }
+
+    /* Content Cards */
+    .content-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        height: 100%;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .card-header-custom {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-body-custom {
+        padding: 1.5rem;
+    }
+
+    /* Product List */
+    .product-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        transition: background 0.2s;
+    }
+
+    .product-item:hover {
+        background: #f8f9fa;
+    }
+
+    .product-img {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #f0f0f0;
+        overflow: hidden;
+        margin-right: 1rem;
+    }
+
+    .product-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .product-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--dark);
+    }
+
+    .product-meta {
+        font-size: 0.75rem;
+    }
+
+    .rank-badge {
+        width: 24px;
+        height: 24px;
+        background: #f1f3f5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: #adb5bd;
+    }
+
+    /* Table Customization */
+    .table-custom {
+        margin-top: 5px;
+    }
+
+    .table-custom thead th {
+        background: #fbfbfb;
+        color: #adb5bd;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
+        padding: 1rem;
+    }
+
+    .table-custom tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .order-id {
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .customer-avatar {
+        width: 32px;
+        height: 32px;
+        background: var(--primary);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+
+    .status-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 30px;
+        display: inline-block;
+    }
+
+    .status-pending { background: #fff8e1; color: #ffa000; }
+    .status-confirmed { background: #e3f2fd; color: #1976d2; }
+    .status-shipped { background: #f3e5f5; color: #7b1fa2; }
+    .status-delivered { background: #e8f5e9; color: #388e3c; }
+    .status-cancelled { background: #ffebee; color: #d32f2f; }
+
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        border: 1px solid #dee2e6;
+        background: white;
+        color: var(--dark);
+        transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .fs-xs { font-size: 0.65rem; }
+    .fs-7 { font-size: 0.85rem; }
+
+    .btn-glass {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 12px;
+        padding: 8px 16px;
+        font-weight: 600;
+    }
+
+    .warning-blink {
+        animation: subtle-pulse 2s infinite;
+    }
+
+    @@keyframes subtle-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(46, 196, 182, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(46, 196, 182, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(46, 196, 182, 0); }
     }
 </style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.createElement('canvas');
+            const container = document.getElementById('revenueChartContainer');
+            if (container) {
+                container.innerHTML = '';
+                container.appendChild(ctx);
+
+                // Real chart data from controller
+                const labels = @Html.Raw(Json.Serialize(((IEnumerable<object>)ViewBag.ChartData).Select(x => ((dynamic)x).Day)));
+                const dataValues = @Html.Raw(Json.Serialize(((IEnumerable<object>)ViewBag.ChartData).Select(x => ((dynamic)x).Value)));
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Doanh thu (vnđ)',
+                            data: dataValues,
+                            borderColor: '#4361ee',
+                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#4361ee',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) label += ': ';
+                                        if (context.parsed.y !== null) {
+                                            label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(0,0,0,0.03)' },
+                                ticks: {
+                                    font: { size: 10 },
+                                    callback: function(value) {
+                                        if (value >= 1000000) return (value / 1000000) + 'M';
+                                        if (value >= 1000) return (value / 1000) + 'K';
+                                        return value;
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 10 } }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}
+
 

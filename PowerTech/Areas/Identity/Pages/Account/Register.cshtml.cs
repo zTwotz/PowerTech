@@ -20,13 +20,15 @@ namespace PowerTech.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<RegisterModel> _logger;
+        private readonly PowerTech.Services.Interfaces.ICartService _cartService;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
-            ILogger<RegisterModel> logger)
+            ILogger<RegisterModel> logger,
+            PowerTech.Services.Interfaces.ICartService cartService)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -34,6 +36,7 @@ namespace PowerTech.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _roleManager = roleManager;
             _logger = logger;
+            _cartService = cartService;
         }
 
         [BindProperty]
@@ -99,6 +102,17 @@ namespace PowerTech.Areas.Identity.Pages.Account
                     }
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
+
+                    // Merge Anonymous Cart into User Cart
+                    var guestId = HttpContext.Request.Cookies["PT_GuestCartId"];
+                    if (!string.IsNullOrEmpty(guestId))
+                    {
+                        var newCount = await _cartService.MergeCartAsync(guestId, user.Id);
+                        // Update cookie for immediate UI refresh
+                        Response.Cookies.Append("PT_CartCount", newCount.ToString(), new CookieOptions { Expires = DateTimeOffset.UtcNow.AddDays(30), Path = "/" });
+                        Response.Cookies.Delete("PT_GuestCartId");
+                    }
+
                     return LocalRedirect(returnUrl);
                 }
                 foreach (var error in result.Errors)

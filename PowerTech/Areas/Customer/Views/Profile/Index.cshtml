@@ -1,17 +1,33 @@
-@model PowerTech.Models.Entities.ApplicationUser
+@model PowerTech.Models.ViewModels.CustomerProfileViewModel
 
 @{
-    ViewData["Title"] = "Thông tin hồ sơ";
+    ViewData["Title"] = Model.ActiveTab switch
+    {
+        "notifications" => "Thông báo của bạn",
+        "password" => "Đổi mật khẩu",
+        _ => "Thông tin hồ sơ"
+    };
     Layout = "_CustomerLayout";
 }
 
 <div class="mb-4 d-flex justify-content-between align-items-center">
-    <h3 class="mb-0 fw-bold"><i class="fa-solid fa-id-card me-2 text-primary"></i> Thông tin hồ sơ</h3>
+    @if (Model.ActiveTab == "notifications")
+    {
+        <h3 class="mb-0 fw-bold"><i class="fa-solid fa-bell me-2 text-primary"></i> Thông báo của bạn</h3>
+    }
+    else if (Model.ActiveTab == "password")
+    {
+        <h3 class="mb-0 fw-bold"><i class="fa-solid fa-key me-2 text-primary"></i> Đổi mật khẩu</h3>
+    }
+    else
+    {
+        <h3 class="mb-0 fw-bold"><i class="fa-solid fa-id-card me-2 text-primary"></i> Quản lý Tài khoản</h3>
+    }
 </div>
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
         <i class="fa-solid fa-check-circle me-2"></i> @TempData["SuccessMessage"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -19,64 +35,172 @@
 
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
         <i class="fa-solid fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
-<form asp-action="UpdateProfile" method="post">
-    <div class="row g-4">
-        <div class="col-md-6">
-            <label class="form-label fw-semibold">Họ và tên</label>
-            <div class="input-group">
-                <span class="input-group-text bg-white border-end-0"><i class="fa-regular fa-user text-muted"></i></span>
-                <input asp-for="FullName" class="form-control border-start-0 ps-0" placeholder="Nhập họ và tên đầy đủ" required />
+<div class="content-section">
+    @if (Model.ActiveTab == "notifications")
+    {
+        <!-- THÔNG BÁO -->
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-0">
+                @if (Model.Notifications.Any())
+                {
+                    <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold">Tất cả thông báo (@Model.Notifications.Count)</h6>
+                        @if (Model.Notifications.Any(n => !n.IsRead))
+                        {
+                            <form asp-action="MarkAllAsRead" method="post" class="m-0">
+                                <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-check-double me-1"></i> Đánh dấu đã đọc tất cả</button>
+                            </form>
+                        }
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @foreach (var notif in Model.Notifications)
+                        {
+                            <a href="@(notif.TargetUrl ?? "#")" class="list-group-item list-group-item-action p-3 @(notif.IsRead ? "" : "bg-light-primary")" onclick="markAsRead('@notif.Id')">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <h6 class="mb-1 fw-bold @(!notif.IsRead ? "text-primary" : "")">
+                                        @if(notif.Type == "Order") { <i class="fa-solid fa-box text-warning me-2"></i> }
+                                        else if(notif.Type == "Ticket") { <i class="fa-solid fa-headset text-info me-2"></i> }
+                                        else { <i class="fa-solid fa-bell text-secondary me-2"></i> }
+                                        @notif.Title
+                                    </h6>
+                                    <small class="@(!notif.IsRead ? "text-primary fw-bold" : "text-muted")">@notif.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                                <p class="mb-1 text-muted small">@notif.Message</p>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center p-5">
+                        <div class="mb-3 text-muted opacity-25">
+                            <i class="fa-regular fa-bell-slash fa-4x"></i>
+                        </div>
+                        <h5 class="text-muted">Bạn chưa có thông báo nào.</h5>
+                        <p class="text-muted small">Các thông báo về đơn hàng và hỗ trợ sẽ xuất hiện tại đây.</p>
+                    </div>
+                }
             </div>
         </div>
-
-        <div class="col-md-6">
-            <label class="form-label fw-semibold">Email</label>
-            <div class="input-group">
-                <span class="input-group-text bg-light border-end-0"><i class="fa-regular fa-envelope text-muted"></i></span>
-                <input asp-for="Email" class="form-control border-start-0 ps-0 bg-light" readonly />
+    }
+    else if (Model.ActiveTab == "password")
+    {
+        <!-- ĐỔI MẬT KHẨU -->
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4">
+                <form asp-action="ChangePassword" method="post">
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Mật khẩu hiện tại</label>
+                            <input asp-for="CurrentPassword" type="password" class="form-control" placeholder="••••••••" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Mật khẩu mới</label>
+                            <input asp-for="NewPassword" type="password" class="form-control" placeholder="Tối thiểu 6 ký tự" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Xác nhận mật khẩu mới</label>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Nhập lại mật khẩu mới" required />
+                        </div>
+                        <div class="col-md-12 mt-4">
+                            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">
+                                <i class="fa-solid fa-key me-2"></i> Cập nhật mật khẩu
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
+    }
+    else
+    {
+        <!-- HỒ SƠ -->
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4">
+                <form asp-action="UpdateProfile" method="post">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Họ và tên</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fa-regular fa-user text-muted"></i></span>
+                                <input asp-for="User.FullName" class="form-control border-start-0 ps-0" placeholder="Nhập họ và tên đầy đủ" required />
+                            </div>
+                        </div>
 
-        <div class="col-md-6">
-            <label class="form-label fw-semibold">Số điện thoại</label>
-            <div class="input-group">
-                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-phone text-muted"></i></span>
-                <input asp-for="PhoneNumber" class="form-control border-start-0 ps-0" placeholder="0xxx xxx xxx" />
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fa-regular fa-envelope text-muted"></i></span>
+                                <input asp-for="User.Email" class="form-control border-start-0 ps-0 bg-light" readonly />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Số điện thoại</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-phone text-muted"></i></span>
+                                <input asp-for="User.PhoneNumber" class="form-control border-start-0 ps-0" placeholder="0xxx xxx xxx" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 mt-4">
+                            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">
+                                <i class="fa-solid fa-floppy-disk me-2"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
+    }
+</div>
 
-        <div class="col-md-12 mt-5">
-            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">
-                <i class="fa-solid fa-floppy-disk me-2"></i> Lưu thay đổi
-            </button>
-        </div>
-    </div>
-</form>
+<script>
+    function markAsRead(id) {
+        fetch(`@Url.Action("MarkAsRead", "Profile")`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            },
+            body: `id=${id}`
+        });
+    }
+</script>
 
 <style>
+    .bg-light-primary {
+        background-color: rgba(var(--bs-primary-rgb), 0.05);
+    }
     .form-control:focus {
         border-color: var(--primary);
-        box-shadow: none;
+        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.1);
     }
     .input-group-text {
         border-color: #dee2e6;
     }
     .form-control {
         border-color: #dee2e6;
+        padding: 0.6rem 1rem;
     }
     .btn-primary {
         background: var(--primary);
         border: none;
-        transition: transform 0.2s;
+        padding: 0.6rem 1.5rem;
+        transition: all 0.2s;
     }
     .btn-primary:hover {
         background: #b51e25;
         transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+    .list-group-item {
+        transition: background-color 0.2s;
     }
 </style>

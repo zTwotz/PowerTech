@@ -141,5 +141,63 @@ namespace PowerTech.Services.Implementations
             var cart = await GetCartAsync(userId);
             return cart.CartItems.Sum(ci => ci.Quantity * ci.UnitPrice);
         }
+
+        public async Task<int> MergeCartAsync(string guestId, string userId)
+        {
+            var guestCart = await _context.Carts
+                .Include(c => c.CartItems)
+                .FirstOrDefaultAsync(c => c.CookieId == guestId);
+
+            if (guestCart == null || !guestCart.CartItems.Any())
+            {
+                return await GetCartItemCountAsync(userId);
+            }
+
+            var userCart = await GetCartAsync(userId);
+            var products = await _context.Products.ToListAsync();
+
+            foreach (var guestItem in guestCart.CartItems)
+            {
+                var product = products.FirstOrDefault(p => p.Id == guestItem.ProductId);
+                if (product == null) continue;
+
+                var userItem = userCart.CartItems.FirstOrDefault(ci => ci.ProductId == guestItem.ProductId);
+                if (userItem != null)
+                {
+                    userItem.Quantity += guestItem.Quantity;
+                    // Cap to stock if necessary
+                    if (userItem.Quantity > product.StockQuantity)
+                    {
+                        userItem.Quantity = product.StockQuantity;
+                    }
+                    _context.Entry(userItem).State = EntityState.Modified;
+                }
+                else
+                {
+                    var quantity = guestItem.Quantity;
+                    if (quantity > product.StockQuantity)
+                    {
+                        quantity = product.StockQuantity;
+                    }
+
+                    var newItem = new CartItem
+                    {
+                        CartId = userCart.Id,
+                        ProductId = guestItem.ProductId,
+                        Quantity = quantity,
+                        UnitPrice = guestItem.UnitPrice
+                    };
+                    _context.CartItems.Add(newItem);
+                }
+            }
+
+            // Clear guest items and remove guest cart
+            _context.CartItems.RemoveRange(guestCart.CartItems);
+            _context.Carts.Remove(guestCart);
+            
+            await _context.SaveChangesAsync();
+            
+            return await GetCartItemCountAsync(userId);
+        }
     }
 }

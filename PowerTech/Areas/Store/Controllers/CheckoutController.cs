@@ -23,7 +23,7 @@ namespace PowerTech.Areas.Store.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(string? productIds)
+        public async Task<IActionResult> Index(string? productIds, string? couponCode)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
@@ -52,6 +52,11 @@ namespace PowerTech.Areas.Store.Controllers
             var addresses = await _context.UserAddresses
                 .Where(a => a.UserId == user.Id)
                 .ToListAsync();
+
+            if (!string.IsNullOrEmpty(couponCode))
+            {
+                TempData["AppliedCouponCode"] = couponCode;
+            }
 
             ViewBag.Cart = cart;
             return View(addresses);
@@ -82,12 +87,86 @@ namespace PowerTech.Areas.Store.Controllers
             
             ViewBag.Cart = cart;
             ViewBag.Address = await _context.UserAddresses.FindAsync(addressId);
+            ViewBag.AppliedCouponCode = TempData.Peek("AppliedCouponCode");
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ValidateCoupon(string code)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var coupon = await _context.Coupons
+                .FirstOrDefaultAsync(c => c.Code == code && c.IsActive);
+
+            if (coupon == null)
+            {
+                return Json(new { success = false, message = "Mã giảm giá không tồn tại hoặc đã hết hạn." });
+            }
+
+            if (coupon.StartDate.HasValue && coupon.StartDate.Value > DateTime.UtcNow)
+            {
+                return Json(new { success = false, message = "Mã giảm giá chưa đến thời hạn sử dụng." });
+            }
+
+            if (coupon.EndDate.HasValue && coupon.EndDate.Value < DateTime.UtcNow)
+            {
+                return Json(new { success = false, message = "Mã giảm giá đã hết hạn." });
+            }
+
+            if (coupon.UsageLimit.HasValue && coupon.UsedCount >= coupon.UsageLimit.Value)
+            {
+                return Json(new { success = false, message = "Mã giảm giá đã đạt giới hạn sử dụng." });
+            }
+
+            var cart = await _cartService.GetCartAsync(user.Id);
+            var productIdsStr = TempData.Peek("CheckoutProductIds") as string;
+            decimal subtotal = 0;
+
+            if (!string.IsNullOrEmpty(productIdsStr))
+            {
+                var idList = productIdsStr.Split(',').Select(int.Parse).ToList();
+                subtotal = cart.CartItems.Where(ci => idList.Contains(ci.ProductId)).Sum(ci => ci.Quantity * ci.UnitPrice);
+            }
+            else
+            {
+                subtotal = cart.CartItems.Sum(ci => ci.Quantity * ci.UnitPrice);
+            }
+
+            if (coupon.MinOrderValue.HasValue && subtotal < coupon.MinOrderValue.Value)
+            {
+                return Json(new { success = false, message = $"Mã này chỉ áp dụng cho đơn hàng từ {coupon.MinOrderValue.Value:N0}₫ trở lên." });
+            }
+
+            decimal discountAmount = 0;
+            if (coupon.Type == CouponType.Percentage)
+            {
+                discountAmount = subtotal * (coupon.Value / 100);
+                if (coupon.MaxDiscountAmount.HasValue && discountAmount > coupon.MaxDiscountAmount.Value)
+                {
+                    discountAmount = coupon.MaxDiscountAmount.Value;
+                }
+            }
+            else
+            {
+                discountAmount = coupon.Value;
+            }
+
+            return Json(new { 
+                success = true, 
+                discountAmount = discountAmount, 
+                newTotal = subtotal - discountAmount,
+                message = "Áp dụng mã giảm giá thành công!" 
+            });
         }
 
         [HttpPost]
         public async Task<IActionResult> PlaceOrder(string paymentMethod, string note)
         {
+            // Lấy mã giảm giá từ field có tên ngẫu nhiên (chống autofill)
+            string? v_code_secure = Request.Form.FirstOrDefault(f => f.Key.StartsWith("v_")).Value;
+
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
             var cart = await _cartService.GetCartAsync(user.Id);
@@ -117,6 +196,20 @@ namespace PowerTech.Areas.Store.Controllers
             }
             var totalAmount = selectedItems.Sum(item => item.Quantity * item.UnitPrice);
 
+            // Initial status based on payment method (following the diagram)
+            string initialStatus = "Pending";
+            string initialPaymentStatus = "Unpaid";
+            string initialHistoryAction = "Khách hàng tạo đơn hàng";
+            string initialHistoryNote = "Đơn hàng đang chờ nhân viên xác nhận (COD).";
+
+            if (paymentMethod == "BankTransfer")
+            {
+                initialStatus = "Processing"; // Kho đóng gói
+                initialPaymentStatus = "Paid";
+                initialHistoryAction = "Thanh toán online thành công";
+                initialHistoryNote = "Khách hàng đã thanh toán qua chuyển khoản. Đơn hàng chuyển thẳng tới kho để đóng gói.";
+            }
+
             // Create Order
             var order = new Order
             {
@@ -125,8 +218,8 @@ namespace PowerTech.Areas.Store.Controllers
                 ReceiverName = address.ReceiverName,
                 PhoneNumber = address.PhoneNumber,
                 ShippingAddress = $"{address.StreetAddress}, {address.Ward}, {address.District}, {address.Province}",
-                OrderStatus = "Pending",
-                PaymentStatus = "Unpaid",
+                OrderStatus = initialStatus,
+                PaymentStatus = initialPaymentStatus,
                 PaymentMethod = paymentMethod ?? "COD",
                 Subtotal = totalAmount,
                 ShippingFee = 0,
@@ -136,16 +229,54 @@ namespace PowerTech.Areas.Store.Controllers
                 CreatedAt = DateTime.UtcNow
             };
 
+            // Process Coupon
+            if (!string.IsNullOrEmpty(v_code_secure))
+            {
+                var coupon = await _context.Coupons.FirstOrDefaultAsync(c => c.Code == v_code_secure && c.IsActive);
+                if (coupon != null)
+                {
+                    decimal discount = 0;
+                    bool isValid = true;
+
+                    if (coupon.MinOrderValue.HasValue && totalAmount < coupon.MinOrderValue.Value) isValid = false;
+                    if (coupon.StartDate.HasValue && coupon.StartDate.Value > DateTime.UtcNow) isValid = false;
+                    if (coupon.EndDate.HasValue && coupon.EndDate.Value < DateTime.UtcNow) isValid = false;
+                    if (coupon.UsageLimit.HasValue && coupon.UsedCount >= coupon.UsageLimit.Value) isValid = false;
+
+                    if (isValid)
+                    {
+                        if (coupon.Type == CouponType.Percentage)
+                        {
+                            discount = totalAmount * (coupon.Value / 100);
+                            if (coupon.MaxDiscountAmount.HasValue && discount > coupon.MaxDiscountAmount.Value)
+                                discount = coupon.MaxDiscountAmount.Value;
+                        }
+                        else
+                        {
+                            discount = coupon.Value;
+                        }
+
+                        order.CouponId = coupon.Id;
+                        order.DiscountAmount = discount;
+                        order.TotalAmount = totalAmount - discount;
+                        
+                        // Increment used count
+                        coupon.UsedCount++;
+                        _context.Update(coupon);
+                    }
+                }
+            }
+
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            // Lưu lịch sử lần đầu: Đơn hàng được khởi tạo
+            // Lưu lịch sử lần đầu
             var initialHistory = new OrderHistory
             {
                 OrderId = order.Id,
-                Status = "Pending",
-                Action = "Khách hàng tạo đơn hàng",
-                Note = "Đơn hàng được khởi tạo thành công qua website.",
+                Status = initialStatus,
+                Action = initialHistoryAction,
+                Note = initialHistoryNote,
                 PerformedBy = "Customer: " + user.FullName,
                 CreatedAt = DateTime.Now
             };
@@ -180,6 +311,17 @@ namespace PowerTech.Areas.Store.Controllers
                 await _cartService.RemoveFromCartAsync(user.Id, item.ProductId);
             }
 
+            await _context.SaveChangesAsync();
+
+            var notif = new Notification
+            {
+                UserId = user.Id,
+                Title = "Đặt hàng thành công",
+                Message = $"Đơn hàng {order.OrderCode} của bạn đã được khởi tạo thành công.",
+                Type = "Order",
+                TargetUrl = $"/Customer/Order/Detail/{order.Id}"
+            };
+            _context.Notifications.Add(notif);
             await _context.SaveChangesAsync();
 
             // Cập nhật Cookie số lượng giỏ hàng sau khi đã xóa các món đã mua
@@ -226,6 +368,12 @@ namespace PowerTech.Areas.Store.Controllers
                 .FirstOrDefaultAsync(o => o.Id == orderId);
                 
             return View(order);
+        }
+        [HttpGet]
+        public IActionResult PaymentSimulation(decimal amount)
+        {
+            ViewBag.Amount = amount;
+            return View();
         }
     }
 }

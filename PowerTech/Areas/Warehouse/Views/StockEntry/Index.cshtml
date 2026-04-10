@@ -4,15 +4,34 @@
     ViewData["Title"] = "Hoạt động Nhập kho";
 }
 
-<div class="row g-4 mb-4">
-    <div class="col-md-6 text-start">
+<div class="row g-4 mb-3">
+    <div class="col-md-5">
         <h4 class="fw-bold mb-1 text-dark">Hoạt động Nhập kho</h4>
         <p class="text-muted small">Cập nhật số lượng tồn kho cho các sản phẩm linh kiện</p>
     </div>
-    <div class="col-md-6 text-md-end pt-3">
-        <a asp-action="Create" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-bold">
-            <i class="bi bi-plus-circle me-1"></i> Tạo phiếu nhập mới
-        </a>
+    <div class="col-md-7">
+        <div class="position-relative">
+            <div class="input-group input-group-lg rounded-pill border overflow-hidden shadow-sm bg-white">
+                <span class="input-group-text bg-transparent border-0 ps-4">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" id="realtimeSearch" class="form-control border-0 ps-1 py-3" placeholder="Tìm nhanh sản phẩm để nhập kho (Tên, SKU...)" autocomplete="off" />
+            </div>
+            
+            <!-- Real-time Results Dropdown -->
+            <div id="searchSuggestions" class="position-absolute w-100 mt-2 shadow-lg rounded-4 border-0 bg-white d-none overflow-hidden" style="z-index: 1050;">
+                <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                    <span class="small fw-bold text-muted text-uppercase tracking-wider" style="letter-spacing: 0.5px;">Kết quả tìm kiếm</span>
+                    <span id="resultCount" class="badge bg-primary rounded-pill px-2">0</span>
+                </div>
+                <div id="resultList" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Results will be injected here -->
+                </div>
+                <div class="p-2 border-top bg-light text-center">
+                    <small class="text-muted" style="font-size: 0.75rem;"><i>Nhấn vào sản phẩm để bắt đầu nhập hàng</i></small>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -68,3 +87,215 @@
         </div>
     </div>
 </div>
+
+<!-- Entry History -->
+<div class="card border-0 shadow-sm rounded-4 mt-4">
+    <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold">Lịch sử Kho (50 giao dịch gần nhất)</h5>
+        <span class="badge bg-light text-dark border">Cập nhật lúc: @DateTime.Now.ToString("HH:mm")</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 text-nowrap">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Sản phẩm</th>
+                        <th>Loại Thao tác</th>
+                        <th>Số lượng</th>
+                        <th>Trước / Sau</th>
+                        <th>Người thực hiện</th>
+                        <th>Thời gian</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.History != null)
+                    {
+                        var history = ViewBag.History as IEnumerable<PowerTech.Models.Entities.StockTransaction>;
+                        if (history != null && history.Any())
+                        {
+                            foreach (var item in history)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            @if (item.Product != null && !string.IsNullOrEmpty(item.Product.ThumbnailUrl))
+                                            {
+                                                <img src="@item.Product.ThumbnailUrl" class="rounded-3 me-2 shadow-sm" style="width: 32px; height: 32px; object-fit: cover;" />
+                                            }
+                                            <div>
+                                                <div class="small fw-bold text-dark">@(item.Product?.Name ?? "Sản phẩm đã bị xóa")</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (item.TransactionType == "IMPORT")
+                                        {
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25"><i class="bi bi-arrow-down-left me-1"></i> Nhập kho</span>
+                                        }
+                                        else if (item.TransactionType == "EXPORT")
+                                        {
+                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25"><i class="bi bi-arrow-up-right me-1"></i> Xuất kho</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary border">@item.TransactionType</span>
+                                        }
+                                        <div class="x-small text-muted mt-1">@item.ReferenceType</div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold @(item.Quantity > 0 ? "text-success" : "text-danger")">
+                                            @(item.Quantity > 0 ? "+" + item.Quantity : item.Quantity.ToString())
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted small">@item.BeforeQuantity</span>
+                                        <i class="bi bi-arrow-right text-muted opacity-50 mx-1"></i>
+                                        <span class="fw-bold small">@item.AfterQuantity</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-primary me-2 fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                                                @(item.PerformedByUser?.FullName?.Substring(0, 1) ?? "U")
+                                            </div>
+                                            <div class="small text-dark">
+                                                @(item.PerformedByUser?.FullName ?? "Unknown")
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="small text-muted">@item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">Không có lịch sử nhập/xuất kho nào</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const $searchInput = $('#realtimeSearch');
+            const $suggestions = $('#searchSuggestions');
+            const $resultList = $('#resultList');
+            const $resultCount = $('#resultCount');
+            let debounceTimer;
+
+            $searchInput.on('input', function() {
+                const query = $(this).val();
+                clearTimeout(debounceTimer);
+
+                if (query.length < 1) {
+                    $suggestions.addClass('d-none');
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    $.get('@Url.Action("SearchProducts", "StockEntry", new { area = "Warehouse" })', { searchTerm: query }, function(data) {
+                        $resultList.empty();
+                        
+                        if (data && data.length > 0) {
+                            $resultCount.text(data.length);
+                            data.forEach(item => {
+                                const html = `
+                                    <a href="@Url.Action("Create", "StockEntry", new { area = "Warehouse" })?productId=${item.id}" 
+                                       class="d-flex align-items-center p-3 text-decoration-none border-bottom search-item">
+                                        <div class="flex-shrink-0">
+                                            <img src="${item.thumbnailUrl || '/images/no-image.png'}" 
+                                                 class="rounded-3 shadow-sm" 
+                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <h6 class="mb-0 text-dark fw-bold" style="font-size: 0.95rem;">${item.name}</h6>
+                                                <span class="badge bg-light text-dark border small ms-2">${item.sku}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center mt-1">
+                                                <small class="text-muted"><i class="bi bi-tag me-1"></i>${item.category}</small>
+                                                <small class="fw-bold ${item.stockQuantity <= 10 ? 'text-danger' : 'text-primary'}">
+                                                    Tồn: ${item.stockQuantity}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="ms-2 text-primary opacity-0 hover-visible">
+                                            <i class="bi bi-chevron-right fs-5"></i>
+                                        </div>
+                                    </a>
+                                `;
+                                $resultList.append(html);
+                            });
+                            $suggestions.removeClass('d-none');
+                        } else {
+                            $resultList.append('<div class="p-4 text-center text-muted"><i class="bi bi-search fs-2 d-block mb-2 opacity-25"></i>Không tìm thấy sản phẩm nào</div>');
+                            $resultCount.text(0);
+                            $suggestions.removeClass('d-none');
+                        }
+                    });
+                }, 300);
+            });
+
+            // Close suggestions when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.position-relative').length) {
+                    $suggestions.addClass('d-none');
+                }
+            });
+
+            // Re-open suggestions if input focused and has value
+            $searchInput.on('focus', function() {
+                if ($(this).val().length > 0) {
+                    $suggestions.removeClass('d-none');
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .search-item {
+            transition: all 0.2s ease;
+        }
+        .search-item:hover {
+            background-color: #f8f9fa;
+        }
+        .search-item:hover .hover-visible {
+            opacity: 1 !important;
+        }
+        
+        /* Premium Scrollbar */
+        #resultList::-webkit-scrollbar {
+            width: 6px;
+        }
+        #resultList::-webkit-scrollbar-track {
+            background: #f8f9fa;
+        }
+        #resultList::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+        }
+        #resultList::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        #searchSuggestions {
+            animation: slideDown 0.3s ease-out;
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+        }
+        #resultList {
+            scrollbar-width: thin;
+            scrollbar-color: #d1d5db #f8f9fa;
+        }
+        @@keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+}

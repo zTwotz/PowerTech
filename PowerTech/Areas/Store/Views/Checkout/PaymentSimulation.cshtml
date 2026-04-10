@@ -1,0 +1,71 @@
+@{
+    Layout = null;
+    decimal amount = ViewBag.Amount;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cổng thanh toán PowerTech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .pay-card { width: 100%; max-width: 450px; background: white; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; animation: slideUp 0.5s ease-out; }
+        .pay-header { background: #d0011b; color: white; padding: 40px 20px; text-align: center; }
+        .pay-body { padding: 40px; text-align: center; }
+        .amount-badge { font-size: 2.2rem; font-weight: 800; color: #d0011b; margin: 20px 0; letter-spacing: -1px; }
+        .btn-confirm { background: #d0011b; color: white; border: none; border-radius: 50px; padding: 16px 32px; font-weight: bold; width: 100%; transition: all 0.3s; margin-top: 20px; }
+        .btn-confirm:hover { background: #b00116; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(208, 1, 27, 0.3); }
+        .logo-text { font-weight: 900; letter-spacing: -2px; font-size: 1.5rem; }
+        @@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="pay-card">
+        <div class="pay-header">
+            <div class="logo-text mb-2">POWERTECH <span class="fw-light">PAY</span></div>
+            <div class="small opacity-75">Giao dịch bảo mật 256-bit</div>
+        </div>
+        <div class="pay-body">
+            <div class="mb-4">
+                <i class="fa-solid fa-building-columns text-muted mb-3" style="font-size: 3rem;"></i>
+                <h5 class="fw-bold">Xác nhận chuyển khoản</h5>
+                <p class="text-muted small">Cổng thanh toán đang chờ lệnh chuyển tiền từ ứng dụng ngân hàng của bạn.</p>
+            </div>
+
+            <div class="bg-light p-3 rounded-4 mb-4">
+                <div class="text-muted small mb-1">Số tiền cần thanh toán</div>
+                <div class="amount-badge">@amount.ToString("N0")₫</div>
+            </div>
+
+            <button type="button" onclick="confirmPayment()" class="btn btn-confirm">
+                <i class="fa-solid fa-circle-check me-2"></i>TÔI ĐÃ CHUYỂN KHOẢN
+            </button>
+            
+            <button type="button" onclick="window.close()" class="btn btn-link text-muted text-decoration-none mt-3">Hủy và quay lại</button>
+
+            <div class="mt-5 pt-4 border-top">
+                <div class="d-flex justify-content-center gap-4 opacity-50">
+                    <i class="fa-brands fa-cc-visa fs-3"></i>
+                    <i class="fa-brands fa-cc-mastercard fs-3"></i>
+                    <i class="fa-solid fa-shield-halved fs-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function confirmPayment() {
+            if (window.opener && !window.opener.closed) {
+                window.opener.postMessage('PAYMENT_SUCCESS', '*');
+                window.close();
+            } else {
+                alert("Đã xảy ra lỗi kết nối với trang đặt hàng. Vui lòng thử lại.");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using PowerTech.Data;
 using PowerTech.Constants;
 using PowerTech.Models.Entities;
+using PowerTech.Hubs;
 
 namespace PowerTech.Areas.Sales.Controllers
 {
@@ -51,6 +54,7 @@ namespace PowerTech.Areas.Sales.Controllers
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .Include(o => o.Payments)
+                .Include(o => o.OrderHistories)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order == null) return NotFound();
@@ -69,7 +73,22 @@ namespace PowerTech.Areas.Sales.Controllers
             order.InternalNote = internalNote;
             order.UpdatedAt = DateTime.UtcNow;
 
+            var notif = new Notification
+            {
+                UserId = order.UserId,
+                Title = "Cập nhật đơn hàng",
+                Message = $"Đơn hàng {order.OrderCode} của bạn đã được chuyển sang trạng thái: {status}.",
+                Type = "Order",
+                TargetUrl = $"/Customer/Order/Detail/{order.Id}"
+            };
+            _context.Notifications.Add(notif);
+
             await _context.SaveChangesAsync();
+
+            // Real-time notification (SignalR)
+            var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<OrderHub>>();
+            await hubContext.Clients.All.SendAsync("ReceiveOrderUpdate", order.Id, status, order.PaymentStatus);
+
             TempData["SuccessMessage"] = $"Cập nhật đơn hàng {order.OrderCode} thành công!";
             
             return RedirectToAction(nameof(Details), new { id = orderId });
@@ -88,15 +107,20 @@ namespace PowerTech.Areas.Sales.Controllers
             if (string.IsNullOrEmpty(term)) return Json(new List<object>());
 
             var products = await _context.Products
-                .Where(p => p.IsActive && (p.Name.Contains(term) || p.SKU.Contains(term)))
-                .Take(10)
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && 
+                            (p.Name.Contains(term) || 
+                             p.SKU.Contains(term) || 
+                             p.Category.Name.Contains(term)))
+                .Take(50)
                 .Select(p => new {
                     p.Id,
                     p.Name,
                     p.SKU,
                     p.Price,
                     p.StockQuantity,
-                    p.ThumbnailUrl
+                    p.ThumbnailUrl,
+                    CategoryName = p.Category.Name
                 })
                 .ToListAsync();
 
@@ -125,8 +149,64 @@ namespace PowerTech.Areas.Sales.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> ValidateCoupon(string code, string? orderItemsJson)
+        {
+            if (string.IsNullOrEmpty(code)) return Json(new { success = false, message = "Vui lòng nhập mã." });
+
+            var coupon = await _context.Coupons
+                .FirstOrDefaultAsync(c => c.Code == code && c.IsActive);
+
+            if (coupon == null) return Json(new { success = false, message = "Mã không tồn tại hoặc đã hết hạn." });
+
+            if (coupon.StartDate.HasValue && coupon.StartDate.Value > DateTime.UtcNow)
+                return Json(new { success = false, message = "Mã chưa đến hạn sử dụng." });
+
+            if (coupon.EndDate.HasValue && coupon.EndDate.Value < DateTime.UtcNow)
+                return Json(new { success = false, message = "Mã đã hết hạn." });
+
+            if (coupon.UsageLimit.HasValue && coupon.UsedCount >= coupon.UsageLimit.Value)
+                return Json(new { success = false, message = "Mã đã hết lượt sử dụng." });
+
+            decimal subtotal = 0;
+            if (!string.IsNullOrEmpty(orderItemsJson))
+            {
+                var orderItems = System.Text.Json.JsonSerializer.Deserialize<List<OrderItemSubmitModel>>(orderItemsJson);
+                if (orderItems != null)
+                {
+                    foreach (var item in orderItems)
+                    {
+                        var product = await _context.Products.FindAsync(item.ProductId);
+                        if (product != null) subtotal += (product.Price * item.Quantity);
+                    }
+                }
+            }
+
+            if (coupon.MinOrderValue.HasValue && subtotal < coupon.MinOrderValue.Value)
+                return Json(new { success = false, message = $"Đơn tối thiểu {coupon.MinOrderValue.Value:N0}₫." });
+
+            decimal discountAmount = 0;
+            if (coupon.Type == CouponType.Percentage)
+            {
+                discountAmount = subtotal * (coupon.Value / 100);
+                if (coupon.MaxDiscountAmount.HasValue && discountAmount > coupon.MaxDiscountAmount.Value)
+                    discountAmount = coupon.MaxDiscountAmount.Value;
+            }
+            else
+            {
+                discountAmount = coupon.Value;
+            }
+
+            return Json(new { 
+                success = true, 
+                discountAmount = discountAmount, 
+                newTotal = subtotal - discountAmount,
+                message = "Áp dụng mã thành công!" 
+            });
+        }
+
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string userId, string receiverName, string phoneNumber, string shippingAddress, string paymentMethod, string? note, string orderItemsJson)
+        public async Task<IActionResult> Create(string userId, string receiverName, string phoneNumber, string shippingAddress, string paymentMethod, string? note, string orderItemsJson, string? couponCode)
         {
             // Simple validation
             if (string.IsNullOrEmpty(orderItemsJson))
@@ -206,6 +286,33 @@ namespace PowerTech.Areas.Sales.Controllers
                 InternalNote = "Đơn hàng tạo tại quầy bởi Sales",
                 CreatedAt = DateTime.UtcNow
             };
+
+            // Process Coupon
+            if (!string.IsNullOrEmpty(couponCode))
+            {
+                var coupon = await _context.Coupons.FirstOrDefaultAsync(c => c.Code == couponCode && c.IsActive);
+                if (coupon != null && (!coupon.UsageLimit.HasValue || coupon.UsedCount < coupon.UsageLimit.Value))
+                {
+                    decimal discount = 0;
+                    if (coupon.Type == CouponType.Percentage)
+                    {
+                        discount = totalAmount * (coupon.Value / 100);
+                        if (coupon.MaxDiscountAmount.HasValue && discount > coupon.MaxDiscountAmount.Value)
+                            discount = coupon.MaxDiscountAmount.Value;
+                    }
+                    else
+                    {
+                        discount = coupon.Value;
+                    }
+
+                    order.CouponId = coupon.Id;
+                    order.DiscountAmount = discount;
+                    order.TotalAmount = totalAmount - discount;
+                    
+                    coupon.UsedCount++;
+                    _context.Update(coupon);
+                }
+            }
 
             foreach (var oi in finalOrderItems)
             {

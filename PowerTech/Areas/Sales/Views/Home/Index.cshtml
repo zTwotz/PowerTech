@@ -1,55 +1,105 @@
+@model PowerTech.Areas.Sales.Controllers.SalesDashboardViewModel
 @{
-    ViewData["Title"] = "Bảng điều khiển kinh doanh";
+    ViewData["Title"] = "Dashboard bán hàng";
 }
 
-<!-- Summary Row -->
-<div class="row g-4 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white p-2">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-muted small fw-bold">DOANH THU HÔM NAY</span>
-                    <i class="bi bi-wallet2 text-primary"></i>
-                </div>
-                <h3 class="fw-bold mb-0">@ViewBag.Stats.RevenueToday.ToString("N0")₫</h3>
-                <small class="text-success fw-medium">Thanh toán tại quầy</small>
+<!-- Page Header -->
+<div class="row align-items-center mb-4 pb-2">
+    <div class="col-md-7">
+        <h3 class="fw-800 text-dark mb-1">Dashboard bán hàng</h3>
+        <p class="text-muted mb-0">Theo dõi đơn hàng, xử lý bán hàng và hiệu suất sản phẩm</p>
+    </div>
+    <div class="col-md-5 mt-3 mt-md-0 d-flex justify-content-md-end align-items-center gap-3">
+        <div class="position-relative d-none d-lg-block">
+            <input type="text" class="form-control border-0 shadow-sm ps-4 pe-5 rounded-pill bg-white py-2" style="width: 250px; font-size: 14px;" placeholder="Tìm kiếm nhanh...">
+            <i class="bi bi-search position-absolute top-50 translate-middle-y end-0 me-3 text-muted" style="font-size: 13px;"></i>
+        </div>
+        <div class="d-flex align-items-center gap-2 ps-3 border-start">
+            <button class="btn btn-white btn-sm rounded-circle border shadow-sm position-relative" style="width: 38px; height: 38px;">
+                <i class="bi bi-bell"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px; padding: 3px 5px; margin-left: -5px; margin-top: 5px;">3</span>
+            </button>
+            <div class="dropdown">
+                <button class="btn dropdown-toggle d-flex align-items-center gap-2 border shadow-sm rounded-pill bg-white px-3 py-1" data-bs-toggle="dropdown">
+                    <img src="https://ui-avatars.com/api/?name=Sales+Staff&background=0D6EFD&color=fff" class="rounded-circle" style="width: 24px; height: 24px;">
+                    <span class="small fw-bold d-none d-sm-inline">Sales Staff</span>
+                </button>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white p-2">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-muted small fw-bold">CHỜ XỬ LÝ</span>
-                    <i class="bi bi-clock-history text-warning"></i>
+</div>
+
+<!-- KPI Summary Section -->
+<div class="row g-4 mb-4 pb-2">
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden card-kpi position-relative">
+            <div class="card-body p-4">
+                <div class="kpi-icon bg-primary-kpi">
+                    <i class="bi bi-currency-dollar fs-4"></i>
                 </div>
-                <h3 class="fw-bold mb-0">@ViewBag.Stats.PendingOrders</h3>
-                <small class="text-warning fw-medium">Đơn hàng mới chưa duyệt</small>
+                <div class="mt-3">
+                    <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Doanh thu hôm nay</span>
+                    <h3 class="fw-800 mb-0 mt-1 d-flex align-items-center text-dark highlight-number">
+                        @Model.TodayRevenue.ToString("N0")₫
+                    </h3>
+                    <div class="mt-2 text-success x-small fw-bold">
+                        <i class="bi bi-graph-up-arrow me-1"></i> +15% so với hôm qua
+                    </div>
+                </div>
             </div>
+            <i class="bi bi-wallet2 card-bg-icon"></i>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white p-2">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-muted small fw-bold">ĐANG VẬN CHUYỂN</span>
-                    <i class="bi bi-truck text-info"></i>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden card-kpi is-highlight position-relative">
+            <div class="card-body p-4">
+                <div class="kpi-icon bg-warning-kpi">
+                    <i class="bi bi-hourglass-split fs-4"></i>
                 </div>
-                <h3 class="fw-bold mb-0">@ViewBag.Stats.ShippedOrders</h3>
-                <small class="text-info fw-medium">Đang đến tay khách</small>
+                <div class="mt-3">
+                    <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Chờ xử lý</span>
+                    <h3 class="fw-800 mb-0 mt-1 text-dark highlight-number">@Model.PendingOrders</h3>
+                    <div class="mt-2 text-warning x-small fw-bold">
+                        <i class="bi bi-exclamation-circle-fill me-1"></i> @Model.PendingOrders đơn mới chưa duyệt
+                    </div>
+                </div>
+                <div class="highlight-stripe"></div>
             </div>
+            <i class="bi bi-clock-history card-bg-icon"></i>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white p-2">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-muted small fw-bold">HOÀN TẤT THÁNG</span>
-                    <i class="bi bi-check-circle text-success"></i>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden card-kpi position-relative">
+            <div class="card-body p-4">
+                <div class="kpi-icon bg-info-kpi">
+                    <i class="bi bi-truck fs-4"></i>
                 </div>
-                <h3 class="fw-bold mb-0">@ViewBag.Stats.CompletedOrdersMonth</h3>
-                <small class="text-success fw-medium">Giao hàng thành công</small>
+                <div class="mt-3">
+                    <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Đang vận chuyển</span>
+                    <h3 class="fw-800 mb-0 mt-1 text-dark highlight-number">@Model.ShippedOrders</h3>
+                    <div class="mt-2 text-info x-small fw-bold">
+                        <i class="bi bi-box-seam-fill me-1"></i> Đang đến tay khách hàng
+                    </div>
+                </div>
             </div>
+            <i class="bi bi-truck card-bg-icon"></i>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden card-kpi position-relative">
+            <div class="card-body p-4">
+                <div class="kpi-icon bg-success-kpi">
+                    <i class="bi bi-check2-all fs-4"></i>
+                </div>
+                <div class="mt-3">
+                    <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Hoàn tất tháng</span>
+                    <h3 class="fw-800 mb-0 mt-1 text-dark highlight-number">@Model.CompletedOrdersMonth</h3>
+                    <div class="mt-2 text-success x-small fw-bold">
+                        <i class="bi bi-calendar-check-fill me-1"></i> Trong tháng @DateTime.Now.ToString("MM/yyyy")
+                    </div>
+                </div>
+            </div>
+            <i class="bi bi-bag-check card-bg-icon"></i>
         </div>
     </div>
 </div>
@@ -57,45 +107,74 @@
 <div class="row g-4">
     <!-- Recent Orders -->
     <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold">Đơn hàng gần đây</h5>
-                <a asp-controller="Order" asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem tất cả</a>
+        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+            <div class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-800 text-dark">Đơn hàng gần đây</h5>
+                <a asp-controller="Order" asp-action="Index" class="btn btn-link text-primary text-decoration-none fw-bold small">
+                    Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+                </a>
             </div>
+            
+            <!-- Quick Filter Pills -->
+            <div class="px-4 mb-3 d-flex flex-wrap gap-2">
+                <a asp-action="Index" asp-route-status="" class="btn btn-pill-filter @(string.IsNullOrEmpty(Model.CurrentFilter) ? "active" : "")">
+                    <i class="bi bi-grid-fill me-1"></i> Tất cả
+                </a>
+                <a asp-action="Index" asp-route-status="Pending" class="btn btn-pill-filter @(Model.CurrentFilter == "Pending" ? "active" : "")">
+                    <i class="bi bi-patch-exclamation me-1"></i> Chờ duyệt
+                </a>
+                <a asp-action="Index" asp-route-status="Shipping" class="btn btn-pill-filter @(Model.CurrentFilter == "Shipping" ? "active" : "")">
+                    <i class="bi bi-bicycle me-1"></i> Đang giao
+                </a>
+            </div>
+            
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light text-muted small text-uppercase">
+                    <table class="table align-middle mb-0 table-modern">
+                        <thead>
                             <tr>
-                                <th class="ps-4">Mã đơn</th>
-                                <th>Khách hàng</th>
-                                <th>Ngày tạo</th>
-                                <th>Tổng tiền</th>
-                                <th>Trạng thái</th>
-                                <th class="pe-4 text-end">Chi tiết</th>
+                                <th class="ps-4"><i class="bi bi-hash me-1"></i> Mã đơn</th>
+                                <th><i class="bi bi-person me-1"></i> Khách hàng</th>
+                                <th><i class="bi bi-calendar3 me-1"></i> Ngày tạo</th>
+                                <th class="text-end"><i class="bi bi-currency-dollar me-1"></i> Tổng cộng</th>
+                                <th class="text-center"><i class="bi bi-shield-check me-1"></i> Trạng thái</th>
+                                <th class="pe-4 text-end"><i class="bi bi-lightning-charge me-1"></i> Hành động</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var order in (IEnumerable<dynamic>)ViewBag.Stats.RecentOrders)
+                            @foreach (var order in Model.RecentOrders)
                             {
                                 <tr>
-                                    <td class="ps-4 fw-bold">@order.OrderCode</td>
-                                    <td>
-                                        <div class="fw-medium">@order.ReceiverName</div>
-                                        <small class="text-muted">@order.PhoneNumber</small>
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-primary">#@order.OrderCode</div>
                                     </td>
-                                    <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                                    <td class="fw-bold text-dark">@order.TotalAmount.ToString("N0")₫</td>
                                     <td>
-                                        <span class="badge rounded-pill @OrderHelper.GetStatusBadgeClass(order.OrderStatus)">
-                                            @OrderHelper.GetStatusDisplayName(order.OrderStatus)
+                                        <div class="fw-bold text-dark mb-0">@order.ReceiverName</div>
+                                        <div class="text-muted small x-small">@order.PhoneNumber</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-muted small fw-medium">@order.CreatedAt.ToString("dd/MM/yyyy")</div>
+                                        <div class="x-small text-muted opacity-75">@order.CreatedAt.ToString("HH:mm")</div>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="fw-800 text-dark fs-6">@order.TotalAmount.ToString("N0")₫</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-status @GetStatusClass(order.OrderStatus)">
+                                            @GetStatusText(order.OrderStatus)
                                         </span>
                                     </td>
                                     <td class="pe-4 text-end">
-                                        <a asp-controller="Order" asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-white border rounded-pill shadow-sm px-3 text-primary fw-medium transition-all hover-elevate">
-                                            <i class="bi bi-eye me-1"></i> Chi tiết
+                                        <a asp-controller="Order" asp-action="Details" asp-route-id="@order.Id" class="btn btn-action-view">
+                                            Chi tiết
                                         </a>
                                     </td>
+                                </tr>
+                            }
+                            @if (!Model.RecentOrders.Any())
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted fst-italic">Không có đơn hàng nào gần đây</td>
                                 </tr>
                             }
                         </tbody>
@@ -107,55 +186,289 @@
 
     <!-- Top Products -->
     <div class="col-lg-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-            <div class="card-header bg-white p-4 border-bottom">
-                <h5 class="mb-0 fw-bold">Sản phẩm bán chạy</h5>
+        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+            <div class="card-header bg-white p-4 border-0 pb-0">
+                <h5 class="mb-0 fw-800 text-dark">Sản phẩm bán chạy</h5>
+                <p class="text-muted small mb-0 mt-1">Top sản phẩm có số lượng bán cao nhất</p>
             </div>
-            <div class="card-body p-4">
-                @foreach (var p in (IEnumerable<dynamic>)ViewBag.Stats.TopProducts)
+            <div class="card-body p-4 pt-4">
+                @foreach (var p in Model.TopProducts)
                 {
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-medium text-truncate" style="max-width: 200px;">@p.Name</span>
-                            <span class="badge bg-light text-primary">@p.Quantity sản phẩm</span>
+                    <div class="product-item mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold text-dark text-truncate pe-2 shadow-text-fix" style="max-width: 180px;" title="@p.Name">
+                                <i class="bi bi-box-seam me-2 text-primary opacity-50"></i>@p.Name
+                            </span>
+                            <span class="fw-800 text-primary small">@p.Quantity <span class="fw-normal text-muted">bán</span></span>
                         </div>
-                        <div class="progress rounded-pill" style="height: 6px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: @(Math.Min(100, (int)p.Quantity * 10))%"></div>
+                        <div class="progress rounded-pill" style="height: 6px; background-color: #f1f5f9;">
+                            @{
+                                var maxQty = Model.TopProducts.Max(x => x.Quantity);
+                                var progressWidth = maxQty > 0 ? (p.Quantity * 100 / maxQty) : 0;
+                            }
+                            <div class="progress-bar rounded-pill" role="progressbar" style="width: @progressWidth%; background: linear-gradient(90deg, #0D6EFD, #00D2FF);"></div>
                         </div>
-                        <div class="text-end small text-muted mt-1">@p.Revenue.ToString("N0")₫</div>
+                        <div class="d-flex justify-content-end mt-1">
+                            <span class="text-muted small fw-medium">@p.Revenue.ToString("N0")₫</span>
+                        </div>
                     </div>
                 }
-                @if (!((IEnumerable<dynamic>)ViewBag.Stats.TopProducts).Any())
+                @if (!Model.TopProducts.Any())
                 {
-                    <div class="text-center py-5 text-muted fst-italic">Chưa có dữ liệu bán hàng</div>
+                    <div class="text-center py-5">
+                        <i class="bi bi-box-seam fs-1 text-muted opacity-25 mb-3 d-block"></i>
+                        <div class="text-muted fst-italic">Chưa có dữ liệu bán hàng</div>
+                    </div>
                 }
             </div>
         </div>
     </div>
 </div>
 
-@section Scripts {
+<!-- Extra Widgets Row -->
+<div class="row g-4 mt-1">
+    <div class="col-xl-4 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+            <div class="card-header bg-white p-4 border-0 pb-0">
+                <h6 class="fw-800 text-dark mb-0">Trạng thái đơn hàng</h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-warning shadow-sm" style="width: 10px; height: 10px; border: 2px solid #fff;"></div>
+                            <span class="small text-muted fw-medium">Chờ xác nhận</span>
+                        </div>
+                        <span class="badge bg-light text-dark rounded-pill fw-bold">@Model.PendingOrders</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-primary shadow-sm" style="width: 10px; height: 10px; border: 2px solid #fff;"></div>
+                            <span class="small text-muted fw-medium">Đang xử lý</span>
+                        </div>
+                        <span class="badge bg-light text-dark rounded-pill fw-bold">@Model.ProcessingOrdersCount</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-info shadow-sm" style="width: 10px; height: 10px; border: 2px solid #fff;"></div>
+                            <span class="small text-muted fw-medium">Đang vận chuyển</span>
+                        </div>
+                        <span class="badge bg-light text-dark rounded-pill fw-bold">@Model.ShippedOrders</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-success shadow-sm" style="width: 10px; height: 10px; border: 2px solid #fff;"></div>
+                            <span class="small text-muted fw-medium">Hoàn tất</span>
+                        </div>
+                        <span class="badge bg-light text-dark rounded-pill fw-bold">@Model.CompletedOrdersMonth</span>
+                    </div>
+                </div>
+                <hr class="my-4 opacity-5">
+                <div class="text-center">
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-4 fw-bold">
+                        <i class="bi bi-download me-1"></i> Tải báo cáo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-8 col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 position-relative" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(255,255,255,0.05);">
+            <div class="card-body p-5 d-flex align-items-center">
+                <div class="text-white">
+                    <h4 class="fw-800 mb-2">Tăng tốc xử lý đơn hàng</h4>
+                    <p class="opacity-75 mb-4" style="max-width: 400px; font-size: 14px;">Bạn có <b>@Model.PendingOrders</b> đơn hàng đang chờ xác nhận. Hãy dành thời gian xử lý chúng để tăng điểm uy tín cửa hàng.</p>
+                    <a asp-controller="Order" asp-action="Index" asp-route-status="Pending" class="btn btn-warning fw-800 rounded-pill px-4 shadow-lg border-0 h-45px d-inline-flex align-items-center">
+                        <i class="bi bi-lightning-charge-fill me-2"></i> XỬ LÝ NGAY
+                    </a>
+                </div>
+                <div class="position-absolute end-0 bottom-0 p-4 opacity-25 d-none d-lg-block">
+                    <i class="bi bi-rocket-takeoff text-white" style="font-size: 140px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusClass(string status) => status switch {
+        "Pending" => "status-pending",
+        "Processing" or "Confirmed" => "status-processing",
+        "Shipping" or "Shipped" => "status-shipping",
+        "Completed" => "status-completed",
+        "Cancelled" => "status-cancelled",
+        _ => "status-neutral"
+    };
+
+    string GetStatusText(string status) => status switch {
+        "Pending" => "Chờ duyệt",
+        "Processing" => "Đang xử lý",
+        "Shipping" or "Shipped" => "Đang giao",
+        "Completed" => "Hoàn tất",
+        "Cancelled" => "Đã hủy",
+        _ => status
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        .hover-elevate {
-            transition: all 0.2s ease-in-out;
+        :root {
+            --pt-primary: #e30019; /* Updated to match system red */
+            --pt-bg: #f8fafc;
         }
-        .hover-elevate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-            background-color: #f8f9fa;
+
+        body {
+            background-color: var(--pt-bg) !important;
+            font-family: 'Inter', sans-serif !important;
         }
-        .table-hover tbody tr {
-            transition: background-color 0.2s;
+
+        .fw-800 { font-weight: 800; }
+        .fw-700 { font-weight: 700; }
+        .x-small { font-size: 0.75rem; }
+
+        /* Card styles */
+        .card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .table-hover tbody tr:hover {
-            background-color: rgba(13, 110, 253, 0.02) !important;
-        }
-        .btn-white {
+        
+        .card-kpi {
             background-color: #fff;
-            color: #333;
+            border-radius: 16px !important;
         }
-        .btn-white:hover {
-            background-color: #f8f9fa;
+        
+        .kpi-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        /* Updated KPI Colors for better visibility */
+        .bg-primary-kpi { background-color: #0D6EFD !important; color: #fff !important; }
+        .bg-warning-kpi { background-color: #FFC107 !important; color: #000 !important; }
+        .bg-info-kpi { background-color: #0DCAF0 !important; color: #fff !important; }
+        .bg-success-kpi { background-color: #198754 !important; color: #fff !important; }
+        
+        .card-bg-icon {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 5rem;
+            opacity: 0.03;
+            transform: rotate(-15deg);
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+        
+        .card:hover .card-bg-icon {
+            transform: rotate(0deg) scale(1.1);
+            opacity: 0.06;
+        }
+        
+        .card:hover .kpi-icon {
+            transform: scale(1.1);
+        }
+        
+        .highlight-number {
+            font-size: 1.75rem;
+            letter-spacing: -0.5px;
+        }
+
+        .is-highlight {
+            background: #fff;
+            border: 1px solid rgba(255, 193, 7, 0.2) !important;
+        }
+        
+        .highlight-stripe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #ffc107;
+        }
+
+        /* Filter Pills */
+        .btn-pill-filter {
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #64748b;
+            border-radius: 20px;
+            padding: 5px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-pill-filter:hover, .btn-pill-filter.active {
+            background: var(--pt-primary);
+            color: #fff;
+            border-color: var(--pt-primary);
+        }
+
+        /* Table Modern */
+        .table-modern thead th {
+            border: none;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 16px 12px;
+        }
+        
+        .table-modern tbody td {
+            padding: 18px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .table-modern tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        /* Badges */
+        .badge-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-processing { background-color: #dcfce7; color: #166534; }
+        .status-shipping { background-color: #e0f2fe; color: #075985; }
+        .status-completed { background-color: #dcfce7; color: #166534; }
+        .status-cancelled { background-color: #fee2e2; color: #991b1b; }
+        .status-neutral { background-color: #f1f5f9; color: #475569; }
+
+        /* Action Buttons */
+        .btn-action-view {
+            background-color: #fff;
+            color: var(--pt-primary);
+            border: 1px solid var(--pt-primary);
+            border-radius: 8px;
+            padding: 4px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-action-view:hover {
+            background-color: var(--pt-primary);
+            color: #fff;
+        }
+
+        .shadow-warning { box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3); }
+        .shadow-text-fix { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        @@media (max-width: 1200px) {
+            .highlight-number { font-size: 1.5rem; }
         }
     </style>
 }

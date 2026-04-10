@@ -8,7 +8,7 @@ using PowerTech.Models.Entities;
 namespace PowerTech.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = UserRoles.Admin)]
+    [Authorize(Roles = UserRoles.Admin + "," + UserRoles.WarehouseStaff)]
     public class BrandController : Controller
     {
         private readonly ApplicationDbContext _context;

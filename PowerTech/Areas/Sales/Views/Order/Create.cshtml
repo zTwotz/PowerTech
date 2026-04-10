@@ -4,35 +4,46 @@
 }
 
 <div class="container-fluid py-4">
-    <div class="row g-4">
+    <div class="row g-4 align-items-stretch">
         <!-- Main: Product Selection -->
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 mb-4">
-                <div class="card-header bg-white p-4 border-bottom">
+            <div class="card border-0 shadow-sm rounded-4 h-100 d-flex flex-column">
+                <div class="card-header bg-white p-4 border-bottom flex-shrink-0">
                     <h5 class="mb-0 fw-bold"><i class="bi bi-cart-plus me-2 text-primary"></i>Chọn sản phẩm</h5>
                 </div>
-                <div class="card-body p-4">
-                    <div class="position-relative mb-4">
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text bg-light border-end-0 rounded-start-4">
+                <div class="card-body p-4 d-flex flex-column flex-grow-1 overflow-hidden">
+                    <div class="position-relative mb-4 flex-shrink-0">
+                        <div class="input-group input-group-lg rounded-pill border overflow-hidden shadow-sm bg-white">
+                            <span class="input-group-text bg-transparent border-0 ps-4">
                                 <i class="bi bi-search text-muted"></i>
                             </span>
-                            <input type="text" id="productSearch" class="form-control bg-light border-start-0 rounded-end-4" placeholder="Nhập tên hoặc SKU sản phẩm..." autocomplete="off">
+                            <input type="text" id="productSearch" class="form-control border-0 ps-1 py-3" placeholder="Tìm sản phẩm nhanh (Tên, SKU, Danh mục...)" autocomplete="off">
                         </div>
-                        <div id="searchResult" class="dropdown-menu w-100 shadow-lg border-0 rounded-4 mt-1 overflow-hidden" style="display: none; max-height: 400px; overflow-y: auto;">
-                            <!-- Search results will appear here -->
+                        
+                        <!-- Premium Search Suggestions -->
+                        <div id="searchResult" class="position-absolute w-100 shadow-lg rounded-4 border bg-white d-none overflow-hidden" style="top: 100%; left: 0; margin-top: 10px; z-index: 1050;">
+                            <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                                <span class="small fw-bold text-muted text-uppercase tracking-wider ps-2" style="font-size: 0.65rem; letter-spacing: 0.5px;">Sản phẩm gợi ý</span>
+                                <span id="resultCount" class="badge bg-primary rounded-pill px-2">0</span>
+                            </div>
+                            <div id="resultList" style="max-height: 550px; overflow-y: auto;">
+                                <!-- Results will be injected here -->
+                            </div>
+                            <div class="p-2 border-top bg-light text-center">
+                                <small class="text-muted" style="font-size: 0.7rem;"><i>Nhấn vào sản phẩm để thêm vào đơn hàng</i></small>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table align-middle" id="orderItemsTable">
-                            <thead class="text-muted small text-uppercase">
+                    <div class="table-responsive flex-grow-1 overflow-auto" style="max-height: 520px;">
+                        <table class="table align-middle mb-0" id="orderItemsTable">
+                            <thead class="text-muted small text-uppercase sticky-top bg-white" style="z-index: 10;">
                                 <tr>
                                     <th>Sản phẩm</th>
-                                    <th style="width: 150px;">Số lượng</th>
+                                    <th style="width: 130px;">Số lượng</th>
                                     <th class="text-end">Đơn giá</th>
                                     <th class="text-end">Thành tiền</th>
-                                    <th style="width: 50px;"></th>
+                                    <th style="width: 40px;"></th>
                                 </tr>
                             </thead>
                             <tbody id="cartBody">
@@ -55,11 +66,11 @@
         <!-- Sidebar: Customer & Summary -->
         <div class="col-lg-4">
             <!-- Customer Info -->
-            <div class="card border-0 shadow-sm rounded-4 mb-4">
-                <div class="card-header bg-white p-4 border-bottom">
+            <div class="card border-0 shadow-sm rounded-4 h-100 d-flex flex-column">
+                <div class="card-header bg-white p-4 border-bottom flex-shrink-0">
                     <h5 class="mb-0 fw-bold"><i class="bi bi-person me-2 text-primary"></i>Thông tin khách hàng</h5>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body p-4 d-flex flex-column flex-grow-1">
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Tìm kiếm khách hàng (Email/SĐT)</label>
                         <input type="text" id="userSearch" class="form-control rounded-3" placeholder="Nhập để tìm...">
@@ -86,26 +97,59 @@
 
                         <hr class="my-4 opacity-10">
 
+                        <!-- Coupon Section -->
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Mã giảm giá</label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" id="couponInput" name="couponCode" class="form-control rounded-start-3" placeholder="KM10, GIAM50K..." style="text-transform: uppercase;">
+                                <button class="btn btn-dark rounded-end-3" type="button" id="btnApplyCoupon">ÁP DỤNG</button>
+                            </div>
+                            <div id="couponMsg" class="extra-small mt-1"></div>
+                        </div>
+
                         <!-- Summary -->
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Tạm tính</span>
-                            <span class="fw-bold" id="subtotalDisplay">0₫</span>
+                            <span class="text-muted small">Tạm tính</span>
+                            <span class="fw-bold small" id="subtotalDisplay">0₫</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-4">
-                            <h5 class="fw-bold">Tổng cộng</h5>
-                            <h5 class="fw-bold text-primary" id="totalDisplay">0₫</h5>
+                        <div class="justify-content-between mb-2" id="discountRow" style="display: none;">
+                            <span class="text-muted small">Giảm giá</span>
+                            <span class="fw-bold text-danger small" id="discountAmount">-0₫</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-4 mt-2 pt-2 border-top">
+                            <h5 class="fw-bold mb-0">Thanh toán</h5>
+                            <h5 class="fw-bold text-primary mb-0" id="totalDisplay">0₫</h5>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label small fw-bold">Phương thức thanh toán</label>
-                            <select name="paymentMethod" class="form-select rounded-3">
-                                <option value="Cash">Tiền mặt</option>
-                                <option value="BankTransfer">Chuyển khoản</option>
-                                <option value="Card">Thanh toán thẻ</option>
+                            <select name="paymentMethod" id="paymentMethod" class="form-select rounded-3">
+                                <option value="COD">Tiền mặt (COD)</option>
+                                <option value="BankTransfer">Chuyển khoản ngân hàng</option>
+                                <option value="VNPay">Cổng VNPay / Thẻ</option>
+                                <option value="MoMo">Ví MoMo</option>
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold shadow-sm">
+                        <!-- Payment Simulation Section -->
+                        <div id="paymentActionSection" class="mb-4 d-none">
+                            <div class="alert alert-info border-0 rounded-4 shadow-sm p-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="spinner-grow spinner-grow-sm text-info me-2"></div>
+                                    <span class="small fw-bold text-dark">Yêu cầu thanh toán để tiếp tục</span>
+                                </div>
+                                <button type="button" id="paySimBtn" class="btn btn-info w-100 rounded-pill py-2 fw-bold text-white shadow-sm">
+                                    <i class="bi bi-qr-code-scan me-2"></i>MỞ TRANG THANH TOÁN
+                                </button>
+                                <div id="paymentStatusBadge" class="mt-3 text-center d-none">
+                                    <span class="badge bg-success rounded-pill px-3 py-2">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Đã thanh toán thành công
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="completeOrderBtn" class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold shadow-sm">
                             <i class="bi bi-check-circle me-2"></i>HOÀN TẤT ĐƠN HÀNG
                         </button>
                     </form>
@@ -122,41 +166,150 @@
         // --- Product Search ---
         const $productSearch = $('#productSearch');
         const $searchResult = $('#searchResult');
+        const $resultList = $('#resultList');
+        const $resultCount = $('#resultCount');
+        let debounceTimer;
 
         $productSearch.on('input', function() {
             const term = $(this).val();
-            if (term.length < 2) {
-                $searchResult.hide();
+            clearTimeout(debounceTimer);
+
+            if (term.length < 1) {
+                $searchResult.addClass('d-none');
                 return;
             }
 
-            $.get('@Url.Action("SearchProducts", "Order")', { term: term }, function(data) {
-                let html = '';
-                if (data.length === 0) {
-                    html = '<div class="p-3 text-center text-muted">Không tìm thấy sản phẩm</div>';
-                } else {
-                    data.forEach(p => {
-                        html += `
-                            <a href="javascript:void(0)" class="dropdown-item p-3 border-bottom d-flex align-items-center" onclick='addToCart(${JSON.stringify(p)})'>
-                                <img src="${p.thumbnailUrl || '/images/no-image.png'}" class="rounded-2 me-3" style="width: 48px; height: 48px; object-fit: cover;">
-                                <div class="flex-grow-1">
-                                    <div class="fw-bold text-dark">${p.name}</div>
-                                    <div class="small text-muted">SKU: ${p.sku} | Tồn kho: <span class="text-${p.stockQuantity > 0 ? 'success' : 'danger'}">${p.stockQuantity}</span></div>
-                                </div>
-                                <div class="text-primary fw-bold">${new Intl.NumberFormat('vi-VN').format(p.price)}₫</div>
-                            </a>
-                        `;
-                    });
-                }
-                $searchResult.html(html).show();
-            });
+            debounceTimer = setTimeout(() => {
+                $.get('@Url.Action("SearchProducts", "Order")', { term: term }, function(data) {
+                    $resultList.empty();
+                    
+                    if (data && data.length > 0) {
+                        $resultCount.text(data.length);
+                        data.forEach(p => {
+                            const html = `
+                                <a href="javascript:void(0)" class="d-flex align-items-center p-3 text-decoration-none border-bottom search-item transition-all" 
+                                   onclick='handleProductSelect(${JSON.stringify(p)}, this)'>
+                                    <div class="flex-shrink-0">
+                                        <img src="${p.thumbnailUrl || '/images/no-image.png'}" 
+                                             class="rounded-3 shadow-sm" 
+                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6 class="mb-0 text-dark fw-bold" style="font-size: 0.95rem;">${p.name}</h6>
+                                            <span class="badge bg-light text-dark border extra-small ms-2">${p.sku}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                            <small class="text-muted"><i class="bi bi-tag me-1"></i>${p.categoryName || 'Sản phẩm'}</small>
+                                            <div class="text-end">
+                                                <div class="fw-bold text-primary">${new Intl.NumberFormat('vi-VN').format(p.price)}₫</div>
+                                                <small class="${p.stockQuantity <= 10 ? 'text-danger' : 'text-success'} fw-bold" style="font-size: 0.7rem;">
+                                                    Còn: ${p.stockQuantity}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            `;
+                            $resultList.append(html);
+                        });
+                        $searchResult.removeClass('d-none');
+                    } else {
+                        $resultList.append('<div class="p-4 text-center text-muted small"><i class="bi bi-search fs-2 d-block mb-2 opacity-25"></i>Không tìm thấy sản phẩm</div>');
+                        $resultCount.text(0);
+                        $searchResult.removeClass('d-none');
+                    }
+                });
+            }, 300);
         });
+
+        // Helper to handle product selection and reset state
+        window.handleProductSelect = function(p, element) {
+            // 1. Add to cart
+            addToCart(p);
+            
+            // 2. Immediate visual feedback
+            if (element) {
+                $(element).addClass('bg-success bg-opacity-25');
+            }
+            
+            // 3. Reset UI state immediately
+            $searchResult.addClass('d-none');
+            $productSearch.val('').focus();
+            $resultList.empty(); // Clear old results
+        };
 
         $(document).on('click', function(e) {
             if (!$(e.target).closest('.position-relative').length) {
-                $searchResult.hide();
+                $searchResult.addClass('d-none');
             }
         });
+
+        $productSearch.on('focus', function() {
+            if ($(this).val().length > 0) {
+                $searchResult.removeClass('d-none');
+            }
+        });
+
+        // --- Payment Simulation ---
+        let isPaid = false;
+        const $paymentMethod = $('#paymentMethod');
+        const $paySimBtn = $('#paySimBtn');
+        const $paymentActionSection = $('#paymentActionSection');
+        const $paymentStatusBadge = $('#paymentStatusBadge');
+        const $completeOrderBtn = $('#completeOrderBtn');
+
+        $paymentMethod.on('change', function() {
+            const method = $(this).val();
+            updatePaymentUI(method);
+        });
+
+        function updatePaymentUI(method) {
+            if (method === 'COD') {
+                $paymentActionSection.addClass('d-none');
+                $completeOrderBtn.prop('disabled', false).removeClass('opacity-50');
+                isPaid = true;
+            } else {
+                $paymentActionSection.removeClass('d-none');
+                isPaid = false;
+                $paymentStatusBadge.addClass('d-none');
+                $paySimBtn.show();
+                $completeOrderBtn.prop('disabled', true).addClass('opacity-50');
+            }
+        }
+
+        $paySimBtn.on('click', function() {
+            let total = 0;
+            cart.forEach(item => total += (item.price * item.quantity));
+            
+            if (total <= 0) {
+                alert('Vui lòng chọn sản phẩm trước khi thanh toán!');
+                return;
+            }
+
+            const simUrl = `/Store/Checkout/PaymentSimulation?amount=${total}`;
+            const width = 600;
+            const height = 800;
+            const left = (screen.width - width) / 2;
+            const top = (screen.height - height) / 2;
+            
+            window.open(simUrl, 'PaymentSimulation', `width=${width},height=${height},top=${top},left=${left}`);
+        });
+
+        // Callback function for payment simulation
+        window.onPaymentSuccess = function() {
+            isPaid = true;
+            $paySimBtn.hide();
+            $paymentStatusBadge.removeClass('d-none');
+            $completeOrderBtn.prop('disabled', false).removeClass('opacity-50');
+        };
+
+        // Listen for message from simulation popup
+        window.addEventListener("message", (event) => {
+            if (event.data === "PAYMENT_SUCCESS") {
+                window.onPaymentSuccess();
+            }
+        }, false);
 
         // --- User Search ---
         const $userSearch = $('#userSearch');
@@ -206,8 +359,6 @@
                     thumbnail: product.thumbnailUrl
                 });
             }
-            $searchResult.hide();
-            $productSearch.val('');
             renderCart();
         }
 
@@ -273,10 +424,39 @@
             const totalText = new Intl.NumberFormat('vi-VN').format(total) + '₫';
             $('#subtotalDisplay, #totalDisplay').text(totalText);
             
+            // Clear coupon when cart changes
+            $('#couponInput').val('');
+            $('#discountRow').hide();
+            $('#couponMsg').empty();
+
             // Prepare hidden input for form submission
             const submitItems = cart.map(i => ({ ProductId: i.id, Quantity: i.quantity }));
             $('#orderItemsJson').val(JSON.stringify(submitItems));
         }
+
+        $('#btnApplyCoupon').click(function() {
+            var code = $('#couponInput').val();
+            if (!code || cart.length === 0) return;
+
+            $.post('@Url.Action("ValidateCoupon", "Order")', { 
+                code: code, 
+                orderItemsJson: $('#orderItemsJson').val() 
+            }, function(res) {
+                var msg = $('#couponMsg');
+                if (res.success) {
+                    msg.html('<span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>' + res.message + '</span>');
+                    $('#discountRow').css('display', 'flex');
+                    $('#discountAmount').text('-' + new Intl.NumberFormat('vi-VN').format(res.discountAmount) + '₫');
+                    $('#totalDisplay').text(new Intl.NumberFormat('vi-VN').format(res.newTotal) + '₫');
+                } else {
+                    msg.html('<span class="text-danger fw-bold"><i class="bi bi-x-circle-fill me-1"></i>' + res.message + '</span>');
+                    $('#discountRow').hide();
+                    let sub = 0;
+                    cart.forEach(i => sub += (i.price * i.quantity));
+                    $('#totalDisplay').text(new Intl.NumberFormat('vi-VN').format(sub) + '₫');
+                }
+            });
+        });
 
         $('#orderForm').on('submit', function() {
             if (cart.length === 0) {
@@ -285,4 +465,34 @@
             }
         });
     </script>
+    <style>
+        .extra-small { padding: 2px 5px; font-size: 0.6rem; }
+        .search-item { transition: all 0.2s ease; }
+        .search-item:hover { background-color: #f8f9fa; transform: translateX(5px); }
+        .transition-all { transition: all 0.3s ease; }
+        
+        #resultList::-webkit-scrollbar { width: 5px; }
+        #resultList::-webkit-scrollbar-track { background: #f8f9fa; }
+        #resultList::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        #resultList::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+        #searchResult {
+            animation: slideDown 0.3s ease-out;
+            box-shadow: 0 1.5rem 4rem rgba(0,0,0,0.15) !important;
+        }
+        @@keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .table-responsive::-webkit-scrollbar { width: 4px; }
+        .table-responsive::-webkit-scrollbar-track { background: #f8f9fa; }
+        .table-responsive::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .table-responsive::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+        
+        #orderItemsTable thead th {
+            background-color: #fff;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+    </style>
 }

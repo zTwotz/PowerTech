@@ -26,5 +26,6 @@ namespace PowerTech.Models.Entities
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
         public virtual ICollection<SupportTicket> SupportTickets { get; set; } = new List<SupportTicket>();
         public virtual ICollection<SupportTicket> AssignedTickets { get; set; } = new List<SupportTicket>();
+        public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     }
 }

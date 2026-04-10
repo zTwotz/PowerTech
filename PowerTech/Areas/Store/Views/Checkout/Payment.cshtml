@@ -3,6 +3,7 @@
     var cart = (PowerTech.Models.Entities.Cart)ViewBag.Cart;
     var address = (PowerTech.Models.Entities.UserAddress)ViewBag.Address;
     var totalAmount = cart.CartItems.Sum(ci => ci.Quantity * ci.UnitPrice);
+    string randomVoucherName = "v_" + Guid.NewGuid().ToString("N").Substring(0, 8);
 }
 
 <div class="container my-5">
@@ -20,7 +21,7 @@
             <div class="card border-0 shadow-sm rounded-4 p-4">
                 <h2 class="h5 fw-bold mb-4">Chọn phương thức thanh toán</h2>
                 
-                <form asp-action="PlaceOrder" method="post">
+                <form asp-action="PlaceOrder" method="post" id="checkoutForm">
                     <div class="payment-methods mb-4">
                         <div class="payment-item mb-3 p-3 border rounded-3 border-soft active-payment" onclick="selectPayment('COD')">
                             <div class="form-check d-flex align-items-center">
@@ -34,18 +35,75 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="payment-item mb-3 p-3 border rounded-3 border-soft" onclick="selectPayment('Bank')">
+                        <div class="payment-item mb-3 p-3 border rounded-3 border-soft" onclick="selectPayment('BankTransfer')">
                             <div class="form-check d-flex align-items-center">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="pay-bank" value="Bank Transfer">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="pay-bank" value="BankTransfer">
                                 <label class="form-check-label w-100 ms-3 d-flex align-items-center" for="pay-bank">
                                     <div style="font-size: 24px; width: 40px;" class="text-primary"><i class="fa-solid fa-building-columns"></i></div>
                                     <div>
-                                        <div class="fw-bold">Chuyển khoản ngân hàng</div>
-                                        <div class="small text-muted">Thông tin chuyển khoản sẽ hiện sau khi đặt hàng.</div>
+                                        <div class="fw-bold">Chuyển khoản ngân hàng (QR)</div>
+                                        <div class="small text-muted">Quét mã QR để thanh toán ngay lập tức.</div>
                                     </div>
                                 </label>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Hidden Bank Info -->
+                    <div id="bank-info" class="card bg-light border-0 rounded-4 mb-4" style="display: none;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3"><i class="fa-solid fa-qrcode me-2"></i>Thanh toán chuyển khoản</h5>
+                            <div class="row align-items-center">
+                                <div class="col-md-5 text-center mb-3 mb-md-0">
+                                    <img src="https://img.vietqr.io/image/MB-123456789-qr_only.png?amount=@totalAmount&addInfo=Thanh toan PowerTech" 
+                                         alt="QR Thanh toán" id="qr-image" class="img-fluid rounded-3 shadow-sm border border-white border-4" style="max-width: 200px;">
+                                    <div class="mt-2 text-muted small">Quét mã bằng app ngân hàng</div>
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="mb-2">
+                                        <div class="small text-muted uppercase">Ngân hàng</div>
+                                        <div class="fw-bold">MB Bank (Ngân hàng Quân Đội)</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="small text-muted uppercase">Số tài khoản</div>
+                                        <div class="fw-bold text-primary fs-5">123456789 <i class="fa-solid fa-copy ms-1 small opacity-50"></i></div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="small text-muted uppercase">Chủ tài khoản</div>
+                                        <div class="fw-bold">CONG TY CONG NGHE POWERTECH</div>
+                                    </div>
+                                    <div class="mb-0">
+                                        <div class="small text-muted uppercase">Số tiền</div>
+                                        <div class="fw-bold text-danger fs-5" id="bank-amount">@totalAmount.ToString("N0")₫</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="payment-gate-link" class="bg-white p-3 rounded-3 mt-3 border-start border-primary border-4 shadow-sm" style="display: none;">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="fw-bold text-primary">Cổng thanh toán giả lập</div>
+                                        <div class="small text-muted">Vui lòng hoàn tất thanh toán để mở khóa nút xác nhận.</div>
+                                    </div>
+                                    <button type="button" onclick="simulatePayment()" class="btn btn-sm btn-primary rounded-pill px-3">
+                                        Thanh toán ngay <i class="fa-solid fa-external-link ms-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-3 rounded-3 mt-3 border-start border-warning border-4">
+                                <div class="small" id="payment-instruction">Sau khi thanh toán thành công, nút bên dưới sẽ được kích hoạt.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Voucher Section -->
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background-color: #fff9f9;">
+                        <label for="couponInput" class="form-label fw-bold"><i class="fa-solid fa-ticket me-2 text-danger"></i>Mã giảm giá (Coupon)</label>
+                        <div class="input-group">
+                            <input type="search" class="form-control rounded-start-pill ps-3" id="@randomVoucherName" name="@randomVoucherName" data-voucher-field="true" style="text-transform: uppercase;" autocomplete="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');">
+                            <button class="btn btn-dark rounded-end-pill px-4" type="button" id="btnApplyCoupon">Áp dụng</button>
+                        </div>
+                        <div id="couponMessage" class="small mt-2"></div>
                     </div>
 
                     <div class="mb-4">
@@ -57,7 +115,7 @@
                         <a asp-action="Index" class="text-muted text-decoration-none">
                             <i class="fa-solid fa-arrow-left me-1"></i> Quay lại địa chỉ
                         </a>
-                        <button type="submit" class="btn btn-primary px-5 py-3 rounded-pill fw-bold btn-order">
+                        <button type="submit" id="btn-submit" class="btn btn-primary px-5 py-3 rounded-pill fw-bold btn-order">
                             ĐẶT HÀNG NGAY <i class="fa-solid fa-cart-arrow-down ms-2"></i>
                         </button>
                     </div>
@@ -80,35 +138,128 @@
             </div>
 
             <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px;">
-                <h3 class="h5 fw-bold mb-4 border-bottom pb-3">Tổng tiền</h3>
+                <h3 class="h5 fw-bold mb-4 border-bottom pb-3">Tổng cộng</h3>
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Tổng giá trị:</span>
+                    <span class="text-muted">Giá tạm tính:</span>
                     <span class="fw-bold">@totalAmount.ToString("N0")₫</span>
                 </div>
+                <div class="justify-content-between mb-2" id="discountRow" style="display: none;">
+                    <span class="text-muted">Giảm giá:</span>
+                    <span class="text-danger fw-bold" id="discountAmount">-0₫</span>
+                </div>
                 <div class="d-flex justify-content-between mb-3 border-bottom pb-3">
-                    <span class="text-muted">Phí ship:</span>
+                    <span class="text-muted">Phí vận chuyển:</span>
                     <span class="text-success small fw-bold">Miễn phí</span>
                 </div>
                 <div class="d-flex justify-content-between mt-3 text-primary">
                     <span class="fw-bold fs-5">TỔNG CỘNG:</span>
-                    <span class="fw-bold fs-4">@totalAmount.ToString("N0")₫</span>
+                    <span class="fw-bold fs-4" id="finalTotal">@totalAmount.ToString("N0")₫</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-
-
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
+    let isBankPaid = false;
+    let currentTotal = @totalAmount;
+
+    $(document).ready(function() {
+        $('#btnApplyCoupon').click(function() {
+            var code = $('[data-voucher-field="true"]').val();
+            if (!code) return;
+
+            $.post('/Store/Checkout/ValidateCoupon', { code: code }, function(res) {
+                var msg = $('#couponMessage');
+                if (res.success) {
+                    msg.html('<span class="text-success fw-bold"><i class="fa-solid fa-circle-check"></i> ' + res.message + '</span>');
+                    $('#discountRow').css('display', 'flex');
+                    $('#discountAmount').text('-' + res.discountAmount.toLocaleString() + '₫');
+                    $('#finalTotal').text(res.newTotal.toLocaleString() + '₫');
+                    $('#bank-amount').text(res.newTotal.toLocaleString() + '₫');
+                    currentTotal = res.newTotal;
+                    
+                    // Update QR image URL with new amount
+                    let qrUrl = 'https://img.vietqr.io/image/MB-123456789-qr_only.png?amount=' + res.newTotal + '&addInfo=Thanh toan PowerTech';
+                    $('#qr-image').attr('src', qrUrl);
+                } else {
+                    msg.html('<span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark"></i> ' + res.message + '</span>');
+                    $('#discountRow').hide();
+                    $('#finalTotal').text('@totalAmount.ToString("N0")₫');
+                    $('#bank-amount').text('@totalAmount.ToString("N0")₫');
+                    currentTotal = @totalAmount;
+                    let qrUrl = 'https://img.vietqr.io/image/MB-123456789-qr_only.png?amount=@totalAmount&addInfo=Thanh toan PowerTech';
+                    $('#qr-image').attr('src', qrUrl);
+                }
+            });
+        });
+    });
+
     function selectPayment(type) {
         document.querySelectorAll('.payment-item').forEach(el => el.classList.remove('active-payment'));
+        const bankInfo = document.getElementById('bank-info');
+        const paymentGateLink = document.getElementById('payment-gate-link');
+        const btnSubmit = document.getElementById('btn-submit');
+
         if (type === 'COD') {
             document.getElementById('pay-cod').checked = true;
             document.getElementById('pay-cod').closest('.payment-item').classList.add('active-payment');
+            bankInfo.style.display = 'none';
+            paymentGateLink.style.display = 'none';
+            btnSubmit.innerHTML = 'ĐẶT HÀNG NGAY <i class="fa-solid fa-cart-arrow-down ms-2"></i>';
+            btnSubmit.disabled = false;
+            btnSubmit.style.opacity = "1";
         } else {
             document.getElementById('pay-bank').checked = true;
             document.getElementById('pay-bank').closest('.payment-item').classList.add('active-payment');
+            bankInfo.style.display = 'block';
+            paymentGateLink.style.display = 'block';
+            btnSubmit.innerHTML = 'XÁC NHẬN ĐÃ CHUYỂN & ĐẶT HÀNG <i class="bi bi-shield-check ms-2"></i>';
+            
+            if (!isBankPaid) {
+                btnSubmit.disabled = true;
+                btnSubmit.style.opacity = "0.5";
+                btnSubmit.style.cursor = "not-allowed";
+            }
         }
     }
+
+    function simulatePayment() {
+        const width = 500;
+        const height = 700;
+        const left = (screen.width - width) / 2;
+        const top = (screen.height - height) / 2;
+        
+        window.open('/Store/Checkout/PaymentSimulation?amount=' + currentTotal, 'PaymentGateway', 
+                    `width=${width},height=${height},left=${left},top=${top}`);
+    }
+
+    window.addEventListener('message', function(event) {
+        if (event.data === 'PAYMENT_SUCCESS') {
+            isBankPaid = true;
+            
+            // Tự động submmit form khi thanh toán thành công
+            const btnSubmit = document.getElementById('btn-submit');
+            btnSubmit.disabled = false;
+            btnSubmit.style.opacity = "1";
+            btnSubmit.innerHTML = 'Hệ thống đang xử lý... <i class="fa-solid fa-spinner fa-spin ms-2"></i>';
+            
+            // Gửi form đặt hàng luôn
+            document.getElementById('checkoutForm').submit();
+        }
+    });
 </script>
+
+<style>
+    .border-soft { border-color: #f1f5f9 !important; }
+    .active-payment { border-color: var(--bs-primary) !important; background-color: #f8fafc; }
+    .step { font-weight: 600; color: #94a3b8; }
+    .step.active { color: var(--bs-primary); }
+    .step.completed { color: #166534; }
+    .step-num { width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid currentColor; border-radius: 50%; margin-right: 8px; font-size: 12px; }
+    .step-divider { width: 40px; height: 1px; background: #e2e8f0; margin: 0 15px; align-self: center; }
+    .step-divider.active { background: var(--bs-primary); }
+    .btn-order { transition: all 0.3s ease; }
+    .btn-order:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+</style>

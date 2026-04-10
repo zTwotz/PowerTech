@@ -5,7 +5,7 @@ using PowerTech.Constants;
 namespace PowerTech.Areas.Customer.Controllers
 {
     [Area("Customer")]
-    [Authorize(Roles = UserRoles.Admin + "," + UserRoles.Customer)]
+    [Authorize]
     public class HomeController : Controller
     {
         public IActionResult Index()

@@ -4,78 +4,102 @@
     ViewData["Title"] = "Quản lý Ticket hỗ trợ";
 }
 
-<div class="row g-4 mb-4">
-    <div class="col-md-6 text-start">
-        <h4 class="fw-bold mb-1 text-dark">Tickets Hỗ trợ</h4>
-        <p class="text-muted small">Quản lý và giải quyết các yêu cầu hỗ trợ kỹ thuật, bảo hành từ khách hàng</p>
+<!-- Page Header -->
+<div class="row align-items-center mb-4 pb-2">
+    <div class="col-md-7">
+        <h3 class="fw-800 text-dark mb-1">Tickets Hỗ trợ</h3>
+        <p class="text-muted mb-0">Quản lý và giải quyết các yêu cầu hỗ trợ kỹ thuật, bảo hành từ khách hàng</p>
     </div>
-    <div class="col-md-6 text-md-end pt-2">
-        <div class="btn-group rounded-pill overflow-hidden border shadow-sm me-2 bg-white">
-            <a asp-action="Index" asp-route-status="" class="btn btn-sm btn-@(string.IsNullOrEmpty(ViewBag.CurrentStatus) ? "info text-white" : "outline-secondary border-0") px-3">Tất cả</a>
-            <a asp-action="Index" asp-route-status="Open" class="btn btn-sm btn-@(ViewBag.CurrentStatus == "Open" ? "info text-white" : "outline-secondary border-0") px-3">Mới</a>
-            <a asp-action="Index" asp-route-status="In Progress" class="btn btn-sm btn-@(ViewBag.CurrentStatus == "In Progress" ? "info text-white" : "outline-secondary border-0") px-3">Đang xử lý</a>
-        </div>
-        <div class="btn-group rounded-pill overflow-hidden border shadow-sm bg-white">
-            <a asp-action="Index" asp-route-priority="High" class="btn btn-sm btn-outline-danger border-0 px-3">Ưu tiên cao 🔥</a>
+    <div class="col-md-5 mt-3 mt-md-0 d-flex justify-content-md-end align-items-center gap-2">
+        <div class="position-relative d-none d-lg-block">
+            <input type="text" class="form-control border-0 shadow-sm ps-4 pe-5 rounded-pill bg-white py-2" style="width: 250px; font-size: 13px;" placeholder="Tìm mã ticket...">
+            <i class="bi bi-search position-absolute top-50 translate-middle-y end-0 me-3 text-muted" style="font-size: 13px;"></i>
         </div>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm rounded-4">
+<!-- Filters -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-action="Index" asp-route-status="" class="btn btn-pill-filter @(string.IsNullOrEmpty(ViewBag.CurrentStatus) ? "active" : "")">
+            <i class="bi bi-grid-fill me-1"></i> Tất cả
+        </a>
+        <a asp-action="Index" asp-route-status="Open" class="btn btn-pill-filter @(ViewBag.CurrentStatus == "Open" ? "active" : "")">
+            <i class="bi bi-patch-exclamation me-1"></i> Mới (@Model.Count(t => t.Status == "Open"))
+        </a>
+        <a asp-action="Index" asp-route-status="In Progress" class="btn btn-pill-filter @(ViewBag.CurrentStatus == "In Progress" ? "active" : "")">
+            <i class="bi bi-chat-dots me-1"></i> Đang xử lý
+        </a>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" asp-route-priority="High" class="btn btn-outline-danger btn-sm rounded-pill px-4 fw-bold shadow-sm">
+            <i class="bi bi-fire me-1"></i> Ưu tiên cao
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
+            <table class="table align-middle mb-0 table-modern">
+                <thead>
                     <tr>
                         <th class="ps-4">Mã số</th>
                         <th>Thông tin khách hàng</th>
                         <th>Tiêu đề</th>
-                        <th class="text-center">Mức độ</th>
+                        <th class="text-center">Loại yêu cầu</th>
                         <th class="text-center">Trạng thái</th>
                         <th>Người xử lý</th>
-                        <th class="pe-4 text-end">Chi tiết</th>
+                        <th class="pe-4 text-end">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var ticket in Model)
                     {
-                        <tr>
-                            <td class="ps-4 fw-bold text-primary">@ticket.TicketCode</td>
+                        var isOverdue = ticket.Status != "Closed" && ticket.Status != "Resolved" && (DateTime.UtcNow - ticket.UpdatedAt).GetValueOrDefault(TimeSpan.Zero).TotalHours > 24;
+                        
+                        <tr class="@(isOverdue ? "table-danger-light" : "")">
+                            <td class="ps-4 fw-bold">
+                                <span class="@(isOverdue ? "text-danger" : "text-primary")">#@ticket.TicketCode</span>
+                                @if(isOverdue)
+                                {
+                                    <div class="badge bg-danger rounded-pill x-small mt-1 d-block" style="width: fit-content;">QUÁ HẠN</div>
+                                }
+                            </td>
                             <td>
                                 <div class="fw-bold small">@ticket.User?.FullName</div>
                                 <div class="text-muted x-small">@ticket.User?.Email</div>
                             </td>
-                            <td class="text-truncate fw-medium" style="max-width: 200px;" title="@ticket.Title">@ticket.Title</td>
-                            <td class="text-center">
-                                <span class="badge @(ticket.Priority switch {
-                                    "High" => "bg-danger",
-                                    "Medium" => "bg-warning text-dark",
-                                    _ => "bg-info text-white"
-                                }) border shadow-sm rounded-pill px-3">@ticket.Priority</span>
+                            <td>
+                                <div class="text-truncate fw-medium" style="max-width: 200px;" title="@ticket.Title">@ticket.Title</div>
+                                <div class="x-small text-muted">@ticket.CreatedAt.ToLocalTime().ToString("dd/MM HH:mm")</div>
                             </td>
                             <td class="text-center">
-                                <span class="badge @(ticket.Status switch {
-                                    "Open" => "bg-dark",
-                                    "In Progress" => "bg-primary text-white",
-                                    "Closed" => "bg-success",
-                                    _ => "bg-secondary"
-                                }) rounded-pill px-3">@ticket.Status</span>
+                                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill x-small">@ticket.Priority</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-status @(ticket.Status switch {
+                                    "Open" => "status-pending",
+                                    "In Progress" => "status-shipping",
+                                    "Closed" or "Resolved" => "status-completed",
+                                    _ => "status-neutral"
+                                })">@ticket.Status</span>
                             </td>
                             <td>
                                 @if (ticket.AssignedTo != null)
                                 {
                                     <div class="d-flex align-items-center">
-                                        <img src="https://ui-avatars.com/api/?name=@ticket.AssignedTo.FullName&background=eee" class="rounded-circle me-1 border" style="width: 20px;" />
+                                        <img src="https://ui-avatars.com/api/?name=@ticket.AssignedTo.FullName&background=0D6EFD&color=fff" class="rounded-circle me-2 border" style="width: 24px; height: 24px;" />
                                         <span class="x-small fw-bold">@ticket.AssignedTo.FullName</span>
                                     </div>
                                 }
                                 else
                                 {
-                                    <span class="x-small text-muted italic">Chưa phân công</span>
+                                    <span class="x-small text-muted fst-italic">Chưa phân công</span>
                                 }
                             </td>
                             <td class="pe-4 text-end">
-                                <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-outline-info btn-sm rounded-pill px-3 shadow-sm">
+                                <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-action-view">
                                     Xử lý
                                 </a>
                             </td>
@@ -84,7 +108,7 @@
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">Không tìm thấy Ticket nào cần xử lý</td>
+                            <td colspan="7" class="text-center py-5 text-muted fst-italic">Không tìm thấy Ticket nào cần xử lý</td>
                         </tr>
                     }
                 </tbody>
@@ -93,7 +117,75 @@
     </div>
 </div>
 
-<style>
-    .x-small { font-size: 11px; }
-    .italic { font-style: italic; }
-</style>
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .fw-800 { font-weight: 800; }
+        .x-small { font-size: 0.7rem; }
+        
+        /* Filter Pills */
+        .btn-pill-filter {
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #64748b;
+            border-radius: 20px;
+            padding: 6px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-pill-filter:hover, .btn-pill-filter.active {
+            background: #0D6EFD;
+            color: #fff;
+            border-color: #0D6EFD;
+            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+        }
+
+        /* Table Style */
+        .table-modern thead th {
+            border: none;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 18px 12px;
+        }
+        .table-modern tbody td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .table-danger-light {
+            background-color: rgba(220, 53, 69, 0.03) !important;
+        }
+
+        /* Badges */
+        .badge-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-shipping { background-color: #e0f2fe; color: #075985; }
+        .status-completed { background-color: #dcfce7; color: #166534; }
+        .status-neutral { background-color: #f1f5f9; color: #475569; }
+
+        .btn-action-view {
+            background-color: #fff;
+            color: #0D6EFD;
+            border: 1.5px solid #0D6EFD;
+            border-radius: 20px;
+            padding: 4px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-action-view:hover {
+            background-color: #0D6EFD;
+            color: #fff;
+        }
+    </style>
+}

@@ -8,7 +8,7 @@ using PowerTech.Models.Entities;
 namespace PowerTech.Areas.Customer.Controllers
 {
     [Area("Customer")]
-    [Authorize(Roles = "Customer,Admin")]
+    [Authorize]
     public class OrderController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -44,6 +44,14 @@ namespace PowerTech.Areas.Customer.Controllers
                 .FirstOrDefaultAsync(o => o.Id == id && o.UserId == user.Id);
 
             if (order == null) return NotFound();
+            
+            // Get reviewed products to hide review button
+            var reviewedProductIds = await _context.Reviews
+                .Where(r => r.UserId == user.Id)
+                .Select(r => r.ProductId)
+                .ToListAsync();
+            
+            ViewBag.ReviewedProductIds = reviewedProductIds;
 
             return View(order);
         }

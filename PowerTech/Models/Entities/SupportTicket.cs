@@ -40,6 +40,13 @@ namespace PowerTech.Models.Entities
 
         public DateTime? ClosedAt { get; set; }
 
+        public string? AttachmentUrl { get; set; }
+
+        public int? Rating { get; set; }
+
+        [StringLength(500)]
+        public string? Feedback { get; set; }
+
         // Navigation Properties
         [ForeignKey(nameof(UserId))]
         public virtual ApplicationUser User { get; set; } = null!;
@@ -49,5 +56,7 @@ namespace PowerTech.Models.Entities
 
         [ForeignKey(nameof(AssignedToUserId))]
         public virtual ApplicationUser? AssignedTo { get; set; }
+
+        public virtual ICollection<TicketResponse> Responses { get; set; } = new List<TicketResponse>();
     }
 }

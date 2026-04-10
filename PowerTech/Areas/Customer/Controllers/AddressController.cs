@@ -8,7 +8,7 @@ using PowerTech.Models.Entities;
 namespace PowerTech.Areas.Customer.Controllers
 {
     [Area("Customer")]
-    [Authorize(Roles = "Customer,Admin")]
+    [Authorize]
     public class AddressController : Controller
     {
         private readonly ApplicationDbContext _context;

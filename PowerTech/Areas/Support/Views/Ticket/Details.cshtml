@@ -4,82 +4,203 @@
     ViewData["Title"] = "Chi tiết Ticket Hỗ trợ";
 }
 
+<!-- Page Header / Breadcrumbs -->
+<div class="row align-items-center mb-4 pb-2">
+    <div class="col-md-7">
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <a asp-action="Index" class="text-decoration-none text-muted small fw-bold text-uppercase">Tickets</a>
+            <i class="bi bi-chevron-right text-muted" style="font-size: 10px;"></i>
+            <span class="text-primary small fw-bold text-uppercase">Chi tiết #@Model.TicketCode</span>
+        </div>
+        <h3 class="fw-800 text-dark mb-1">Thông tin yêu cầu</h3>
+    </div>
+    <div class="col-md-5 mt-3 mt-md-0 d-flex justify-content-md-end align-items-center gap-3">
+        <span class="badge @(Model.Status switch {
+            "Open" => "bg-dark",
+            "In Progress" => "bg-primary text-white",
+            "Closed" => "bg-success",
+            _ => "bg-secondary"
+        }) border shadow-sm rounded-pill px-4 py-2">@Model.Status</span>
+    </div>
+</div>
+
 <div class="row g-4">
     <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold">Nội dung yêu cầu từ @Model.User?.FullName</h5>
-                <span class="badge @(Model.Priority == "High" ? "bg-danger" : "bg-info text-white") rounded-pill px-4 shadow-sm border">@Model.Priority Priority</span>
-            </div>
-            <div class="card-body p-4">
-                <div class="mb-4">
-                    <h3 class="fw-bold mb-3">@Model.Title</h3>
-                    <div class="p-3 bg-light rounded-4 text-dark shadow-sm border border-opacity-25" style="white-space: pre-wrap;">@Model.Content</div>
-                </div>
-
-                <div class="row g-4 pt-3 border-top">
-                    @if (Model.OrderId.HasValue)
-                    {
-                        <div class="col-md-6 border-end">
-                            <h6 class="fw-bold small text-muted text-uppercase mb-3">Đơn hàng liên quan</h6>
-                            <div class="p-3 bg-white border rounded-3 d-flex align-items-center mb-3">
-                                <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-3 me-3">
-                                    <i class="bi bi-box-fill fs-4"></i>
-                                </div>
-                                <div>
-                                    <h6 class="fw-bold mb-0">@Model.Order?.OrderCode</h6>
-                                    <small class="text-muted">Tổng cộng: @Model.Order?.TotalAmount.ToString("N0")₫</small>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                    <div class="col-md-6">
-                        <h6 class="fw-bold small text-muted text-uppercase mb-3">Thời gian liên hệ</h6>
-                        <ul class="list-unstyled small mb-0">
-                            <li class="mb-2"><i class="bi bi-clock me-2"></i> Gửi yêu cầu: <span class="fw-bold">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span></li>
-                            @if (Model.UpdatedAt.HasValue)
-                            {
-                                <li class="mb-2"><i class="bi bi-pencil-square me-2"></i> Cập nhập mới nhất: <span class="fw-bold">@Model.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")</span></li>
-                            }
-                            @if (Model.ClosedAt.HasValue)
-                            {
-                                <li class="mb-0 text-success fw-bold"><i class="bi bi-check-circle-fill me-2"></i> Đóng Ticket lúc: @Model.ClosedAt.Value.ToString("dd/MM/yyyy HH:mm")</li>
-                            }
-                        </ul>
+        <!-- Main Request Content -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+            <div class="card-header bg-white p-4 border-0 pb-0 d-flex justify-content-between align-items-start">
+                <div>
+                    <h4 class="fw-800 text-dark mb-1">@Model.Title</h4>
+                    <div class="d-flex align-items-center gap-3 text-muted x-small fw-medium mt-2">
+                        <span><i class="bi bi-person-circle me-1"></i> @Model.User?.FullName</span>
+                        <span><i class="bi bi-calendar3 me-1"></i> @Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                        <span class="badge bg-light text-dark border px-3 rounded-pill">Loại: @Model.Priority</span>
                     </div>
                 </div>
             </div>
+            <div class="card-body p-4 pt-4">
+                <div class="content-box p-4 bg-light rounded-4 text-dark border-0 mb-4" style="white-space: pre-wrap; line-height: 1.6;">@Model.Content</div>
+                
+                @if (!string.IsNullOrEmpty(Model.AttachmentUrl))
+                {
+                    <div class="mt-4 pt-4 border-top border-light">
+                        <h6 class="fw-800 small text-dark mb-3"><i class="bi bi-images me-2 text-primary"></i>Tệp đính kèm từ khách hàng</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var url in Model.AttachmentUrl.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                <a href="@url" target="_blank" class="d-inline-block rounded-4 overflow-hidden border shadow-sm transition-hover">
+                                    <img src="@url" class="img-fluid" style="max-height: 150px; object-fit: contain;" alt="Attachment" />
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
+
+        <!-- Responses Timeline -->
+        <div class="responses-timeline mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3 px-2">
+                <h5 class="fw-800 text-dark mb-0 d-flex align-items-center">
+                    <i class="bi bi-chat-left-text-fill text-primary me-2 shadow-sm rounded-3 p-1"></i>
+                    Lịch sử phản hồi
+                    <span class="badge bg-primary bg-opacity-10 text-primary ms-2 rounded-pill small">@Model.Responses.Count</span>
+                </h5>
+            </div>
+            
+            <div class="response-list ps-3 border-start border-2 border-light position-relative">
+                @foreach (var response in Model.Responses)
+                {
+                    <div class="response-item mb-4 position-relative">
+                        <div class="timeline-dot"></div>
+                        <div class="card border-0 shadow-sm rounded-4 @(response.User.Id == Model.UserId ? "bg-white border-start border-info border-4" : "ms-auto bg-light border-start border-primary border-4 shadow-none border-opacity-50")" style="max-width: 90%;">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="https://ui-avatars.com/api/?name=@response.User.FullName&background=@(response.User.Id == Model.UserId ? "0DCAF0" : "0D6EFD")&color=fff&bold=true" class="rounded-circle shadow-sm" style="width: 28px; height: 28px;">
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold small text-dark">@response.User.FullName</span>
+                                            <div class="d-flex gap-1">
+                                                @if (response.User.Id != Model.UserId) { <span class="badge bg-primary rounded-pill tiny text-uppercase">Staff</span> }
+                                                @if(response.IsInternal) { <span class="badge bg-dark rounded-pill tiny text-uppercase"><i class="bi bi-shield-lock me-1"></i>Internal</span> }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="text-muted tiny text-uppercase fw-bold">@response.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                                </div>
+                                <div class="text-dark-bubble small" style="white-space: pre-wrap;">@response.Message</div>
+                                @if (!string.IsNullOrEmpty(response.AttachmentUrl))
+                                {
+                                    <div class="mt-3">
+                                        <a href="@response.AttachmentUrl" target="_blank" class="d-inline-block rounded-3 overflow-hidden border">
+                                            <img src="@response.AttachmentUrl" class="img-fluid" style="max-height: 180px; object-fit: contain;" alt="Attachment" />
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (!Model.Responses.Any())
+                {
+                    <div class="text-center py-5 bg-white rounded-4 border border-dashed text-muted mb-4 shadow-sm">
+                        <i class="bi bi-chat-dots-fill fs-2 d-block mb-2 opacity-25"></i>
+                        <p class="mb-0 fw-medium">Chưa có phản hồi nào cho ticket này.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (Model.Status != "Closed")
+        {
+            <!-- Reply Form -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden border-top border-primary border-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-800 text-dark mb-3">Gửi phản hồi mới</h5>
+                    <form asp-action="AddResponse" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="ticketId" value="@Model.Id" />
+                        
+                        <div class="mb-3">
+                            <label class="x-small fw-bold text-muted text-uppercase mb-2">Mẫu trả lời nhanh</label>
+                            <select id="cannedResponse" class="form-select border-0 bg-light p-3 rounded-4 shadow-none small mb-3">
+                                <option value="">-- Tiết kiệm thời gian với mẫu câu chuẩn --</option>
+                                @foreach (var cr in (ViewBag.CannedResponses as IEnumerable<PowerTech.Models.Entities.CannedResponse>) ?? Enumerable.Empty<PowerTech.Models.Entities.CannedResponse>())
+                                {
+                                    <option value="@cr.Content">@cr.Title</option>
+                                }
+                            </select>
+                            
+                            <label class="x-small fw-bold text-muted text-uppercase mb-2">Nội dung chi tiết</label>
+                            <textarea id="messageBox" name="message" class="form-control border-0 bg-light p-4 rounded-4 shadow-none" rows="5" placeholder="Bạn muốn phản hồi gì đến khách hàng..." required style="resize: none;"></textarea>
+                        </div>
+                        
+                        <div class="row align-items-center g-3">
+                            <div class="col-md-6 d-flex align-items-center gap-3">
+                                <label for="attachment" class="btn btn-outline-secondary btn-sm rounded-pill px-4 py-2 fw-bold">
+                                    <i class="bi bi-paperclip me-1"></i> Ảnh đính kèm
+                                </label>
+                                <input type="file" id="attachment" name="attachment" class="d-none" accept="image/*">
+                                <span class="tiny text-muted fw-bold" id="fileName"></span>
+                            </div>
+                            <div class="col-md-6 d-flex justify-content-md-end">
+                                <div class="form-check form-switch small">
+                                    <input class="form-check-input" type="checkbox" id="isInternal" name="isInternal" value="true">
+                                    <label class="form-check-label fw-bold text-muted" for="isInternal">Ghi chú nội bộ</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 opacity-5">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted tiny">
+                                <i class="bi bi-info-circle-fill me-1 text-primary"></i> Trạng thái sẽ đổi sang <strong class="text-primary">In Progress</strong> sau khi gửi.
+                            </div>
+                            <button type="submit" class="btn btn-primary px-5 py-3 rounded-pill fw-800 shadow-primary">
+                                <i class="bi bi-send-fill me-2"></i> GỬI PHẢN HỒI NGAY
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
         
-        <!-- Action area -->
-        <div class="card border-0 shadow-sm rounded-4 bg-white border-top border-info border-4">
+        <!-- Action bar -->
+        <div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
             <div class="card-body p-4 text-center">
-                <h5 class="fw-bold mb-4">Cập nhật tiến trình giải quyết</h5>
-                <div class="d-flex justify-content-center gap-3">
+                <div class="d-flex flex-wrap justify-content-center gap-3">
                     @if (Model.Status == "Open")
                     {
                         <form asp-action="AssignToMe" method="post">
                             <input type="hidden" name="ticketId" value="@Model.Id" />
-                            <button type="submit" class="btn btn-info text-white btn-lg px-5 rounded-pill shadow-sm fw-bold">
-                                <i class="bi bi-person-check me-1"></i> Tự nhận xử lý
+                            <button type="submit" class="btn btn-info text-white btn-lg px-5 rounded-pill shadow-sm fw-800 h-50px d-flex align-items-center gap-2">
+                                <i class="bi bi-person-check-fill fs-4"></i> NHẬN XỬ LÝ TICKET NÀY
                             </button>
                         </form>
                     }
                     else if (Model.Status != "Closed")
                     {
-                        <form asp-action="UpdateStatus" method="post">
+                        <form asp-action="UpdateStatus" method="post" id="closeTicketForm">
                             <input type="hidden" name="ticketId" value="@Model.Id" />
                             <input type="hidden" name="status" value="Closed" />
-                            <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm fw-bold">
-                                <i class="bi bi-check-circle me-1"></i> Đánh dấu Hoàn tất (Close)
+                            <button type="button" onclick="confirmClose()" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm fw-800 h-50px d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill fs-4"></i> ĐÁNH DẤU HOÀN TẤT
                             </button>
                         </form>
+                        <script>
+                            function confirmClose() {
+                                if(confirm('Bạn có chắc chắn muốn đóng ticket này? Khách hàng sẽ không thể phản hồi thêm.')) {
+                                    document.getElementById('closeTicketForm').submit();
+                                }
+                            }
+                        </script>
                     }
                     else
                     {
-                        <span class="text-success fw-bold p-3 border rounded-3 bg-success bg-opacity-10 d-block w-100">
-                            Ticket này đã hoàn thành xử lý.
-                        </span>
+                        <div class="alert alert-success border-0 rounded-4 w-100 mb-0 d-flex align-items-center justify-content-center py-3">
+                            <i class="bi bi-check-all fs-3 me-2"></i>
+                            <span class="fw-bold">Yêu cầu này đã được đóng và giải quyết thành công.</span>
+                        </div>
                     }
                 </div>
             </div>
@@ -87,45 +208,213 @@
     </div>
     
     <div class="col-lg-4">
-        <!-- Customer Info Card -->
+        <!-- Customer Info Summary -->
         <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-            <div class="card-header bg-info text-white text-center p-4">
-                <img src="https://ui-avatars.com/api/?name=@Model.User?.FullName&background=fff&color=0dcaf0&bold=true" class="rounded-circle shadow mb-3 border border-3 border-white" style="width: 80px;" />
-                <h5 class="fw-bold mb-1 text-white">@Model.User?.FullName</h5>
-                <small class="text-white-50 small">Thành viên từ @Model.User?.CreatedAt.ToString("yyyy")</small>
+            <div class="card-header bg-primary bg-gradient text-white text-center p-5 pb-4 border-0">
+                <div class="position-relative d-inline-block mb-3">
+                    <img src="https://ui-avatars.com/api/?name=@Model.User?.FullName&background=fff&color=0D6EFD&bold=true&size=128" class="rounded-circle shadow-lg border border-4 border-white" style="width: 100px; height: 100px;" />
+                    <span class="position-absolute bottom-0 end-0 bg-success border border-white border-2 rounded-circle" style="width: 20px; height: 20px;" title="Online"></span>
+                </div>
+                <h5 class="fw-800 mb-1 text-white">@Model.User?.FullName</h5>
+                <p class="text-white-50 small mb-0 fw-medium">Khách hàng Platinum</p>
             </div>
             <div class="card-body p-4 bg-white">
-                <div class="mb-3">
-                    <label class="x-small fw-bold text-muted text-uppercase d-block mb-1">Email liên hệ</label>
-                    <div class="text-dark small fw-medium">@Model.User?.Email</div>
+                <div class="user-meta-item mb-4">
+                    <label class="tiny fw-800 text-muted text-uppercase ls-1 mb-2">Thông tin liên lạc</label>
+                    <div class="bg-light rounded-4 p-3">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-envelope-fill text-primary"></i>
+                            <span class="small fw-semibold text-dark text-truncate">@Model.User?.Email</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-telephone-fill text-primary"></i>
+                            <span class="small fw-semibold text-dark">@Model.User?.PhoneNumber</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label class="x-small fw-bold text-muted text-uppercase d-block mb-1">Số điện thoại</label>
-                    <div class="text-dark small fw-medium">@Model.User?.PhoneNumber</div>
-                </div>
-                <hr />
-                <div class="text-center">
-                    <a asp-area="Admin" asp-controller="User" asp-action="Details" asp-route-id="@Model.UserId" class="btn btn-link btn-sm text-info fw-bold p-0">Xem hồ sơ User</a>
+                
+                <div class="d-grid gap-2">
+                    <a asp-area="Admin" asp-controller="User" asp-action="Details" asp-route-id="@Model.UserId" class="btn btn-outline-primary btn-sm rounded-pill py-2 fw-bold">
+                        <i class="bi bi-person-badge me-1"></i> Xem chi tiết hồ sơ
+                    </a>
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill py-2 fw-bold" onclick="alert('Chức năng Chat trực tiếp sẽ sớm được cập nhật!')">
+                        <i class="bi bi-chat-fill me-1"></i> Nhắn tin trực tiếp
+                    </button>
                 </div>
             </div>
         </div>
 
-        @if (Model.AssignedTo != null)
-        {
-            <div class="card border-0 shadow-sm rounded-4 bg-dark text-white p-4 text-center">
-                <h6 class="text-white-50 x-small text-uppercase mb-3">Người đang xử lý</h6>
-                <div class="d-flex align-items-center justify-content-center">
-                    <img src="https://ui-avatars.com/api/?name=@Model.AssignedTo.FullName&background=0dcaf0&color=fff&bold=true" class="rounded-circle me-3" style="width: 40px;" />
-                    <div class="text-start">
-                        <div class="fw-bold text-white small">@Model.AssignedTo.FullName</div>
-                        <div class="x-small text-white-50">Nhân viên Support</div>
+        <!-- Assignment & Monitoring -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+            <div class="card-header bg-dark text-white p-4 border-0">
+                <h6 class="fw-800 text-white mb-0 small text-uppercase ls-1">Phụ trách xử lý</h6>
+            </div>
+            <div class="card-body p-4">
+                @if (Model.AssignedTo != null)
+                {
+                    <div class="d-flex align-items-center bg-light p-3 rounded-4 mb-4 border-start border-primary border-4">
+                        <img src="https://ui-avatars.com/api/?name=@Model.AssignedTo.FullName&background=0D6EFD&color=fff&bold=true" class="rounded-circle me-3" style="width: 44px; height: 44px;" />
+                        <div class="text-start">
+                            <div class="fw-bold text-dark mb-0">@Model.AssignedTo.FullName</div>
+                            <div class="tiny text-muted fw-bold">STAFF @(Model.UpdatedAt.HasValue ? Model.UpdatedAt.Value.ToLocalTime().ToString("dd/MM HH:mm") : "")</div>
+                        </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning border-0 rounded-4 p-3 text-center mb-4">
+                        <i class="bi bi-exclamation-triangle-fill fs-2 d-block mb-1"></i>
+                        <span class="fw-800 small text-dark d-block">CHƯA PHÂN CÔNG</span>
+                        <p class="x-small mb-0">Ticket này chưa có người chịu trách nhiệm chính.</p>
+                    </div>
+                }
+                
+                @if (Model.Status != "Closed" && Model.Status != "Resolved")
+                {
+                    <label class="tiny fw-800 text-muted text-uppercase mb-2 px-1">Giao việc cho nhân sự khác</label>
+                    <form asp-action="AssignTicket" method="post" class="mb-2">
+                        <input type="hidden" name="ticketId" value="@Model.Id" />
+                        <div class="input-group input-group-sm mb-2">
+                            <select name="assignToUserId" class="form-select border-0 bg-light rounded-pill px-3 shadow-none">
+                                <option value="">-- Chọn nhân viên --</option>
+                                @foreach (var staff in (ViewBag.StaffList as IEnumerable<PowerTech.Models.Entities.ApplicationUser>) ?? Enumerable.Empty<PowerTech.Models.Entities.ApplicationUser>())
+                                {
+                                    <option value="@staff.Id">@staff.FullName</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill btn-sm fw-bold">CHỈ ĐỊNH NGAY</button>
+                    </form>
+                }
+            </div>
+        </div>
+
+        <!-- SLA Warning -->
+        @{
+            var isOverdue = Model.Status != "Closed" && Model.Status != "Resolved" && (DateTime.UtcNow - Model.UpdatedAt).GetValueOrDefault(TimeSpan.Zero).TotalHours > 24;
+        }
+        @if(isOverdue)
+        {
+            <div class="card border-0 shadow-sm rounded-4 bg-danger bg-opacity-10 border border-danger border-opacity-50 text-danger p-4 text-center">
+                <div class="position-absolute top-0 end-0 p-2"><i class="bi bi-exclamation-circle-fill"></i></div>
+                <h6 class="fw-800 mb-2">CẢNH BÁO SLA</h6>
+                <p class="x-small mb-0 fw-medium">Ticket này đã không có phản hồi mới từ bộ phận hỗ trợ trong hơn <b>24 giờ</b>. Vui lòng ưu tiên xử lý để tránh khách hàng phàn nàn.</p>
             </div>
         }
     </div>
 </div>
 
 <style>
-    .x-small { font-size: 11px; }
+    :root {
+        --bubble-staff: #f1f5f9;
+        --ls-1: 1px;
+    }
+    .fw-800 { font-weight: 800; }
+    .x-small { font-size: 0.8rem; }
+    .tiny { font-size: 0.65rem; }
+    .ls-1 { letter-spacing: 1px; }
+    .h-45px { height: 45px; }
+    .h-50px { height: 50px; }
+    .shadow-primary { box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3); }
+
+    .content-box {
+        font-size: 15px;
+        color: #334155;
+    }
+
+    .response-item .timeline-dot {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background-color: #0D6EFD;
+        border: 2.5px solid #fff;
+        border-radius: 50%;
+        left: -20px;
+        top: 25px;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+        z-index: 10;
+    }
+
+    .form-switch .form-check-input {
+        width: 2.5em;
+        height: 1.25em;
+    }
+
+    .transition-hover:hover {
+        transform: scale(1.01);
+        filter: brightness(0.98);
+        transition: all 0.3s ease;
+    }
 </style>
+
+<!-- Scripts -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Canned responses support
+        var cannedSelect = document.getElementById('cannedResponse');
+        var messageBox = document.getElementById('messageBox');
+        
+        if (cannedSelect && messageBox) {
+            cannedSelect.addEventListener('change', function() {
+                if (this.value) {
+                    if (messageBox.value) {
+                        messageBox.value += '\n' + this.value;
+                    } else {
+                        messageBox.value = this.value;
+                    }
+                    this.value = ''; // Reset select
+                }
+            });
+        }
+        
+        // File upload indicator
+        var attachInput = document.getElementById('attachment');
+        if (attachInput) {
+            attachInput.addEventListener('change', function(e) {
+                var fileName = e.target.files[0] ? e.target.files[0].name : '';
+                document.getElementById('fileName').textContent = fileName;
+            });
+        }
+    });
+</script>
+
+<!-- Real-time Notifications with SignalR -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/supportHub")
+            .build();
+
+        connection.on("ReceiveTicketUpdate", function (ticketId, senderName, message) {
+            if (ticketId == @Model.Id) {
+                // Show floating notification
+                const toastContainer = document.querySelector('.toast-container') || (function() {
+                    const el = document.createElement('div');
+                    el.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                    document.body.appendChild(el);
+                    return el;
+                })();
+
+                const toastHtml = `
+                    <div class="toast align-items-center text-white bg-primary border-0 show" role="alert">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <i class="bi bi-chat-dots-fill me-2"></i><b>${senderName}</b> vừa gửi phản hồi mới!
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    </div>
+                `;
+                toastContainer.innerHTML = toastHtml;
+                
+                // Auto reload after 2s
+                setTimeout(() => window.location.reload(), 2000);
+            }
+        });
+
+        connection.start().then(function () {
+            connection.invoke("JoinTicketGroup", "@Model.Id").catch(err => console.error(err));
+        }).catch(err => console.error(err));
+    });
+</script>

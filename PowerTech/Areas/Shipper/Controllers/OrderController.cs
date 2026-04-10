@@ -77,7 +77,7 @@ namespace PowerTech.Areas.Shipper.Controllers
                     Status = order.OrderStatus,
                     Action = "Shipper xác nhận giao hàng",
                     Note = "Giao hàng thành công & Thu tiền COD",
-                    PerformedBy = "Shipper: " + (User.Identity.Name ?? "System"),
+                    PerformedBy = "Shipper: " + (User.Identity?.Name ?? "System"),
                     CreatedAt = DateTime.Now
                 };
                 _context.OrderHistories.Add(history);
@@ -93,7 +93,7 @@ namespace PowerTech.Areas.Shipper.Controllers
                     $"Đơn hàng #{order.OrderCode} đã được Shipper thu tiền và thanh toán xong.", 
                     "success");
 
-                TempData["Success"] = "Xác nhận giao hàng và thanh toán thành công!";
+                TempData["Success"] = $"Đơn hàng #{order.OrderCode} đã hoàn tất và thanh toán thành công!";
             }
             catch (Exception ex)
             {
@@ -159,7 +159,7 @@ namespace PowerTech.Areas.Shipper.Controllers
                     Status = order.OrderStatus,
                     Action = "Shipper báo cáo sự cố",
                     Note = reason,
-                    PerformedBy = "Shipper: " + (User.Identity.Name ?? "System"),
+                    PerformedBy = "Shipper: " + (User.Identity?.Name ?? "System"),
                     CreatedAt = DateTime.Now
                 };
                 _context.OrderHistories.Add(history);
@@ -168,7 +168,7 @@ namespace PowerTech.Areas.Shipper.Controllers
                 
                 await _hubContext.Clients.All.SendAsync("ReceiveOrderUpdate", order.Id, order.OrderStatus, order.PaymentStatus);
                 
-                TempData["Warning"] = order.OrderStatus == "Cancelled" ? "Đơn hàng đã được chuyển sang mục Lịch sử (Hủy)." : "Đã ghi nhận sự cố.";
+                TempData["Warning"] = order.OrderStatus == "Cancelled" ? $"Đơn hàng #{order.OrderCode} đã bị hủy do: {reason}" : $"Đã ghi nhận sự cố cho đơn #{order.OrderCode}: {reason}";
             }
             catch (Exception ex)
             {
@@ -191,7 +191,8 @@ namespace PowerTech.Areas.Shipper.Controllers
         // VÍ TIỀN: Giả lập thu nhập
         public async Task<IActionResult> Wallet()
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+            var userName = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
             if (user == null) return Unauthorized();
 
             // Lấy danh sách đơn hàng đã hoàn thành và đã thanh toán của shipper này
@@ -247,7 +248,8 @@ namespace PowerTech.Areas.Shipper.Controllers
                 order.UpdatedAt = DateTime.Now;
 
                 // Cộng tiền vào ví của Shipper (người đang xử lý đơn)
-                var currentShipper = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
+                var userName = User.Identity?.Name;
+                var currentShipper = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
                 if (currentShipper != null)
                 {
                     currentShipper.WalletBalance += order.TotalAmount;

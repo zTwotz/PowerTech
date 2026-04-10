@@ -69,12 +69,11 @@
             position: absolute;
             left: 100%;
             top: 0;
-            width: 800px;
+            width: 450px;
             min-height: 100%;
             background: #fff;
             box-shadow: 10px 0 20px rgba(0,0,0,0.1);
             display: none;
-            grid-template-columns: 2fr 1fr;
             padding: 20px;
             border-radius: 0 8px 8px 0;
             z-index: 1000;
@@ -82,7 +81,7 @@
         }
 
         .category-item-wrapper:hover .mega-menu-panel {
-            display: grid;
+            display: block;
         }
 
         .mega-menu-item {
@@ -100,7 +99,7 @@
 
         .mega-brand-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
         }
 
@@ -230,45 +229,26 @@
                                 }
                             </a>
                             
-                            @if (menuCat.Children.Any() || menuCat.Brands.Any())
+                            @if (menuCat.Brands.Any())
                             {
                                 <div class="mega-menu-panel">
-                                    <div class="mega-left">
-                                        @if (menuCat.Children.Any())
+                                    <h6 class="fw-bold mb-3 text-uppercase" style="font-size: 12px; color: var(--primary);">Thương hiệu</h6>
+                                    <div class="mega-brand-grid">
+                                        @foreach (var brand in menuCat.Brands)
                                         {
-                                            <h6 class="fw-bold mb-3 text-uppercase" style="font-size: 12px; color: var(--primary);">Danh mục con</h6>
-                                            <div class="row row-cols-2 g-2">
-                                                @foreach (var sub in menuCat.Children)
+                                            <a asp-area="Store" asp-controller="Product" asp-action="Index" 
+                                               asp-route-categoryId="@menuCat.Category.Id" 
+                                               asp-route-brandIds="@brand.Id" 
+                                               class="mega-brand-item">
+                                                @if (!string.IsNullOrEmpty(brand.LogoUrl))
                                                 {
-                                                    <div class="col">
-                                                        <a asp-area="Store" asp-controller="Product" asp-action="Index" asp-route-categoryId="@sub.Id" class="mega-menu-item">
-                                                            @sub.Name
-                                                        </a>
-                                                    </div>
+                                                    <img src="@brand.LogoUrl" alt="@brand.Name" />
                                                 }
-                                            </div>
-                                        }
-                                    </div>
-                                    
-                                    <div class="mega-right border-start ps-3">
-                                        @if (menuCat.Brands.Any())
-                                        {
-                                            <h6 class="fw-bold mb-3 text-uppercase" style="font-size: 12px; color: var(--primary);">Thương hiệu</h6>
-                                            <div class="mega-brand-grid">
-                                                @foreach (var brand in menuCat.Brands)
+                                                else
                                                 {
-                                                    <a asp-area="Store" asp-controller="Product" asp-action="Index" asp-route-brandId="@brand.Id" class="mega-brand-item">
-                                                        @if (!string.IsNullOrEmpty(brand.LogoUrl))
-                                                        {
-                                                            <img src="@brand.LogoUrl" alt="@brand.Name" />
-                                                        }
-                                                        else
-                                                        {
-                                                            <span class="small fw-bold text-muted">@brand.Name</span>
-                                                        }
-                                                    </a>
+                                                    <span class="small fw-bold text-muted text-center" style="font-size: 10px;">@brand.Name</span>
                                                 }
-                                            </div>
+                                            </a>
                                         }
                                     </div>
                                 </div>
@@ -285,14 +265,13 @@
                 </div>
             </div>
             
-            <!-- Side Banners -->
             <div class="hero-right d-flex flex-column gap-2 h-100">
-                <div class="banner-side-item shadow-sm flex-grow-1 overflow-hidden rounded-2">
+                <a asp-area="Store" asp-controller="Product" asp-action="Index" asp-route-categoryId="15" asp-route-brandIds="10" class="banner-side-item shadow-sm flex-grow-1 overflow-hidden rounded-2 d-block">
                     <img src="/images/banners/side_1.png" class="w-100 h-100 object-fit-cover" onerror="this.src='https://placehold.co/300x190/333/fff?text=Hot+Deals'" />
-                </div>
-                <div class="banner-side-item shadow-sm flex-grow-1 overflow-hidden rounded-2">
+                </a>
+                <a asp-area="Store" asp-controller="Product" asp-action="Index" asp-route-categoryId="3" class="banner-side-item shadow-sm flex-grow-1 overflow-hidden rounded-2 d-block">
                     <img src="/images/banners/side_2.png" class="w-100 h-100 object-fit-cover" onerror="this.src='https://placehold.co/300x190/333/fff?text=New+Collection'" />
-                </div>
+                </a>
             </div>
         </div>
     </div>

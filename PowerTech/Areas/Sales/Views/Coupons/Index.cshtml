@@ -1,0 +1,209 @@
+@model IEnumerable<PowerTech.Models.Entities.Coupon>
+@{
+    ViewData["Title"] = "Quản lý mã giảm giá";
+    Layout = "_SalesLayout";
+}
+
+<div class="row align-items-center mb-4 pb-2">
+    <div class="col-md-7">
+        <h3 class="fw-800 text-dark mb-1">Quản lý mã giảm giá</h3>
+        <p class="text-muted mb-0">Thiết lập các mã ưu đãi, khuyến mãi cho khách hàng</p>
+    </div>
+    <div class="col-md-5 mt-3 mt-md-0 d-flex justify-content-md-end">
+        <a asp-action="Create" class="btn btn-primary fw-800 rounded-pill px-4 shadow-sm border-0 h-45px d-inline-flex align-items-center">
+            <i class="bi bi-plus-lg me-2"></i> THÊM MÃ MỚI
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0 table-modern">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Mã Code</th>
+                        <th>Loại</th>
+                        <th>Giá trị</th>
+                        <th>Điều kiện (≥)</th>
+                        <th>Thời hạn</th>
+                        <th class="text-center">Số lượng</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="pe-4 text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold text-primary fs-6">@item.Code</div>
+                                <div class="text-muted x-small">ID: #@item.Id</div>
+                            </td>
+                            <td>
+                                @if (item.Type == PowerTech.Models.Entities.CouponType.Percentage)
+                                {
+                                    <span class="badge bg-soft-info text-info rounded-pill px-3">Phần trăm (%)</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-soft-warning text-warning rounded-pill px-3">Số tiền cố định</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="fw-800 text-dark">
+                                    @if (item.Type == PowerTech.Models.Entities.CouponType.Percentage)
+                                    {
+                                        <span>@item.Value.ToString("G29")%</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@item.Value.ToString("N0")₫</span>
+                                    }
+                                </div>
+                                @if (item.MaxDiscountAmount.HasValue)
+                                {
+                                    <div class="text-muted x-small">Tối đa: @item.MaxDiscountAmount.Value.ToString("N0")₫</div>
+                                }
+                            </td>
+                            <td>
+                                @if (item.MinOrderValue.HasValue)
+                                {
+                                    <div class="fw-medium text-dark small">Tối thiểu: @item.MinOrderValue.Value.ToString("N0")₫</div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small italic">Không giới hạn</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.StartDate.HasValue || item.EndDate.HasValue)
+                                {
+                                    <div class="small">
+                                        @if (item.StartDate.HasValue) { <div class="text-dark">Từ: @item.StartDate.Value.ToString("dd/MM/yyyy")</div> }
+                                        @if (item.EndDate.HasValue) { <div class="text-danger fw-bold">Đến: @item.EndDate.Value.ToString("dd/MM/yyyy")</div> }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-muted fw-normal">Vô thời hạn</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="fw-bold text-dark">@item.UsedCount / @(item.UsageLimit?.ToString() ?? "∞")</div>
+                                @if (item.UsageLimit.HasValue)
+                                {
+                                    <div class="progress rounded-pill mt-1" style="height: 4px; width: 60px; margin: 0 auto;">
+                                        @{
+                                            var percent = (double)item.UsedCount / item.UsageLimit.Value * 100;
+                                            var progressClass = percent > 90 ? "bg-danger" : percent > 70 ? "bg-warning" : "bg-success";
+                                        }
+                                        <div class="progress-bar @progressClass" role="progressbar" style="width: @(percent > 100 ? 100 : percent)%"></div>
+                                    </div>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="form-check form-switch d-flex justify-content-center">
+                                    <input class="form-check-input toggle-status" type="checkbox" role="switch" data-id="@item.Id" @(item.IsActive ? "checked" : "")>
+                                </div>
+                                <span class="badge-status @(item.IsActive ? "status-processing" : "status-neutral") x-small mt-1">
+                                    @(item.IsActive ? "Đang chạy" : "Tạm ngưng")
+                                </span>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn-circle shadow-sm" title="Sửa">
+                                        <i class="bi bi-pencil-square text-primary"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn-circle shadow-sm" title="Xóa">
+                                        <i class="bi bi-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" style="width: 80px; opacity: 0.3;" class="mb-3">
+                                <h5 class="text-muted">Chưa có mã giảm giá nào</h5>
+                                <p class="text-muted small">Bắt đầu tạo mã giảm giá đầu tiên bằng nút "Thêm mã mới" phía trên</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .bg-soft-info { background-color: rgba(13, 202, 240, 0.1); }
+        .bg-soft-warning { background-color: rgba(255, 193, 7, 0.1); }
+        .h-45px { height: 45px; }
+        
+        .table-modern tbody tr {
+            transition: all 0.2s ease;
+        }
+        .table-modern tbody tr:hover {
+            background-color: #fbfcfe;
+            box-shadow: inset 4px 0 0 0 var(--bs-primary);
+        }
+
+        .form-check-input:checked {
+            background-color: #166534;
+            border-color: #166534;
+        }
+
+        .btn-circle {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+            border: 1px solid #eee;
+            background: white;
+        }
+        .btn-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.toggle-status').change(function() {
+                var id = $(this).data('id');
+                var isActive = $(this).is(':checked');
+                var badge = $(this).closest('td').find('.badge-status');
+
+                $.post('@Url.Action("ToggleStatus")', { id: id }, function(res) {
+                    if (res.success) {
+                        if (res.isActive) {
+                            badge.removeClass('status-neutral').addClass('status-processing').text('Đang chạy');
+                        } else {
+                            badge.removeClass('status-processing').addClass('status-neutral').text('Tạm ngưng');
+                        }
+                        
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Đã cập nhật trạng thái',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

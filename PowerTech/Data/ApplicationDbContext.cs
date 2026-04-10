@@ -22,6 +22,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Review> Reviews { get; set; }
     public DbSet<SupportTicket> SupportTickets { get; set; }
     public DbSet<StockTransaction> StockTransactions { get; set; }
+    public DbSet<Coupon> Coupons { get; set; }
+    public DbSet<TicketResponse> TicketResponses { get; set; }
+    public DbSet<CannedResponse> CannedResponses { get; set; }
+    public DbSet<FaqCategory> FaqCategories { get; set; }
+    public DbSet<FaqArticle> FaqArticles { get; set; }
+    public DbSet<ReviewImage> ReviewImages { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
+    public DbSet<TradeInRequest> TradeInRequests { get; set; }
+    public DbSet<TradeInRequestImage> TradeInRequestImages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -241,6 +250,17 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .WithOne(u => u.Cart)
                 .HasForeignKey<Cart>(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(e => e.CookieId)
+                .HasMaxLength(450);
+
+            entity.HasIndex(e => e.UserId)
+                .IsUnique()
+                .HasFilter("[UserId] IS NOT NULL");
+
+            entity.HasIndex(e => e.CookieId)
+                .IsUnique()
+                .HasFilter("[CookieId] IS NOT NULL");
         });
 
         // 12. CartItem Configuration
@@ -330,6 +350,78 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .WithMany()
                 .HasForeignKey(e => e.PerformedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+            entity.ToTable(t => {
+                t.HasTrigger("TR_StockTransactions_Audit"); // Notifying EF Core that triggers exist on this table
+            });
+        });
+
+        // 16. Coupon Configuration
+        builder.Entity<Coupon>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(50);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Value).HasPrecision(18, 2);
+            entity.Property(e => e.MinOrderValue).HasPrecision(18, 2);
+            entity.Property(e => e.MaxDiscountAmount).HasPrecision(18, 2);
+
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Coupon_Value", "[Value] >= 0");
+                t.HasCheckConstraint("CK_Coupon_UsedCount", "[UsedCount] >= 0");
+            });
+        });
+
+        // 17. Notification Configuration
+        builder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Message).IsRequired().HasMaxLength(1000);
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.Notifications)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 18. TradeInRequest Configuration
+        builder.Entity<TradeInRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ModelName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Condition).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.ContactName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.ContactPhone).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.ContactEmail).IsRequired().HasMaxLength(100);
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Category)
+                .WithMany()
+                .HasForeignKey(e => e.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Brand)
+                .WithMany()
+                .HasForeignKey(e => e.BrandId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // 19. TradeInRequestImage Configuration
+        builder.Entity<TradeInRequestImage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ImageUrl).IsRequired();
+
+            entity.HasOne(e => e.TradeInRequest)
+                .WithMany(r => r.Images)
+                .HasForeignKey(e => e.TradeInRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

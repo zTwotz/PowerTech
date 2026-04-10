@@ -1,0 +1,425 @@
+@using Microsoft.AspNetCore.Identity
+@using PowerTech.Models.Entities
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    ViewData["Title"] = "Thu cũ đổi mới - PowerTech";
+    var categories = ViewBag.Categories as List<PowerTech.Models.Entities.Category>;
+}
+
+<div class="trade-in-page pb-5">
+    <!-- Hero Section -->
+    <div class="position-relative overflow-hidden mb-5" style="height: 450px; background: #1a1a1a;">
+        <img src="/images/news/trade-in.png" alt="Trade In" class="w-100 h-100 object-fit-cover opacity-75">
+        <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-100 px-3" style="z-index: 2;">
+            <h1 class="display-3 fw-bold mb-3 text-uppercase">Thu Cũ Đổi Mới</h1>
+            <p class="lead mb-4 fs-3">Nâng cấp công nghệ - Tối ưu chi phí</p>
+            <a href="#how-it-works" class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold">Tìm hiểu ngay</a>
+        </div>
+        <div class="position-absolute bottom-0 start-0 w-100 h-50" style="background: linear-gradient(transparent, rgba(0,0,0,0.9)); z-index: 1;"></div>
+    </div>
+
+    <div class="container mt-5">
+        <!-- Benefits Section -->
+        <div class="row g-4 mb-5 text-center" id="how-it-works">
+            <div class="col-md-4">
+                <div class="card border-0 p-4 shadow-sm h-100 bg-white">
+                    <div class="icon-box mb-3 mx-auto bg-primary bg-opacity-10 text-primary" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-magnifying-glass-chart fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold">Định giá nhanh chóng</h4>
+                    <p class="text-muted">Nhận kết quả định giá máy cũ chỉ trong 5 phút từ đội ngũ kỹ thuật chuyên nghiệp.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 p-4 shadow-sm h-100 bg-white">
+                    <div class="icon-box mb-3 mx-auto bg-success bg-opacity-10 text-success" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-money-bill-trend-up fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold">Trợ giá cực tốt</h4>
+                    <p class="text-muted">Hỗ trợ thêm 10-20% giá trị máy mới khi tham gia chương trình thu cũ đổi mới.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 p-4 shadow-sm h-100 bg-white">
+                    <div class="icon-box mb-3 mx-auto bg-info bg-opacity-10 text-info" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-shield-halved fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold">Thủ tục đơn giản</h4>
+                    <p class="text-muted">Không cần hộp, không cần phụ kiện, không cần còn bảo hành. Chỉ cần máy hoạt động tốt.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quote Form -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg p-5 rounded-4 bg-white overflow-hidden position-relative">
+                    <div class="position-absolute top-0 end-0 p-4 opacity-10">
+                        <i class="fa-solid fa-calculator" style="font-size: 15rem;"></i>
+                    </div>
+                    <h3 class="fw-bold mb-4 text-primary">Lập đơn thu cũ đổi mới</h3>
+                    
+                    <form id="tradeInForm" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <div class="row g-4">
+                            <!-- Device Info -->
+                            <div class="col-md-12">
+                                <h5 class="fw-bold border-start border-primary border-4 ps-2 mb-3">Thông tin thiết bị</h5>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Loại thiết bị <span class="text-danger">*</span></label>
+                                <select name="CategoryId" id="CategoryId" class="form-select border-0 bg-light p-3" required>
+                                    <option value="">-- Chọn loại thiết bị --</option>
+                                    @if (categories != null)
+                                    {
+                                        foreach (var cat in categories)
+                                        {
+                                            <option value="@cat.Id">@cat.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Hãng sản xuất <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <select name="BrandId" id="BrandId" class="form-select border-0 bg-light p-3" required disabled>
+                                        <option value="">-- Chọn hãng --</option>
+                                    </select>
+                                    <input type="text" name="OtherBrandName" id="OtherBrandName" class="form-control border-0 bg-light p-3 d-none" placeholder="Nhập tên hãng khác...">
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Tên Model / Cấu hình <span class="text-danger">*</span></label>
+                                <input type="text" name="ModelName" class="form-control border-0 bg-light p-3" placeholder="Ví dụ: ROG Strix G15 2022, Core i7, 16GB RAM..." required>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Tình trạng máy <span class="text-danger">*</span></label>
+                                <div class="d-flex flex-wrap gap-3">
+                                    <div class="form-check border p-3 rounded-3 hover:bg-light transition-all flex-grow-1">
+                                        <input class="form-check-input" type="radio" name="Condition" value="Loại 1" id="cond1" checked>
+                                        <label class="form-check-label w-100" for="cond1">
+                                            <strong>Loại 1:</strong> Như mới, hoạt động hoàn hảo
+                                        </label>
+                                    </div>
+                                    <div class="form-check border p-3 rounded-3 hover:bg-light transition-all flex-grow-1">
+                                        <input class="form-check-input" type="radio" name="Condition" value="Loại 2" id="cond2">
+                                        <label class="form-check-label w-100" for="cond2">
+                                            <strong>Loại 2:</strong> Trầy xước nhẹ, hoạt động tốt
+                                        </label>
+                                    </div>
+                                    <div class="form-check border p-3 rounded-3 hover:bg-light transition-all flex-grow-1">
+                                        <input class="form-check-input" type="radio" name="Condition" value="Loại 3" id="cond3">
+                                        <label class="form-check-label w-100" for="cond3">
+                                            <strong>Loại 3:</strong> Trầy xước nặng, cấn móp, màn có lỗi nhẹ
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Hình ảnh sản phẩm (Có thể chọn nhiều ảnh) <span class="text-danger">*</span></label>
+                                <div class="image-upload-wrapper bg-light p-4 rounded-3 text-center border-dashed position-relative">
+                                    <input type="file" name="images" id="imageInput" class="position-absolute w-100 h-100 top-0 start-0 opacity-0 cursor-pointer" multiple accept="image/*" required>
+                                    <div class="upload-placeholder">
+                                        <i class="fa-solid fa-cloud-arrow-up fs-1 text-primary mb-2"></i>
+                                        <p class="mb-0">Nhấn để chọn ảnh hoặc kéo thả vào đây</p>
+                                        <small class="text-muted">Hỗ trợ JPG, PNG, WEBP</small>
+                                    </div>
+                                    <div id="imagePreview" class="row g-2 mt-3 d-none">
+                                        <!-- Previews will go here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Ghi chú thêm</label>
+                                <textarea name="Note" class="form-control border-0 bg-light p-3" rows="3" placeholder="Mô tả thêm về các lỗi hoặc tình trạng thực tế của máy..."></textarea>
+                            </div>
+
+                            <!-- Contact Info -->
+                            <div class="col-md-12 mt-4">
+                                <h5 class="fw-bold border-start border-primary border-4 ps-2 mb-3">Thông tin liên hệ</h5>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Họ tên <span class="text-danger">*</span></label>
+                                <input type="text" name="ContactName" class="form-control border-0 bg-light p-3" placeholder="Nguyễn Văn A" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Số điện thoại <span class="text-danger">*</span></label>
+                                <input type="tel" name="ContactPhone" class="form-control border-0 bg-light p-3" placeholder="09xxxxxxx" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Email</label>
+                                <input type="email" name="ContactEmail" class="form-control border-0 bg-light p-3" placeholder="example@gmail.com">
+                            </div>
+
+                            <div class="col-md-12 mt-5">
+                                <button type="submit" id="submitBtn" class="btn btn-primary w-100 p-3 fw-bold rounded-3 shadow">
+                                    <i class="fa-solid fa-paper-plane me-2"></i> GỬI YÊU CẦU ĐỊNH GIÁ
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .trade-in-page {
+        background-color: #f8f9fa;
+    }
+    .object-fit-cover {
+        object-fit: cover;
+    }
+    .transition-all {
+        transition: all 0.2s ease;
+    }
+    .hover\:bg-light:hover {
+        background-color: #f1f3f5;
+        border-color: #dee2e6 !important;
+    }
+    .border-dashed {
+        border: 2px dashed #dee2e6;
+        transition: all 0.3s ease;
+    }
+    .border-dashed:hover {
+        border-color: #0d6efd;
+        background-color: #eef2f7 !important;
+    }
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    .preview-img-container {
+        position: relative;
+        width: 100px;
+        height: 100px;
+    }
+    .preview-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    .remove-preview {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        cursor: pointer;
+        border: 2px solid white;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const categorySelect = $('#CategoryId');
+            const brandSelect = $('#BrandId');
+            const otherBrandInput = $('#OtherBrandName');
+            const imageInput = $('#imageInput');
+            const imagePreview = $('#imagePreview');
+            const placeholder = $('.upload-placeholder');
+
+            // Handle Category Change
+            categorySelect.on('change', function() {
+                const categoryId = $(this).val();
+                if (!categoryId) {
+                    brandSelect.prop('disabled', true).html('<option value="">-- Chọn hãng --</option>');
+                    return;
+                }
+
+                brandSelect.prop('disabled', true).html('<option value="">Đang tải...</option>');
+                
+                $.get('/Store/Home/GetBrandsByCategory', { categoryId: categoryId }, function(data) {
+                    let html = '<option value="">-- Chọn hãng --</option>';
+                    data.forEach(brand => {
+                        html += `<option value="${brand.id}">${brand.name}</option>`;
+                    });
+                    html += '<option value="0">Khác</option>';
+                    brandSelect.html(html).prop('disabled', false);
+                    
+                    // Reset other brand field
+                    otherBrandInput.addClass('d-none').val('').prop('required', false);
+                    brandSelect.removeClass('d-none').prop('required', true);
+                });
+            });
+
+            // Handle Brand Change
+            brandSelect.on('change', function() {
+                if ($(this).val() === '0') {
+                    brandSelect.addClass('d-none').prop('required', false);
+                    otherBrandInput.removeClass('d-none').prop('required', true).focus();
+                }
+            });
+
+            // Reset brand select if user wants to go back from "Other"
+            otherBrandInput.on('keyup', function(e) {
+                if ($(this).val() === '' && e.key === 'Backspace') {
+                    otherBrandInput.addClass('d-none').prop('required', false);
+                    brandSelect.removeClass('d-none').prop('required', true).val('');
+                }
+            });
+
+            // Image Preview
+            imageInput.on('change', function() {
+                imagePreview.html('').removeClass('d-none');
+                placeholder.addClass('d-none');
+                
+                if (this.files) {
+                    Array.from(this.files).forEach((file, index) => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const html = `
+                                <div class="col-auto">
+                                    <div class="preview-img-container shadow-sm">
+                                        <img src="${e.target.result}">
+                                        <div class="remove-preview" onclick="resetImages()">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            imagePreview.append(html);
+                        }
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                if (this.files.length === 0) {
+                    placeholder.removeClass('d-none');
+                    imagePreview.addClass('d-none');
+                }
+            });
+
+            window.resetImages = function() {
+                imageInput.val('');
+                imagePreview.html('').addClass('d-none');
+                placeholder.removeClass('d-none');
+            }
+
+            // Check persistence on load
+            const savedData = localStorage.getItem('tradeInFormData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                Object.keys(data).forEach(key => {
+                    if (key === '__RequestVerificationToken') return; // Do not overwrite the new CSRF token
+
+                    const input = $(`[name="${key}"]`);
+                    if (input.attr('type') === 'radio') {
+                        $(`[name="${key}"][value="${data[key]}"]`).prop('checked', true);
+                    } else {
+                        input.val(data[key]);
+                    }
+                });
+                // Trigger category change to load brands
+                if (data.CategoryId) {
+                    categorySelect.val(data.CategoryId).trigger('change');
+                    // We need a slight delay for the brands to load before setting BrandId
+                    setTimeout(() => {
+                        if (data.BrandId && data.BrandId !== "0") {
+                           brandSelect.val(data.BrandId).trigger('change');
+                        } else if (data.BrandId === "0" || data.OtherBrandName) {
+                           brandSelect.val("0").trigger('change');
+                           otherBrandInput.val(data.OtherBrandName).removeClass('d-none');
+                        }
+                    }, 500);
+                }
+                localStorage.removeItem('tradeInFormData');
+                
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Dữ liệu đã khôi phục',
+                    text: 'Thông tin đã được điền lại, nhưng vì lý do bảo mật, bạn vui lòng CHỌN LẠI HÌNH ẢNH sản phẩm trước khi gửi.',
+                    confirmButtonColor: '#0d6efd'
+                });
+            }
+
+            // AJAX Submit
+            $('#tradeInForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                // Auth check
+                const isAuth = @(User.Identity?.IsAuthenticated == true ? "true" : "false");
+                if (!isAuth) {
+                    const formDataObj = {};
+                    $(this).serializeArray().forEach(item => {
+                        formDataObj[item.name] = item.value;
+                    });
+                    localStorage.setItem('tradeInFormData', JSON.stringify(formDataObj));
+                    
+                    Swal.fire({
+                        title: 'Yêu cầu đăng nhập',
+                        text: 'Vui lòng đăng nhập để gửi yêu cầu thu cũ. Thông tin của bạn sẽ được giữ lại.',
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Đăng nhập ngay',
+                        cancelButtonText: 'Để sau'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/Identity/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
+                        }
+                    });
+                    return;
+                }
+
+                const btn = $('#submitBtn');
+                const originalText = btn.html();
+                btn.prop('disabled', true).html('<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Đang gửi...');
+
+                const formData = new FormData(this);
+                
+                $.ajax({
+                    url: '/Store/Home/TradeIn',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: response.message,
+                                confirmButtonColor: '#0d6efd'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: response.message,
+                                confirmButtonColor: '#0d6efd'
+                            });
+                            btn.prop('disabled', false).html(originalText);
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Đã có lỗi xảy ra khi kết nối máy chủ.',
+                            confirmButtonColor: '#0d6efd'
+                        });
+                        btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -4,20 +4,91 @@
 @{
     ViewData["Title"] = "Quản lý người dùng";
     var rolesDict = ViewBag.UserRoles as Dictionary<string, IList<string>>;
+    var allRoles = ViewBag.AllRoles as List<string> ?? new List<string>();
 }
 
-<div class="admin-page-title">
-    <div>
-        <h1 class="h3 fw-800 mb-0">Quản lý người dùng</h1>
-        <p class="text-muted small mb-0">Quản lý phân quyền và bảo mật tài khoản hệ thống</p>
+@section Styles {
+    <style>
+        .bg-soft-danger { background-color: #fee2e2; color: #dc2626; }
+        .bg-soft-primary { background-color: #e0f2fe; color: #0284c7; }
+        .bg-soft-warning { background-color: #fef3c7; color: #d97706; }
+        .bg-soft-info { background-color: #e0f7fa; color: #00acc1; }
+        .bg-soft-secondary { background-color: #f1f5f9; color: #64748b; }
+        .bg-soft-success { background-color: #dcfce7; color: #166534; }
+        
+        .fw-800 { font-weight: 800; }
+        .x-small { font-size: 11px; }
+        
+        .table-modern thead th {
+            border: none;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 18px 12px;
+        }
+        .table-modern tbody td {
+            padding: 20px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+        
+        .btn-action {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin-left: 5px;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #64748b;
+        }
+        .btn-action:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+        .btn-action-edit:hover { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+        .btn-action-password:hover { background: #fdf2f8; color: #db2777; border-color: #fbcfe8; }
+        .btn-action-lock:hover { background: #fff7ed; color: #ea580c; border-color: #ffedd5; }
+        .btn-action-delete:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+
+        .avatar-initials {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            background: #1e293b;
+            color: #fff;
+        }
+    </style>
+}
+
+<div class="row align-items-center mb-4 pb-2">
+    <div class="col-md-7">
+        <h3 class="fw-800 text-dark mb-1">Quản lý người dùng</h3>
+        <p class="text-muted mb-0">Quản lý phân quyền và bảo mật tài khoản hệ thống</p>
+    </div>
+    <div class="col-md-5 mt-3 mt-md-0 d-flex justify-content-md-end align-items-center gap-2">
+        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#createModal">
+            <i class="fa-solid fa-plus me-2"></i> Tạo tài khoản mới
+        </button>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light small text-muted text-uppercase">
+            <table class="table align-middle mb-0 table-modern">
+                <thead>
                     <tr>
                         <th class="ps-4">Họ và tên</th>
                         <th>Email</th>
@@ -31,43 +102,68 @@
                     @foreach (var u in Model)
                     {
                         var isLocked = u.LockoutEnd != null && u.LockoutEnd > DateTime.Now;
-                        var currentRole = rolesDict?[u.Id].FirstOrDefault() ?? "No Role";
+                        var roles = (rolesDict != null && u.Id != null && rolesDict.ContainsKey(u.Id)) ? rolesDict[u.Id] : new List<string>();
+                        var currentRole = (roles != null && roles.Any()) ? roles.First() : "No Role";
                         
                         <tr>
                             <td class="ps-4">
-                                <div class="fw-bold text-dark">@u.FullName</div>
-                                @if(isLocked) { <span class="badge bg-danger rounded-pill x-small">Tài khoản bị khóa</span> }
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-initials">@(string.IsNullOrEmpty(u.FullName) ? "U" : u.FullName.Substring(0, 1).ToUpper())</div>
+                                    <div>
+                                        <div class="fw-bold text-dark mb-0">@(string.IsNullOrEmpty(u.FullName) ? (u.Email ?? "Unknown") : u.FullName)</div>
+                                        <small class="text-muted x-small">ID: @(u.Id?.Length > 8 ? u.Id.Substring(0, 8) : u.Id)...</small>
+                                    </div>
+                                </div>
                             </td>
-                            <td>@u.Email</td>
-                            <td class="small text-muted">@u.CreatedAt.ToString("dd/MM/yyyy")</td>
                             <td>
-                                <span class="badge @GetRoleBadge(currentRole) rounded-pill px-3">
+                                <div class="small fw-medium text-dark">@u.Email</div>
+                            </td>
+                            <td>
+                                <div class="small text-muted">@u.CreatedAt.ToString("dd/MM/yyyy")</div>
+                            </td>
+                            <td>
+                                <span class="badge @GetRoleBadge(currentRole) rounded-3 px-3 py-2 small fw-bold">
                                     @currentRole
                                 </span>
                             </td>
                             <td>
                                 @if (isLocked)
                                 {
-                                    <span class="text-danger small"><i class="fa-solid fa-lock-open me-1"></i> Bị khóa</span>
+                                    <span class="badge bg-soft-danger rounded-pill px-3 py-1 x-small fw-800">
+                                        <i class="fa-solid fa-lock me-1"></i> BỊ KHÓA
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="text-success small"><i class="fa-solid fa-check-circle me-1"></i> Đang hoạt động</span>
+                                    <span class="badge bg-soft-success rounded-pill px-3 py-1 x-small fw-800">
+                                        <i class="fa-solid fa-check-circle me-1"></i> ĐANG HOẠT ĐỘNG
+                                    </span>
                                 }
                             </td>
                             <td class="text-end pe-4">
-                                <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-primary" 
-                                            onclick="openRoleModal('@u.Id', '@u.FullName', '@currentRole')" 
-                                            title="Thay đổi quyền">
-                                        <i class="fa-solid fa-user-shield"></i>
+                                <div class="d-flex justify-content-end align-items-center">
+                                    <button class="btn-action btn-action-edit" 
+                                            onclick="openEditModal('@u.Id', '@u.FullName', '@u.Email', '@currentRole')" 
+                                            title="Sửa thông tin">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button class="btn-action btn-action-password" 
+                                            onclick="openPasswordModal('@u.Id', '@u.Email')" 
+                                            title="Đổi mật khẩu">
+                                        <i class="fa-solid fa-key"></i>
+                                    </button>
+                                    <button class="btn-action btn-action-lock @(isLocked ? "bg-soft-success border-success" : "")" 
+                                            onclick="toggleLock('@u.Id', '@u.FullName', @(isLocked ? "true" : "false"))" 
+                                            title="@(isLocked ? "Mở khóa" : "Khóa tài khoản")">
+                                        <i class="fa-solid @(isLocked ? "fa-lock-open" : "fa-user-lock")"></i>
                                     </button>
                                     @if(u.Email != User.Identity?.Name) {
-                                        <button class="btn btn-sm @(isLocked ? "btn-outline-success" : "btn-outline-danger")" 
-                                                onclick="toggleLock('@u.Id', '@u.FullName')" 
-                                                title="@(isLocked ? "Mở khóa" : "Khóa tài khoản")">
-                                            <i class="fa-solid @(isLocked ? "fa-unlock" : "fa-user-lock")"></i>
-                                        </button>
+                                        <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản này vĩnh viễn? Hành động này không thể hoàn tác.')">
+                                            <input type="hidden" name="userId" value="@u.Id" />
+                                            <button type="submit" class="btn-action btn-action-delete" title="Xóa tài khoản">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
                                     }
                                 </div>
                             </td>
@@ -79,33 +175,109 @@
     </div>
 </div>
 
-<!-- Role Modal -->
-<div class="modal fade" id="roleModal" tabindex="-1">
+<!-- Modal Create User -->
+<div class="modal fade" id="createModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow rounded-4">
-            <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
-                <h5 class="modal-title fw-bold">Thay đổi vai trò người dùng</h5>
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pt-4 px-4 pb-0">
+                <h5 class="modal-title fw-800 text-dark"><i class="fa-solid fa-user-plus text-primary me-2"></i>Tạo tài khoản mới</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form asp-action="UpdateRole" method="post">
+            <form asp-action="Create" method="post">
                 <div class="modal-body p-4">
-                    <input type="hidden" name="userId" id="modalUserId" />
-                    <p class="text-muted small">Cập nhật quyền truy cập cho: <strong id="modalUserName" class="text-dark"></strong></p>
-                    
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Chọn vai trò mới</label>
-                        <select name="role" id="modalRole" class="form-select">
-                            <option value="@UserRoles.Customer">@UserRoles.Customer (Mặc định)</option>
-                            <option value="@UserRoles.Admin">@UserRoles.Admin</option>
-                            <option value="@UserRoles.SalesStaff">@UserRoles.SalesStaff</option>
-                            <option value="@UserRoles.WarehouseStaff">@UserRoles.WarehouseStaff</option>
-                            <option value="@UserRoles.SupportStaff">@UserRoles.SupportStaff</option>
+                        <label class="form-label small fw-800 text-muted text-uppercase mb-2">Họ và tên</label>
+                        <input type="text" name="fullName" class="form-control border-0 bg-light p-3 rounded-3 shadow-none" placeholder="Nguyễn Văn A" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-800 text-muted text-uppercase mb-2">Địa chỉ Email</label>
+                        <input type="email" name="email" class="form-control border-0 bg-light p-3 rounded-3 shadow-none" placeholder="example@powertech.vn" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-800 text-muted text-uppercase mb-2">Vai trò (Role)</label>
+                        <select name="role" class="form-select border-0 bg-light p-3 rounded-3 shadow-none">
+                            @foreach (var r in allRoles)
+                            {
+                                <option value="@r">@r</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-800 text-muted text-uppercase mb-2">Mật khẩu ban đầu</label>
+                        <input type="password" name="password" class="form-control border-0 bg-light p-3 rounded-3 shadow-none" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">Tạo ngay</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit User -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pt-4 px-4 pb-0">
+                <h5 class="modal-title fw-800 text-dark"><i class="fa-solid fa-user-pen text-info me-2"></i>Cập nhật tài khoản</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="Edit" method="post">
+                <input type="hidden" name="userId" id="editUserId" />
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-800 text-muted text-uppercase mb-2">Họ và tên</label>
+                        <input type="text" name="fullName" id="editFullName" class="form-control border-0 bg-light p-3 rounded-3 shadow-none" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-800 text-muted text-uppercase mb-2">Địa chỉ Email</label>
+                        <input type="email" name="email" id="editEmail" class="form-control border-0 bg-light p-3 rounded-3 shadow-none" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-800 text-muted text-uppercase mb-2">Vai trò hiện tại</label>
+                        <select name="role" id="editRole" class="form-select border-0 bg-light p-3 rounded-3 shadow-none">
+                            @foreach (var r in allRoles)
+                            {
+                                <option value="@r">@r</option>
+                            }
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer border-top-0 pb-4 px-4">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy bỏ</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4">Lưu thay đổi</button>
+                <div class="modal-footer border-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reset Password -->
+<div class="modal fade" id="passwordModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered shadow-lg">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header border-0 pt-4 px-4 pb-0">
+                <h5 class="modal-title fw-800 text-dark"><i class="fa-solid fa-shield-halved text-danger me-2"></i>Đổi mật khẩu bảo mật</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="ChangePassword" method="post">
+                <input type="hidden" name="userId" id="pwUserId" />
+                <div class="modal-body p-4 text-center">
+                    <div class="alert bg-soft-danger border-0 rounded-4 p-3 mb-4">
+                        <small class="fw-bold d-block mb-1">CẢNH BÁO BẢO MẬT</small>
+                        Bạn đang đặt lại mật khẩu cho tài khoản: <strong id="pwEmail" class="text-danger"></strong>
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label small fw-800 text-muted text-uppercase mb-2">Mật khẩu mới</label>
+                        <input type="password" name="newPassword" class="form-control form-control-lg border-0 bg-light p-3 rounded-3 shadow-none text-center" placeholder="••••••••" required>
+                        <p class="x-small text-muted mt-2 text-center">Người dùng sẽ không được thông báo về thay đổi này qua email. Vui lòng cung cấp thủ công.</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pb-4 px-4 justify-content-center">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-5 fw-bold shadow-sm">XÁC NHẬN THAY ĐỔI</button>
                 </div>
             </form>
         </div>
@@ -121,37 +293,47 @@
             UserRoles.SalesStaff => "bg-soft-primary text-primary",
             UserRoles.WarehouseStaff => "bg-soft-warning text-warning",
             UserRoles.SupportStaff => "bg-soft-info text-info",
+            UserRoles.Shipper => "bg-soft-primary text-primary",
             _ => "bg-soft-secondary text-secondary"
         };
     }
 }
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function openRoleModal(id, name, currentRole) {
-            $('#modalUserId').val(id);
-            $('#modalUserName').text(name);
-            $('#modalRole').val(currentRole);
-            new bootstrap.Modal(document.getElementById('roleModal')).show();
+        function openEditModal(id, name, email, role) {
+            $('#editUserId').val(id);
+            $('#editFullName').val(name);
+            $('#editEmail').val(email);
+            $('#editRole').val(role);
+            new bootstrap.Modal(document.getElementById('editModal')).show();
         }
 
-        function toggleLock(id, name) {
+        function openPasswordModal(id, email) {
+            $('#pwUserId').val(id);
+            $('#pwEmail').text(email);
+            new bootstrap.Modal(document.getElementById('passwordModal')).show();
+        }
+
+        function toggleLock(id, name, isLocked) {
+            const actionText = isLocked ? 'mở khóa' : 'khóa';
             Swal.fire({
-                title: 'Trạng thái tài khoản',
-                text: `Bạn muốn thay đổi trạng thái khóa/mở cho ${name}?`,
-                icon: 'question',
+                title: 'Xác nhận trạng thái',
+                text: `Bạn muốn ${actionText} tài khoản của ${name}?`,
+                icon: isLocked ? 'info' : 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#D7262E',
+                confirmButtonColor: isLocked ? '#22c55e' : '#ea580c',
                 confirmButtonText: 'Đồng ý',
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.post('/Admin/User/ToggleLock', { userId: id }, function(res) {
                         if (res.success) {
-                            window.location.reload();
+                            Swal.fire('Thành công', `Đã ${actionText} thành công!`, 'success').then(() => {
+                                window.location.reload();
+                            });
                         } else {
-                            Swal.fire('Lỗi', 'Không thể cập nhật trạng thái!', 'error');
+                            Swal.fire('Lỗi', res.message || 'Không thể thực hiện!', 'error');
                         }
                     });
                 }

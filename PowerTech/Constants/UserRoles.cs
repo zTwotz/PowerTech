@@ -7,5 +7,6 @@ namespace PowerTech.Constants
         public const string SalesStaff = "SalesStaff";
         public const string WarehouseStaff = "WarehouseStaff";
         public const string SupportStaff = "SupportStaff";
+        public const string Shipper = "Shipper";
     }
 }

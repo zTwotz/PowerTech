@@ -34,5 +34,6 @@ namespace PowerTech.Models.Entities
 
         [ForeignKey(nameof(UserId))]
         public virtual ApplicationUser User { get; set; } = null!;
+        public virtual ICollection<ReviewImage> ReviewImages { get; set; } = new List<ReviewImage>();
     }
 }

@@ -94,24 +94,7 @@
         @RenderBody()
     </main>
 
-    <nav class="bottom-nav">
-        <a asp-area="Shipper" asp-controller="Order" asp-action="Index" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
-            <i class="fa-solid fa-truck-ramp-box"></i>
-            ĐƠN CẦN GIAO
-        </a>
-        <a asp-area="Shipper" asp-controller="Order" asp-action="History" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "History" ? "active" : "")">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            LỊCH SỬ
-        </a>
-        <a asp-area="Shipper" asp-controller="Order" asp-action="Wallet" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Wallet" ? "active" : "")">
-            <i class="fa-solid fa-wallet"></i>
-            VÍ TIỀN
-        </a>
-        <a asp-area="Shipper" asp-controller="Order" asp-action="Settings" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "active" : "")">
-            <i class="fa-solid fa-user-gear"></i>
-            CÀI ĐẶT
-        </a>
-    </nav>
+    <partial name="_ShipperBottomNav" />
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -119,19 +102,19 @@
     @if (TempData["Success"] != null)
     {
         <script>
-            Swal.fire({ icon: 'success', title: 'Thành công', text: '@TempData["Success"]', timer: 2500, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: 'Thành công', text: @Html.Raw(Json.Serialize(TempData["Success"])), timer: 2500, showConfirmButton: false });
         </script>
     }
     @if (TempData["Error"] != null)
     {
         <script>
-            Swal.fire({ icon: 'error', title: 'Lỗi', text: '@TempData["Error"]' });
+            Swal.fire({ icon: 'error', title: 'Lỗi', text: @Html.Raw(Json.Serialize(TempData["Error"])) });
         </script>
     }
     @if (TempData["Warning"] != null)
     {
         <script>
-            Swal.fire({ icon: 'warning', title: 'Thông báo', text: '@TempData["Warning"]' });
+            Swal.fire({ icon: 'warning', title: 'Thông báo', text: @Html.Raw(Json.Serialize(TempData["Warning"])) });
         </script>
     }
     @await RenderSectionAsync("Scripts", required: false)

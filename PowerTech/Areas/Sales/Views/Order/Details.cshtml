@@ -1,185 +1,539 @@
 @model PowerTech.Models.Entities.Order
 @{
     Layout = "_SalesLayout";
-    ViewData["Title"] = "Chi tiết đơn hàng - " + Model.OrderCode;
+    ViewData["Title"] = $"Chi tiết đơn hàng #{Model.OrderCode}";
 }
 
+<!-- Top Header Section -->
+<div class="mb-4">
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Đơn hàng</a></li>
+            <li class="breadcrumb-item active text-primary" aria-current="page">Chi tiết</li>
+        </ol>
+    </nav>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <h1 class="h2 fw-800 mb-1 text-dark">Đơn hàng #@Model.OrderCode</h1>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                <span class="badge-status @GetStatusClass(Model.OrderStatus)">
+                    @GetStatusText(Model.OrderStatus)
+                </span>
+                <span class="badge-status @(Model.PaymentStatus == "Paid" ? "status-completed" : "status-pending")">
+                    <i class="bi @(Model.PaymentStatus == "Paid" ? "bi-check-circle" : "bi-clock") me-1"></i> @(Model.PaymentStatus == "Paid" ? "Đã thanh toán" : "Chờ thanh toán")
+                </span>
+                <span class="badge-status status-neutral">
+                    <i class="bi bi-wallet2 me-1"></i> @Model.PaymentMethod
+                </span>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-white border px-4 fw-bold shadow-sm">
+                <i class="bi bi-arrow-left me-2"></i> Quay lại
+            </a>
+            <button class="btn btn-primary px-4 fw-bold shadow-sm">
+                <i class="bi bi-printer me-2"></i> In hóa đơn
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Summary QuickView -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="summary-card shadow-sm border-0">
+            <div class="summary-icon bg-info-subtle text-info">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+            <div>
+                <div class="text-muted small fw-bold text-uppercase">Tổng thanh toán</div>
+                <div class="h4 fw-800 mb-0 text-dark">@Model.TotalAmount.ToString("N0")₫</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="summary-card shadow-sm border-0">
+            <div class="summary-icon bg-success-subtle text-success">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div>
+                <div class="text-muted small fw-bold text-uppercase">Số lượng SP</div>
+                <div class="h4 fw-800 mb-0 text-dark">@Model.OrderItems.Sum(x => x.Quantity) sản phẩm</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="summary-card shadow-sm border-0">
+            <div class="summary-icon bg-warning-subtle text-warning">
+                <i class="bi bi-calendar3"></i>
+            </div>
+            <div>
+                <div class="text-muted small fw-bold text-uppercase">Thời gian tạo</div>
+                <div class="h4 fw-800 mb-0 text-dark">@Model.CreatedAt.ToString("HH:mm - dd/MM/yyyy")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4">
+    <!-- Center Content -->
     <div class="col-lg-8">
-        <!-- Order Header -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-4">
-                    <div>
-                        <h4 class="fw-bold mb-1 text-primary">Đơn hàng #@Model.OrderCode</h4>
-                        <p class="text-muted small">Ngày tạo: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
-                    </div>
-                    <span class="badge rounded-pill @OrderHelper.GetStatusBadgeClass(Model.OrderStatus) px-3 py-2 fs-6">
-                        @OrderHelper.GetStatusDisplayName(Model.OrderStatus)
-                    </span>
-                </div>
-
-                <!-- Progress Stepper -->
-                <div class="order-stepper position-relative mb-5 py-4 d-flex justify-content-between">
-                    <div class="step text-center position-relative flex-fill @(Model.OrderStatus != "Cancelled" ? "active" : "")">
-                        <div class="step-icon mx-auto rounded-circle bg-primary text-white mb-2" style="width: 40px; height: 40px; line-height: 40px;">
-                            <i class="bi bi-wallet2"></i>
-                        </div>
-                        <div class="small fw-bold">Đặt hàng</div>
-                    </div>
-                    <div class="step text-center position-relative flex-fill @(new[] {"Processing", "Shipping", "Completed"}.Contains(Model.OrderStatus) ? "active" : "")">
-                        <div class="step-icon mx-auto rounded-circle @(new[] {"Processing", "Shipped", "Delivered"}.Contains(Model.OrderStatus) ? "bg-primary text-white" : "bg-light text-muted") mb-2" style="width: 40px; height: 40px; line-height: 40px;">
-                            <i class="bi bi-gear"></i>
-                        </div>
-                        <div class="small fw-bold">Đang xử lý</div>
-                    </div>
-                    <div class="step text-center position-relative flex-fill @(new[] {"Shipping", "Completed"}.Contains(Model.OrderStatus) ? "active" : "")">
-                        <div class="step-icon mx-auto rounded-circle @(new[] {"Shipping", "Completed"}.Contains(Model.OrderStatus) ? "bg-primary text-white" : "bg-light text-muted") mb-2" style="width: 40px; height: 40px; line-height: 40px;">
-                            <i class="bi bi-truck"></i>
-                        </div>
-                        <div class="small fw-bold">Đang giao</div>
-                    </div>
-                    <div class="step text-center position-relative flex-fill @(Model.OrderStatus == "Completed" ? "active" : "")">
-                        <div class="step-icon mx-auto rounded-circle @(Model.OrderStatus == "Completed" ? "bg-primary text-white" : "bg-light text-muted") mb-2" style="width: 40px; height: 40px; line-height: 40px;">
-                            <i class="bi bi-check2-circle"></i>
-                        </div>
-                        <div class="small fw-bold">Đã nhận hàng</div>
-                    </div>
-                </div>
-
+        <!-- Products Table -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header border-0 bg-transparent py-4 ps-4">
+                <h5 class="fw-800 mb-0 text-dark"><i class="bi bi-list-ul me-2 text-primary"></i>Danh sách sản phẩm</h5>
+            </div>
+            <div class="p-0">
                 <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead class="bg-light">
+                    <table class="table table-modern align-middle mb-0">
+                        <thead>
                             <tr>
-                                <th class="ps-3">Sản phẩm</th>
-                                <th class="text-center">Số lượng</th>
+                                <th class="ps-4">Sản phẩm</th>
                                 <th class="text-end">Đơn giá</th>
-                                <th class="text-end pe-3">Thành tiền</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end pe-4">Thành tiền</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model.OrderItems)
                             {
                                 <tr>
-                                    <td class="ps-3 py-3">
-                                        <div class="d-flex align-items-center">
-                                            @if (!string.IsNullOrEmpty(item.ProductImageSnapshot))
-                                            {
-                                                <img src="@item.ProductImageSnapshot" class="rounded-3 me-3" style="width: 50px; height: 50px; object-fit: cover;" />
-                                            }
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="bg-light rounded-3 p-1" style="width: 54px; height: 54px;">
+                                                <img src="@(string.IsNullOrEmpty(item.Product?.ThumbnailUrl) ? (string.IsNullOrEmpty(item.ProductImageSnapshot) ? "/images/no-image.png" : item.ProductImageSnapshot) : item.Product.ThumbnailUrl)" 
+                                                     class="w-100 h-100 object-fit-contain rounded-2"/>
+                                            </div>
                                             <div>
-                                                <div class="fw-bold text-dark small mb-0">@item.ProductNameSnapshot</div>
-                                                <small class="text-muted">SKU: @item.ProductSkuSnapshot</small>
+                                                <div class="fw-bold text-dark lh-sm mb-1" style="font-size: 14px;">@item.ProductNameSnapshot</div>
+                                                <div class="text-muted small fw-medium">SKU: <span class="bg-light px-2 rounded">@item.ProductSkuSnapshot</span></div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-center">x @item.Quantity</td>
-                                    <td class="text-end">@item.UnitPrice.ToString("N0")₫</td>
-                                    <td class="text-end pe-3 fw-bold">@item.LineTotal.ToString("N0")₫</td>
+                                    <td class="text-end fw-semibold">@item.UnitPrice.ToString("N0")₫</td>
+                                    <td class="text-center fw-bold text-secondary">@item.Quantity</td>
+                                    <td class="text-end pe-4 fw-800 text-dark">@((item.UnitPrice * item.Quantity).ToString("N0"))₫</td>
                                 </tr>
                             }
                         </tbody>
-                        <tfoot class="border-top-0">
-                            <tr>
-                                <td colspan="3" class="text-end border-0 pt-4">Tạm tính:</td>
-                                <td class="text-end border-0 pt-4 pe-3">@Model.Subtotal.ToString("N0")₫</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3" class="text-end border-0">Phí vận chuyển:</td>
-                                <td class="text-end border-0 pe-3 text-success">Miễn phí</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3" class="text-end border-0 pt-3"><h5 class="fw-bold text-dark mb-0">Tổng thanh toán:</h5></td>
-                                <td class="text-end border-0 pt-3 pe-3"><h5 class="fw-bold text-primary mb-0">@Model.TotalAmount.ToString("N0")₫</h5></td>
-                            </tr>
-                        </tfoot>
                     </table>
                 </div>
             </div>
+            <div class="bg-light p-4 rounded-bottom-4">
+                <div class="row justify-content-end">
+                    <div class="col-md-5">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted fw-bold small text-uppercase">Tạm tính:</span>
+                            <span class="fw-bold text-dark">@Model.Subtotal.ToString("N0")₫</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted fw-bold small text-uppercase">Phí ship:</span>
+                            <span class="fw-bold text-primary">+@Model.ShippingFee.ToString("N0")₫</span>
+                        </div>
+                        @if(Model.DiscountAmount > 0) {
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted fw-bold small text-uppercase">Giảm giá:</span>
+                                <span class="fw-bold text-danger">-@Model.DiscountAmount.ToString("N0")₫</span>
+                            </div>
+                        }
+                        <hr class="my-3 opacity-10">
+                        <div class="d-flex justify-content-between">
+                            <span class="h5 fw-800 mb-0 text-dark">TỔNG CỘNG:</span>
+                            <span class="h4 fw-800 mb-0 text-primary">@Model.TotalAmount.ToString("N0")₫</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Grid (Customer & Shipping) -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header border-0 bg-transparent py-4 ps-4">
+                        <h5 class="fw-800 mb-0 text-dark"><i class="bi bi-person-circle me-2 text-primary"></i>Khách hàng</h5>
+                    </div>
+                    <div class="card-body px-4 pt-0 pb-4">
+                        <div class="d-flex align-items-center gap-3 mb-4 bg-light p-3 rounded-4">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 48px; height: 48px; font-size: 1.2rem;">
+                                @(Model.User?.FullName?.Substring(0, 1).ToUpper() ?? "K")
+                            </div>
+                            <div>
+                                <div class="fw-800 text-dark fs-5 lh-1">@Model.User?.FullName</div>
+                                <div class="text-muted small">@Model.User?.Email</div>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="text-muted small fw-bold text-uppercase mb-1">Số điện thoại</div>
+                                <div class="fw-bold text-dark small">@Model.PhoneNumber</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted small fw-bold text-uppercase mb-1">Ngày đăng ký</div>
+                                <div class="fw-bold text-dark small">@(Model.User?.CreatedAt.ToString("dd/MM/yyyy") ?? "N/A")</div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <a href="#" class="btn btn-sm btn-outline-primary fw-bold w-100 rounded-3">Xem lịch sử mua hàng</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header border-0 bg-transparent py-4 ps-4">
+                        <h5 class="fw-800 mb-0 text-dark"><i class="bi bi-truck me-2 text-primary"></i>Vận chuyển</h5>
+                    </div>
+                    <div class="card-body px-4 pt-0 pb-4">
+                        <div class="mb-4">
+                            <div class="text-muted small fw-bold text-uppercase mb-1">Người nhận</div>
+                            <div class="fw-800 text-dark fs-5 lh-1">@Model.ReceiverName</div>
+                        </div>
+                        <hr class="opacity-5 my-3">
+                        <div class="mb-3">
+                            <div class="text-muted small fw-bold text-uppercase mb-1">Địa chỉ giao hàng</div>
+                            <div class="text-dark fw-medium lh-sm">@Model.ShippingAddress</div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Note))
+                        {
+                            <div class="bg-warning bg-opacity-10 border border-warning border-opacity-25 p-3 rounded-3 mt-3">
+                                <div class="text-warning small fw-bold text-uppercase mb-1 text-center"><i class="bi bi-chat-dots me-1"></i> Ghi chú người mua</div>
+                                <div class="text-dark small lh-sm fw-medium italic text-center">"@Model.Note"</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Right Interaction Panel -->
     <div class="col-lg-4">
-        <!-- Actions Card -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-            <div class="card-header bg-primary text-white p-4">
-                <h5 class="mb-0 fw-bold">Quy trình xử lý</h5>
+        <!-- Action Control Panel -->
+        <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+            <div class="card-header border-0 bg-transparent py-4 ps-4">
+                <h5 class="fw-800 mb-0 text-dark">Quy trình xử lý</h5>
             </div>
-            <div class="card-body p-4">
-                <form asp-action="UpdateStatus" method="post">
-                    <input type="hidden" name="orderId" value="@Model.Id" />
-                    <div class="mb-4">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-3">Cập nhật trạng thái</label>
-                        <select name="status" class="form-select form-select-lg rounded-3 mb-3" @(Model.OrderStatus == "Completed" || Model.OrderStatus == "Cancelled" ? "disabled" : "")>
-                            <option value="Pending" selected=@(Model.OrderStatus == "Pending")>Chờ xử lý</option>
-                            <option value="Processing" selected=@(Model.OrderStatus == "Processing")>Đang xử lý</option>
-                            <option value="Shipping" selected=@(Model.OrderStatus == "Shipping")>Đang giao hàng</option>
-                            <option value="Completed" selected=@(Model.OrderStatus == "Completed")>Hoàn tất đơn hàng</option>
-                            <option value="Cancelled" selected=@(Model.OrderStatus == "Cancelled")>Hủy đơn hàng</option>
-                        </select>
+            <div class="card-body px-4 pt-0 pb-4">
+                <!-- Shipper Payment Verification Card -->
+                <div class="p-3 rounded-4 mb-4 @(Model.PaymentStatus == "Paid" ? "bg-success bg-opacity-10 border border-success border-opacity-25" : "bg-light border")">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-bold text-muted text-uppercase">Xác nhận thanh toán từ Shipper</span>
+                        @if (Model.PaymentStatus == "Paid")
+                        {
+                            <span class="badge bg-success rounded-pill"><i class="bi bi-patch-check me-1"></i> ĐÃ THANH TOÁN</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary rounded-pill">CHƯA XÁC NHẬN</span>
+                        }
+                    </div>
+                    @if (Model.PaymentStatus == "Paid")
+                    {
+                        <div class="text-success small fw-medium">
+                            <i class="bi bi-check-circle-fill me-1"></i> Hệ thống/Shipper đã ghi nhận giao tiền thành công.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-muted small">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Đơn hàng đang chờ nhân viên giao hàng thu tiền.
+                        </div>
+                    }
+                </div>
+
+                <!-- Visual Stepper -->
+                <div class="order-stepper mb-5 ps-2">
+                    <div class="step-row completed">
+                        <div class="step-indicator"><i class="bi bi-check-lg"></i></div>
+                        <div class="step-label text-success">Đã đặt hàng</div>
+                    </div>
+                    <div class="step-row @(GetStepClass(Model.OrderStatus, "Processing"))">
+                        <div class="step-indicator">@Html.Raw(GetStepIcon(Model.OrderStatus, "bi-gear-fill", "Processing"))</div>
+                        <div class="step-label">Đang xử lý</div>
+                    </div>
+                    <div class="step-row @(GetStepClass(Model.OrderStatus, "Shipping", "Shipped"))">
+                        <div class="step-indicator">@Html.Raw(GetStepIcon(Model.OrderStatus, "bi-truck", "Shipping", "Shipped"))</div>
+                        <div class="step-label">Đang giao hàng</div>
+                    </div>
+                    <div class="step-row @(GetStepClass(Model.OrderStatus, "Completed"))">
+                        <div class="step-indicator">@Html.Raw(GetStepIcon(Model.OrderStatus, "bi-check2-circle", "Completed"))</div>
+                        <div class="step-label">Hoàn tất</div>
+                    </div>
+                </div>
+
+                @{
+                    var nextStatus = Model.OrderStatus switch {
+                        "Pending" => "Processing",
+                        "Processing" => "Shipping",
+                        "Shipping" or "Shipped" => "Completed",
+                        _ => ""
+                    };
+
+                    var btnText = nextStatus switch {
+                        "Processing" => "XÁC NHẬN ĐƠN HÀNG",
+                        "Shipping" => "XỬ LÝ XONG - GIAO HÀNG",
+                        "Completed" => "XÁC NHẬN HOÀN TẤT",
+                        _ => "ĐƠN HÀNG ĐÃ KẾT THÚC"
+                    };
+
+                    var btnColor = nextStatus switch {
+                        "Processing" => "btn-primary",
+                        "Shipping" => "btn-info text-white",
+                        "Completed" => "btn-success",
+                        _ => "btn-light disabled"
+                    };
+
+                    bool isCompleteLocked = nextStatus == "Completed";
+                }
+
+                @if (!string.IsNullOrEmpty(nextStatus))
+                {
+                    <form asp-action="UpdateStatus" method="post">
+                        <input type="hidden" name="orderId" value="@Model.Id" />
+                        <input type="hidden" name="status" value="@nextStatus" />
                         
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-2">Ghi chú nội bộ</label>
-                        <textarea name="internalNote" class="form-control rounded-3 mb-3" rows="3" placeholder="Nhập ghi chú chỉ nhân viên thấy...">@Model.InternalNote</textarea>
-|
-                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 @(Model.OrderStatus == "Completed" || Model.OrderStatus == "Cancelled" ? "disabled" : "")">
-                            Cập nhật đơn hàng
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-2">Ghi chú nội bộ</label>
+                            <textarea name="internalNote" class="form-control border-0 shadow-sm rounded-4 p-3 bg-light" rows="2" placeholder="Ghi chú cập nhật...">@Model.InternalNote</textarea>
+                        </div>
+
+                        <button type="submit" class="btn @btnColor w-100 py-3 fw-800 rounded-4 shadow-sm @(isCompleteLocked ? "disabled opacity-50" : "hover-scale")" 
+                                id="btnUpdateStatus" @(isCompleteLocked ? "disabled" : "")>
+                            <i class="bi bi-arrow-right-circle-fill me-2"></i> @btnText
                         </button>
+                        
+                        @if (nextStatus == "Completed")
+                        {
+                            <div class="bg-warning bg-opacity-10 text-warning small mt-3 p-3 rounded-4 fw-bold text-center border border-warning border-opacity-25">
+                                <i class="bi bi-shield-lock-fill me-1"></i> Đơn hàng đang gửi Shipper. Vui lòng chờ Shipper xác nhận giao hàng thành công trên ứng dụng để hoàn tất!
+                            </div>
+                        }
+                    </form>
+                }
+                else if (Model.OrderStatus == "Completed")
+                {
+                    <div class="pt-success-card">
+                        <div class="pt-success-icon">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+                        <h4 class="fw-800 mb-1">HOÀN TẤT</h4>
+                        <p class="small mb-0 opacity-75">Đơn hàng đã giao và thanh toán thành công.</p>
                     </div>
-                </form>
+                }
+                else if (Model.OrderStatus == "Cancelled")
+                {
+                    <div class="pt-danger-card">
+                        <div class="pt-danger-icon">
+                            <i class="bi bi-x-lg"></i>
+                        </div>
+                        <h4 class="fw-800 mb-1">ĐÃ HỦY</h4>
+                        <p class="small mb-0 opacity-75">Đơn hàng đã bị hủy bỏ khỏi hệ thống.</p>
+                    </div>
+                }
             </div>
         </div>
 
-        <!-- Customer & Shipping Info -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <h6 class="fw-bold mb-4 text-primary text-uppercase small">Thông tin nhận hàng</h6>
-                <div class="d-flex align-items-center mb-3">
-                    <div class="bg-light rounded-circle p-2 me-3">
-                        <i class="bi bi-person text-muted"></i>
-                    </div>
-                    <div>
-                        <div class="small fw-bold text-dark">@Model.ReceiverName</div>
-                        <div class="small text-muted">@Model.User?.Email</div>
-                    </div>
+        <!-- History Timeline -->
+        @if (Model.OrderHistories != null && Model.OrderHistories.Any())
+        {
+            <div class="card border-0 shadow-sm border-top-primary">
+                <div class="card-header border-0 bg-transparent py-4 ps-4">
+                    <h5 class="fw-800 mb-0 text-dark"><i class="bi bi-clock-history me-2 text-primary"></i>Lịch sử xử lý</h5>
                 </div>
-                <div class="d-flex align-items-center mb-4">
-                    <div class="bg-light rounded-circle p-2 me-3">
-                        <i class="bi bi-telephone text-muted"></i>
+                <div class="card-body px-4 pt-0 pb-4">
+                    <div class="timeline-modern">
+                        @foreach (var entry in Model.OrderHistories.OrderByDescending(h => h.CreatedAt))
+                        {
+                            <div class="timeline-item-modern @(entry == Model.OrderHistories.OrderByDescending(h => h.CreatedAt).First() ? "active" : "")">
+                                <div class="timeline-time">@entry.CreatedAt.ToString("HH:mm - dd/MM/yyyy")</div>
+                                <div class="timeline-desc fw-bold text-dark">@entry.Action</div>
+                                <div class="text-muted small">@entry.Note</div>
+                                <div class="x-small text-primary fw-bold mt-1">Bởi: @entry.PerformedBy</div>
+                            </div>
+                        }
                     </div>
-                    <div class="small fw-bold text-dark">@Model.PhoneNumber</div>
-                </div>
-                
-                <h6 class="fw-bold mb-3 text-uppercase small text-muted">Địa chỉ giao hàng</h6>
-                <div class="p-3 bg-light rounded-3 small">
-                    @Model.ShippingAddress
                 </div>
             </div>
-        </div>
-
-        <!-- Note Card -->
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body p-4">
-                <h6 class="fw-bold mb-3 text-uppercase small text-muted">Ghi chú khách hàng</h6>
-                <div class="p-3 bg-warning bg-opacity-10 border-start border-warning border-4 rounded-3 small fst-italic">
-                    @(string.IsNullOrEmpty(Model.Note) ? "Không có ghi chú" : Model.Note)
-                </div>
-            </div>
-        </div>
+        }
     </div>
 </div>
 
-<style>
-    .order-stepper .step.active .step-icon { border: 2px solid var(--bs-primary); }
-    .order-stepper::before {
-        content: '';
-        position: absolute;
-        top: 44px;
-        left: 5%;
-        right: 5%;
-        height: 2px;
-        background: #eee;
-        z-index: 0;
+@functions {
+    string GetStatusClass(string status) => status switch {
+        "Pending" => "status-pending",
+        "Processing" or "Confirmed" => "status-processing",
+        "Shipping" or "Shipped" => "status-shipping",
+        "Completed" => "status-completed",
+        "Cancelled" => "status-cancelled",
+        _ => "status-neutral"
+    };
+
+    string GetStatusText(string status) => status switch {
+        "Pending" => "Chờ duyệt",
+        "Processing" => "Đang xử lý",
+        "Shipping" or "Shipped" => "Vận chuyển",
+        "Completed" => "Hoàn tất",
+        "Cancelled" => "Đã hủy",
+        _ => status
+    };
+
+    string GetStepClass(string currentStatus, params string[] targets) {
+        if (targets.Any(t => t == "Processing") && (new[]{"Processing", "Shipping", "Shipped", "Completed"}.Contains(currentStatus))) return "completed";
+        if (targets.Any(t => t == "Shipping") && (new[]{"Shipping", "Shipped", "Completed"}.Contains(currentStatus))) return "completed";
+        if (targets.Any(t => t == "Completed") && currentStatus == "Completed") return "completed";
+        
+        if (targets.Contains(currentStatus)) return "active";
+        return "";
     }
-    .order-stepper .step { z-index: 1; }
-    .order-stepper .step.active ~ .step::before { background: #eee; }
-</style>
+
+    string GetStepIcon(string currentStatus, string iconClass, params string[] targets) {
+        if (GetStepClass(currentStatus, targets) == "completed") return "<i class='bi bi-check-lg'></i>";
+        return $"<i class='bi {iconClass}'></i>";
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --pt-primary: #e30019;
+            --pt-bg: #f8fafc;
+        }
+
+        .fw-800 { font-weight: 800; }
+        .object-fit-contain { object-fit: contain; }
+        .border-top-primary { border-top: 4px solid var(--pt-primary) !important; }
+
+        /* Summary Cards */
+        .summary-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        .summary-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Modern Table */
+        .table-modern thead th {
+            border: none;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 16px 12px;
+        }
+        .table-modern tbody td { padding: 16px 12px; border-bottom: 1px solid #f1f5f9; }
+
+        /* Badges */
+        .badge-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-processing { background-color: #dcfce7; color: #166534; }
+        .status-shipping { background-color: #e0f2fe; color: #075985; }
+        .status-completed { background-color: #dcfce7; color: #166534; }
+        .status-cancelled { background-color: #fee2e2; color: #991b1b; }
+        .status-neutral { background-color: #f1f5f9; color: #475569; }
+
+        /* Order Stepper Vertical */
+        .order-stepper { position: relative; }
+        .step-row { position: relative; padding-bottom: 2.5rem; display: flex; align-items: center; gap: 1.25rem; }
+        .step-row:last-child { padding-bottom: 0; }
+        .step-row::after { content: ''; position: absolute; left: 17px; top: 35px; bottom: -5px; width: 2px; background: #e2e8f0; }
+        .step-row:last-child::after { display: none; }
+        .step-indicator { width: 36px; height: 36px; border-radius: 50%; background: #fff; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: #94a3b8; position: relative; z-index: 2; }
+        .step-label { font-weight: 700; color: #64748b; }
+        
+        .step-row.completed .step-indicator { background: #10b981; border-color: #10b981; color: #fff; }
+        .step-row.completed .step-label { color: #059669; }
+        .step-row.completed::after { background: #10b981; }
+
+        .step-row.active .step-indicator { background: var(--pt-primary); border-color: var(--pt-primary); color: #fff; box-shadow: 0 0 0 4px rgba(227, 0, 25, 0.15); }
+        .step-row.active .step-label { color: var(--pt-primary); }
+
+        /* Timeline */
+        .timeline-modern { position: relative; padding-left: 20px; }
+        .timeline-item-modern { position: relative; padding-bottom: 1.5rem; border-left: 2px solid #f1f5f9; padding-left: 20px; }
+        .timeline-item-modern:last-child { padding-bottom: 0; border-left: none; }
+        .timeline-item-modern::before { content: ''; position: absolute; left: -7px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: #e2e8f0; border: 2px solid #fff; }
+        .timeline-item-modern.active::before { background: var(--pt-primary); }
+        .timeline-time { font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 2px; }
+        .timeline-desc { font-size: 13px; line-height: 1.2; }
+        .x-small { font-size: 0.7rem; }
+
+        .hover-scale { transition: transform 0.2s; }
+        .hover-scale:hover { transform: translateY(-2px); }
+
+        /* Premium Cards */
+        .pt-success-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 1.5rem;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            color: #065f46;
+        }
+        .pt-success-icon {
+            width: 60px;
+            height: 60px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
+        }
+
+        .pt-danger-card {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 1.5rem;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            color: #991b1b;
+        }
+        .pt-danger-icon {
+            width: 60px;
+            height: 60px;
+            background: #e30019;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(227, 0, 25, 0.4);
+        }
+
+        .step-row.active .step-indicator {
+            animation: pulse-red 2s infinite;
+        }
+
+        @@keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(227, 0, 25, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(227, 0, 25, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(227, 0, 25, 0); }
+        }
+    </style>
+}

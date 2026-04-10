@@ -4,6 +4,39 @@
 }
 
 @section Styles {
+    <style>
+        .avatar-circle {
+            width: 45px;
+            height: 45px;
+            background-color: #f1f5f9;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .bg-soft-success { background-color: #dcfce7 !important; }
+        .x-small { font-size: 11px; }
+        .rating-summary-card { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); }
+        .review-img-wrapper {
+            width: 100px;
+            height: 100px;
+            overflow: hidden;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        .review-img-wrapper:hover { transform: scale(1.05); }
+        .review-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .cursor-pointer { cursor: pointer; }
+        .hover-danger:hover { color: #dc3545 !important; }
+    </style>
 }
 
 <div class="main-content-wrapper">
@@ -144,6 +177,89 @@
         </div>
     </div>
 
+    <!-- Review Section -->
+    <div class="product-reviews-section mt-5 py-5 border-top">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h3 class="h4 fw-bold mb-0">Đánh giá & Nhận xét @Model.Name</h3>
+        </div>
+
+        @if (Model.Reviews != null && Model.Reviews.Any())
+        {
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="rating-summary-card p-4 rounded-4 bg-light text-center h-100 d-flex flex-column justify-content-center border-0 shadow-sm">
+                        <div class="display-3 fw-bold text-dark mb-0">@Model.Reviews.Average(r => (double)r.Rating).ToString("0.#")</div>
+                        <div class="text-warning fs-4 mb-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var avg = Model.Reviews.Average(r => (double)r.Rating);
+                                if (i <= Math.Floor(avg)) {
+                                    <i class="fa-solid fa-star"></i>
+                                } else if (i == Math.Ceiling(avg)) {
+                                    <i class="fa-solid fa-star-half-stroke"></i>
+                                } else {
+                                    <i class="fa-regular fa-star"></i>
+                                }
+                            }
+                        </div>
+                        <div class="text-muted small">(@Model.Reviews.Count đánh giá) <i class="fa-solid fa-circle-question ms-1"></i></div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="reviews-list">
+                        @foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedAt))
+                        {
+                            <div class="review-item pb-4 mb-4 border-bottom">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar-circle me-3">@(string.IsNullOrEmpty(review.User?.FullName) ? "U" : review.User.FullName.Substring(0, 1).ToUpper())</div>
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            @{
+                                                var name = review.User?.FullName ?? "Khách hàng";
+                                                var maskedName = name.Length > 4 ? name.Substring(0, 2) + "***" + name.Substring(name.Length - 2) : name;
+                                            }
+                                            <span class="fw-bold text-dark">@maskedName</span>
+                                            <span class="text-muted x-small">| @review.CreatedAt.ToString("dd-MM-yyyy HH:mm:ss")</span>
+                                            <span class="badge bg-soft-success text-success x-small rounded-pill px-2"><i class="fa-solid fa-circle-check me-1"></i> Đã mua hàng</span>
+                                        </div>
+                                        <div class="text-warning small mt-1">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="fa-solid fa-star@(i <= review.Rating ? "" : "-half text-muted opacity-50")"></i>
+                                            }
+                                            <span class="ms-2 text-dark fw-bold small">@GetRatingText(review.Rating)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-content text-dark mb-3 ps-lg-5">
+                                    @review.Comment
+                                </div>
+                                @if (review.ReviewImages != null && review.ReviewImages.Any())
+                                {
+                                    <div class="review-gallery d-flex gap-2 ps-lg-5 flex-wrap">
+                                        @foreach (var img in review.ReviewImages)
+                                        {
+                                            <div class="review-img-wrapper">
+                                                <img src="@img.ImageUrl" class="rounded shadow-sm cursor-pointer" onclick="window.open('@img.ImageUrl', '_blank')" />
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5 bg-light rounded-4">
+                <i class="fa-solid fa-comments text-muted fs-1 mb-3"></i>
+                <p class="text-muted mb-0">Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên đánh giá!</p>
+            </div>
+        }
+    </div>
+
     <!-- Related Products -->
     @if (ViewBag.RelatedProducts != null && ((IEnumerable<PowerTech.Models.Entities.Product>)ViewBag.RelatedProducts).Any())
     {
@@ -160,6 +276,19 @@
         </div>
     }
 </div>
+
+@functions {
+    string GetRatingText(int rating) {
+        return rating switch {
+            1 => "Rất không hài lòng",
+            2 => "Không hài lòng",
+            3 => "Bình thường",
+            4 => "Hài lòng",
+            5 => "Cực kỳ hài lòng",
+            _ => ""
+        };
+    }
+}
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

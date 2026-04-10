@@ -19,43 +19,72 @@ namespace PowerTech.Areas.Warehouse.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm, int? categoryId)
+        public async Task<IActionResult> Index(string? searchTerm, int? categoryId, string? status)
         {
             var query = _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Brand)
-                .OrderBy(p => p.StockQuantity)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(searchTerm))
+            // 1. Lọc theo trạng thái tồn kho
+            if (status == "low")
             {
-                query = query.Where(p => p.Name.Contains(searchTerm) || p.SKU.Contains(searchTerm));
+                query = query.Where(p => p.StockQuantity > 0 && p.StockQuantity <= LowStockThreshold);
+            }
+            else if (status == "out")
+            {
+                query = query.Where(p => p.StockQuantity == 0);
             }
 
+            // 2. Lọc theo danh mục
             if (categoryId.HasValue)
             {
                 query = query.Where(p => p.CategoryId == categoryId.Value);
             }
 
-            var products = await query.ToListAsync();
+            // 3. Lọc theo từ khóa
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(p => p.Name.Contains(searchTerm) || p.SKU.Contains(searchTerm));
+            }
+
+            var products = await query.OrderBy(p => p.StockQuantity).ToListAsync();
+            
             ViewBag.Categories = await _context.Categories.ToListAsync();
             ViewBag.SearchTerm = searchTerm;
             ViewBag.CategoryId = categoryId;
+            ViewBag.Status = status;
             ViewBag.LowStockThreshold = LowStockThreshold;
 
             return View(products);
         }
 
-        public async Task<IActionResult> LowStock()
+        [HttpGet]
+        public async Task<IActionResult> SearchProducts(string searchTerm)
         {
+            if (string.IsNullOrEmpty(searchTerm) || searchTerm.Length < 1)
+            {
+                return Json(new List<object>());
+            }
+
             var products = await _context.Products
                 .Include(p => p.Category)
-                .Where(p => p.StockQuantity <= LowStockThreshold)
-                .OrderBy(p => p.StockQuantity)
+                .Where(p => p.Name.Contains(searchTerm) || 
+                            p.SKU.Contains(searchTerm) || 
+                            p.Category.Name.Contains(searchTerm))
+                .Select(p => new
+                {
+                    id = p.Id,
+                    name = p.Name,
+                    sku = p.SKU,
+                    thumbnailUrl = p.ThumbnailUrl,
+                    stockQuantity = p.StockQuantity,
+                    category = p.Category.Name
+                })
+                .Take(50)
                 .ToListAsync();
 
-            ViewBag.LowStockThreshold = LowStockThreshold;
-            return View("Index", products);
+            return Json(products);
         }
 
         public async Task<IActionResult> History()

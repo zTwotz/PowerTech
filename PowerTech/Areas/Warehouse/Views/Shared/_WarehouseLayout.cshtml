@@ -1,50 +1,12 @@
 @{
-    Layout = "/Views/Shared/_Layout.cshtml";
+    Layout = "/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid py-4 min-vh-100 bg-light">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-lg-2 mb-4">
-            <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 100px;">
-                <div class="card-body p-0">
-                    <div class="p-3 border-bottom bg-dark rounded-top-4 text-white">
-                        <h6 class="fw-bold mb-0 text-white">WAREHOUSE</h6>
-                        <small class="text-white-50 small">Bộ phận kho vận</small>
-                    </div>
-                    <div class="list-group list-group-flush rounded-bottom-4">
-                        <a asp-area="Warehouse" asp-controller="Home" asp-action="Index" 
-                           class="list-group-item list-group-item-action py-3 border-0 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "bg-dark text-white active fw-bold border-start border-primary border-4" : "") text-dark">
-                            <i class="bi bi-grid-1x2 me-2"></i> Tổng quan
-                        </a>
-                        <a asp-area="Warehouse" asp-controller="Inventory" asp-action="Index" 
-                           class="list-group-item list-group-item-action py-3 border-0 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Inventory" ? "bg-dark text-white active fw-bold border-start border-primary border-4" : "") text-dark">
-                            <i class="bi bi-box-seam me-2"></i> Tồn kho
-                        </a>
-                        <a asp-area="Warehouse" asp-controller="Inventory" asp-action="LowStock" 
-                           class="list-group-item list-group-item-action py-3 border-0 text-dark">
-                            <i class="bi bi-exclamation-triangle me-2 text-danger"></i> Sắp hết hàng
-                        </a>
-                        <a asp-area="Warehouse" asp-controller="Inventory" asp-action="History" 
-                           class="list-group-item list-group-item-action py-3 border-0 @(ViewContext.RouteData.Values["action"]?.ToString() == "History" ? "bg-dark text-white active fw-bold border-start border-primary border-4" : "") text-dark">
-                            <i class="bi bi-clock-history me-2"></i> Lịch sử biến động
-                        </a>
-                    </div>
-                    <div class="p-3 bg-light rounded-bottom-4">
-                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm w-100">
-                            <i class="bi bi-arrow-left me-1"></i> Về cửa hàng
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+@RenderBody()
 
-        <!-- Main Content -->
-        <div class="col-lg-10">
-            @RenderBody()
-        </div>
-    </div>
-</div>
+@section Styles {
+    @await RenderSectionAsync("Styles", required: false)
+}
 
 @section Scripts {
     @await RenderSectionAsync("Scripts", required: false)
